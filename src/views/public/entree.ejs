@@ -47,7 +47,7 @@
 
   .entree__pied {
     position: absolute; bottom: 24px; left: 0; right: 0; z-index: 2;
-    font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: #5d738a; animation: entreeApparait 1.6s 1.2s both;
+    padding: 0 20px; font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: #5d738a; animation: entreeApparait 1.6s 1.2s both;
   }
   .entree__pied a { color: #7e9bb6; }
   .entree__pied a:hover { color: var(--silver); }
@@ -59,6 +59,7 @@
   @keyframes entreeSort { to { opacity: 0; transform: scale(1.05); } }
 
   @media (max-height: 860px) { .entree__logo { width: min(290px, 48vw); } .entree__eyebrow { margin-top: 22px; } .entree__sous { margin-bottom: 28px; } }
+  @media (max-width: 460px) { .entree__pied { letter-spacing: .16em; font-size: .58rem; } }
   @media (max-height: 700px) { .entree__logo { width: min(215px, 40vw); } .entree__titre { font-size: clamp(48px, 9vw, 76px); } }
   @media (prefers-reduced-motion: reduce) {
     .entree__logo, .entree__eyebrow, .entree__titre, .entree__devise, .entree__sous, .entree__btn, .entree__pied { animation: none; }
@@ -71,7 +72,7 @@
 
   <div class="entree__inner">
     <img class="entree__logo" src="/static/img/logo.png" alt="Emblème de la 6AM" width="400" height="400">
-    <p class="entree__eyebrow">Los Santos · <%= site.tagline %></p>
+    <p class="entree__eyebrow"><%= site.tagline %></p>
     <h1 class="entree__titre"><%= site.name %><span>.</span></h1>
     <p class="entree__devise">« Pendant qu’ils dorment, nous préparons demain. »</p>
     <p class="entree__sous">Loyauté · Respect · Patience</p>

@@ -3,8 +3,17 @@ const router = require('express').Router();
 const db = require('../db/knex');
 const { wrap } = require('../lib/helpers');
 
+// --- Page d'entree : emblème et bouton Entrer ---
+router.get('/', (req, res) => {
+  res.render('public/entree', {
+    title: res.locals.site.name,
+    bodyClass: 'page-entree',
+    plein: true,          // ni en-tete ni pied de page
+  });
+});
+
 // --- Accueil : page unique, toutes les sections ---
-router.get('/', wrap(async (req, res) => {
+router.get('/accueil', wrap(async (req, res) => {
   const members = await db('members')
     .leftJoin('ranks', 'members.rank_id', 'ranks.id')
     .where('members.status', 'active')
@@ -22,14 +31,14 @@ router.get('/', wrap(async (req, res) => {
 
 // --- Anciennes pages : tout vit desormais sur l'accueil ---
 const ANCRES = {
-  '/histoire': '/#histoire',
-  '/serveur': '/#histoire',
-  '/le-code': '/#code',
-  '/reglement': '/#code',
-  '/famille': '/#famille',
-  '/effectifs': '/#famille',
-  '/rejoindre': '/#rejoindre',
-  '/projets': '/#projets',
+  '/histoire': '/accueil#histoire',
+  '/serveur': '/accueil#histoire',
+  '/le-code': '/accueil#code',
+  '/reglement': '/accueil#code',
+  '/famille': '/accueil#famille',
+  '/effectifs': '/accueil#famille',
+  '/rejoindre': '/accueil#rejoindre',
+  '/projets': '/accueil#projets',
 };
 for (const [depuis, vers] of Object.entries(ANCRES)) {
   router.get(depuis, (req, res) => res.redirect(301, vers));

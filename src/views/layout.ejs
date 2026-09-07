@@ -17,11 +17,12 @@
   <%- style %>
 </head>
 <body class="<%= bodyClass %>">
-  <%- include('partials/header') %>
+  <% var nu = locals.plein === true; // page pleine : ni en-tete ni pied de page %>
+  <% if (!nu) { %><%- include('partials/header') %><% } %>
   <main>
     <%- body %>
   </main>
-  <%- include('partials/footer') %>
+  <% if (!nu) { %><%- include('partials/footer') %><% } %>
   <script src="/static/js/app.js" defer></script>
   <%- script %>
 </body>

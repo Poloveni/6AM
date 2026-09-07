@@ -1,6 +1,6 @@
 <%
   // Sur l'accueil les liens sont de simples ancres ; ailleurs ils y ramenent.
-  var base = currentPath === '/' ? '' : '/';
+  var base = currentPath === '/accueil' ? '' : '/accueil';
   var ancres = [
     ['histoire',    'Histoire'],
     ['code',        'Code'],
@@ -13,7 +13,7 @@
 %>
 <header class="site-header" id="site-header">
   <div class="wrap">
-    <a class="brand" href="/">
+    <a class="brand" href="/accueil">
       <img src="/static/img/logo.png" alt="<%= site.name %>" width="36" height="36">
       <span class="brand-text"><%= site.name %></span>
     </a>

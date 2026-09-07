@@ -67,12 +67,20 @@ rollback() {
 log "Verifications"
 [ -f "$DYN_COMPOSE" ] || die "$DYN_COMPOSE introuvable"
 [ -f "$DYN_DIR/Caddyfile" ] || die "$DYN_DIR/Caddyfile introuvable"
-docker inspect vps-caddy-1 >/dev/null 2>&1 || die "Le conteneur vps-caddy-1 ne tourne pas ; rien a migrer."
-docker volume inspect vps_caddy_data >/dev/null 2>&1 || die "Volume vps_caddy_data introuvable"
-
-if [ -d "$PROXY_DIR" ] && [ -f "$PROXY_DIR/docker-compose.yml" ]; then
-  die "$PROXY_DIR existe deja. Migration deja faite ? (retour arriere : $0 --rollback)"
+# La migration a-t-elle deja ete faite ? On le verifie AVANT tout le reste,
+# sinon un second lancement afficherait un message hors sujet.
+if [ -f "$PROXY_DIR/docker-compose.yml" ]; then
+  if docker inspect proxy-caddy >/dev/null 2>&1; then
+    log "Migration deja effectuee : le proxy tourne dans $PROXY_DIR."
+    echo "    Recharger apres modification : $PROXY_DIR/recharger.sh"
+    echo "    Revenir en arriere           : sudo bash $0 --rollback"
+    exit 0
+  fi
+  die "$PROXY_DIR existe mais le conteneur proxy-caddy est absent. Verifie a la main : cd $PROXY_DIR && docker compose up -d"
 fi
+
+docker inspect vps-caddy-1 >/dev/null 2>&1 || die "Ni proxy-caddy ni vps-caddy-1 ne tournent : aucun reverse proxy actif, rien a migrer."
+docker volume inspect vps_caddy_data >/dev/null 2>&1 || die "Volume vps_caddy_data introuvable"
 
 NET=vps_default
 docker network inspect "$NET" >/dev/null 2>&1 || die "Reseau $NET introuvable"

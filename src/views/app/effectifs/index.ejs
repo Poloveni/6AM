@@ -1,0 +1,65 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../../partials/sidenav') %>
+    <div>
+      <%- include('../../partials/flash') %>
+      <div class="page-head">
+        <h1>Effectifs</h1>
+        <span class="spacer"></span>
+        <% if (h.roleAtLeast(user.role, 'staff')) { %>
+          <a class="btn btn-primary btn-sm" href="/espace/effectifs/nouveau">Nouvelle recrue</a>
+        <% } %>
+      </div>
+
+      <div class="toolbar">
+        <div class="chips">
+          <% [['active','En service'],['leave','En conge'],['fired','Licencies'],['resigned','Demissions']].forEach(function (s) { %>
+            <a class="chip <%= status === s[0] ? 'is-active' : '' %>" href="/espace/effectifs?statut=<%= s[0] %>">
+              <%= s[1] %> <span class="muted">(<%= counts[s[0]] || 0 %>)</span>
+            </a>
+          <% }); %>
+        </div>
+        <span class="spacer" style="margin-left:auto"></span>
+        <form method="get" style="display:flex;gap:8px">
+          <input type="hidden" name="statut" value="<%= status %>">
+          <input type="text" name="q" value="<%= search %>" placeholder="Rechercher..." style="width:210px">
+          <button class="btn btn-sm" type="submit">Chercher</button>
+        </form>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nom RP</th>
+              <th>Grade</th>
+              <th>Discord</th>
+              <th>Arrivee</th>
+              <th>Statut</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!members.length) { %>
+              <tr><td colspan="6" class="muted center">Aucun membre dans cette categorie.</td></tr>
+            <% } %>
+            <% members.forEach(function (m) { %>
+              <tr>
+                <td><a href="/espace/effectifs/<%= m.id %>"><%= m.rp_name %></a></td>
+                <td>
+                  <% if (m.rank_name) { %>
+                    <span class="badge" style="color:<%= m.rank_color %>"><span class="dot"></span><%= m.rank_name %></span>
+                  <% } else { %><span class="muted">—</span><% } %>
+                </td>
+                <td class="muted"><%= m.discord_tag || '—' %></td>
+                <td class="muted"><%= h.formatDate(m.hired_at, site.locale) %></td>
+                <td><span class="badge badge-<%= m.status %>"><span class="dot"></span><%= h.STATUS_LABELS[m.status] %></span></td>
+                <td class="num"><a class="btn btn-sm btn-ghost" href="/espace/effectifs/<%= m.id %>">Fiche</a></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

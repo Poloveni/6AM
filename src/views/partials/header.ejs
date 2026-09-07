@@ -1,0 +1,23 @@
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <img src="/static/img/logo.png" alt="<%= site.name %>" width="36" height="36">
+      <span class="brand-text"><%= site.name %></span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu">&#9776;</button>
+
+    <nav class="nav">
+      <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Accueil</a>
+      <a href="/serveur" class="<%= currentPath === '/serveur' ? 'is-active' : '' %>">Le serveur</a>
+      <a href="/effectifs" class="<%= currentPath === '/effectifs' ? 'is-active' : '' %>">Effectifs</a>
+      <a href="/reglement" class="<%= currentPath === '/reglement' ? 'is-active' : '' %>">Reglement</a>
+      <a href="/rejoindre" class="<%= currentPath === '/rejoindre' ? 'is-active' : '' %>">Nous rejoindre</a>
+      <% if (user) { %>
+        <a href="/espace" class="<%= currentPath.startsWith('/espace') ? 'is-active' : '' %>">Espace membres</a>
+      <% } else { %>
+        <a href="/connexion" class="<%= currentPath === '/connexion' ? 'is-active' : '' %>">Connexion</a>
+      <% } %>
+    </nav>
+  </div>
+</header>

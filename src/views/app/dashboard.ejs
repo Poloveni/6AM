@@ -1,0 +1,68 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../partials/sidenav') %>
+    <div>
+      <%- include('../partials/flash') %>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Bonjour <%= user.rp_name || user.username %></p>
+          <h1>Tableau de bord</h1>
+        </div>
+        <span class="spacer"></span>
+        <a class="btn btn-sm" href="/espace/activite">Saisir une activite</a>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom:26px">
+        <div class="card stat">
+          <div class="stat-value"><%= kpi.active %></div>
+          <div class="stat-label">En service</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-value"><%= kpi.onLeave %></div>
+          <div class="stat-label">En conge</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-value"><%= Math.round(kpi.minutes / 60) %> h</div>
+          <div class="stat-label">Service · 30 j</div>
+        </div>
+        <div class="card stat">
+          <div class="stat-value"><%= h.formatMoney(kpi.amount) %></div>
+          <div class="stat-label">Chiffre · 30 j</div>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Mon activite · 30 jours</h3>
+          <% if (mine) { %>
+            <div class="bar-row"><span class="muted">Temps de service</span><span></span><span class="num"><%= h.formatDuration(mine.minutes) %></span></div>
+            <div class="bar-row"><span class="muted">Actions</span><span></span><span class="num"><%= mine.actions %></span></div>
+            <div class="bar-row"><span class="muted">Chiffre</span><span></span><span class="num"><%= h.formatMoney(mine.amount) %></span></div>
+            <a class="btn btn-sm btn-ghost" href="/espace/activite" style="margin-top:10px">Voir le detail</a>
+          <% } else { %>
+            <p class="muted" style="margin:0">Aucune fiche effectif n'est liee a ton compte. Demande a un administrateur de faire le lien.</p>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <h3>Derniers mouvements</h3>
+          <% if (!events.length) { %>
+            <p class="muted" style="margin:0">Aucun mouvement enregistre.</p>
+          <% } else { %>
+            <ul class="timeline" style="margin-top:14px">
+              <% events.forEach(function (e) { %>
+                <li>
+                  <div class="t-head">
+                    <span class="t-type"><%= h.EVENT_LABELS[e.type] || e.type %></span>
+                    <span class="t-date"><%= h.formatDateTime(e.created_at, site.locale) %></span>
+                  </div>
+                  <div class="t-body"><%= e.rp_name || 'Fiche supprimee' %><%= e.reason ? ' — ' + e.reason : '' %></div>
+                </li>
+              <% }); %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

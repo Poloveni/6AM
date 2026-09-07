@@ -1,0 +1,17 @@
+<nav class="side-nav">
+  <span class="group-label">Espace</span>
+  <a href="/espace" class="<%= currentPath === '/espace' ? 'is-active' : '' %>">Tableau de bord</a>
+  <a href="/espace/effectifs" class="<%= currentPath.startsWith('/espace/effectifs') ? 'is-active' : '' %>">Effectifs</a>
+  <a href="/espace/activite" class="<%= currentPath.startsWith('/espace/activite') ? 'is-active' : '' %>">Activite</a>
+  <a href="/espace/statistiques" class="<%= currentPath.startsWith('/espace/statistiques') ? 'is-active' : '' %>">Statistiques</a>
+
+  <% if (user && user.role === 'admin') { %>
+    <span class="group-label">Administration</span>
+    <a href="/espace/administration" class="<%= currentPath === '/espace/administration' ? 'is-active' : '' %>">Comptes</a>
+    <a href="/espace/administration/grades" class="<%= currentPath.startsWith('/espace/administration/grades') ? 'is-active' : '' %>">Grades</a>
+    <a href="/espace/administration/contenu" class="<%= currentPath.startsWith('/espace/administration/contenu') ? 'is-active' : '' %>">Contenu du site</a>
+  <% } %>
+
+  <span class="group-label">Compte</span>
+  <a href="/espace/mon-compte" class="<%= currentPath === '/espace/mon-compte' ? 'is-active' : '' %>">Mon compte</a>
+</nav>

@@ -1,0 +1,40 @@
+<section class="section">
+  <div class="wrap" style="max-width:860px">
+    <div class="section-head center">
+      <p class="eyebrow">Candidature</p>
+      <h1>Nous rejoindre</h1>
+      <p class="muted">Trois etapes, une quinzaine de minutes.</p>
+    </div>
+
+    <div class="grid grid-3">
+      <div class="card">
+        <p class="eyebrow" style="margin-bottom:.4rem">Etape 1</p>
+        <h3>Le Discord</h3>
+        <p class="muted" style="margin:0">Rejoins le serveur Discord et lis les salons d'information.</p>
+      </div>
+      <div class="card">
+        <p class="eyebrow" style="margin-bottom:.4rem">Etape 2</p>
+        <h3>L'entretien</h3>
+        <p class="muted" style="margin:0">Un membre du staff valide ton background et repond a tes questions.</p>
+      </div>
+      <div class="card">
+        <p class="eyebrow" style="margin-bottom:.4rem">Etape 3</p>
+        <h3>La connexion</h3>
+        <p class="muted" style="margin:0">Whitelist activee, tu peux entrer en ville et commencer ton histoire.</p>
+      </div>
+    </div>
+
+    <div class="card center" style="margin-top:28px;padding:40px 24px">
+      <div class="hero-actions">
+        <% if (links.discord) { %>
+          <a class="btn btn-primary" href="<%= links.discord %>" target="_blank" rel="noopener">Rejoindre le Discord</a>
+        <% } else { %>
+          <span class="muted">Lien Discord a renseigner dans le fichier .env (DISCORD_INVITE).</span>
+        <% } %>
+        <% if (links.fivem) { %>
+          <a class="btn" href="<%= links.fivem %>">Se connecter au serveur</a>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</section>

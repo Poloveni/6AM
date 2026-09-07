@@ -1,0 +1,31 @@
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow"><%= total %> membre<%= total > 1 ? 's' : '' %> en service</p>
+      <h1>Effectifs</h1>
+      <p class="muted">Les membres actifs de <%= site.name %>, classes par grade.</p>
+    </div>
+
+    <% if (!groups.length) { %>
+      <div class="card center muted">Aucun effectif publie pour le moment.</div>
+    <% } %>
+
+    <% groups.forEach(function (group) { %>
+      <div class="roster-group">
+        <div class="roster-title">
+          <span class="badge" style="color:<%= group.color %>"><span class="dot"></span><%= group.name %></span>
+          <span class="line"></span>
+          <span class="muted" style="font-size:.8rem"><%= group.members.length %></span>
+        </div>
+        <div class="roster-grid">
+          <% group.members.forEach(function (m) { %>
+            <div class="roster-card">
+              <span class="avatar"><%= (m.rp_name || '?').trim().charAt(0).toUpperCase() %></span>
+              <span><%= m.rp_name %></span>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</section>

@@ -1,0 +1,33 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../partials/sidenav') %>
+    <div>
+      <%- include('../partials/flash') %>
+      <div class="page-head"><h1>Contenu du site</h1></div>
+
+      <div class="card">
+        <form method="post" action="/espace/administration/contenu">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="field">
+            <label for="home_headline">Titre de l'accueil</label>
+            <input id="home_headline" name="home_headline" type="text" value="<%= values.home_headline || '' %>">
+          </div>
+          <div class="field">
+            <label for="home_subline">Sous-titre de l'accueil</label>
+            <input id="home_subline" name="home_subline" type="text" value="<%= values.home_subline || '' %>">
+          </div>
+          <div class="field">
+            <label for="about_text">Presentation du serveur</label>
+            <textarea id="about_text" name="about_text"><%= values.about_text || '' %></textarea>
+          </div>
+          <div class="field">
+            <label for="rules_text">Reglement</label>
+            <textarea id="rules_text" name="rules_text" style="min-height:260px"><%= values.rules_text || '' %></textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">Enregistrer</button>
+        </form>
+      </div>
+      <p class="help">Le nom du serveur, les liens Discord/FiveM et les couleurs se configurent dans le fichier <code>.env</code>.</p>
+    </div>
+  </div>
+</div>

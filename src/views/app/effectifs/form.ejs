@@ -1,0 +1,67 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../../partials/sidenav') %>
+    <div>
+      <div class="page-head"><h1><%= isNew ? 'Nouvelle recrue' : 'Modifier la fiche' %></h1></div>
+
+      <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+      <div class="card">
+        <form method="post" action="<%= isNew ? '/espace/effectifs/nouveau' : '/espace/effectifs/' + member.id + '/modifier' %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div class="form-row">
+            <div class="field">
+              <label for="rp_name">Nom RP *</label>
+              <input id="rp_name" name="rp_name" type="text" value="<%= member.rp_name || '' %>" required>
+            </div>
+            <% if (isNew) { %>
+              <div class="field">
+                <label for="rank_id">Grade</label>
+                <select id="rank_id" name="rank_id">
+                  <option value="">Sans grade</option>
+                  <% ranks.forEach(function (r) { %>
+                    <option value="<%= r.id %>" <%= String(member.rank_id) === String(r.id) ? 'selected' : '' %>><%= r.name %></option>
+                  <% }); %>
+                </select>
+              </div>
+            <% } %>
+            <div class="field">
+              <label for="hired_at">Date d'arrivee</label>
+              <input id="hired_at" name="hired_at" type="date" value="<%= member.hired_at || '' %>">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label for="discord_tag">Pseudo Discord</label>
+              <input id="discord_tag" name="discord_tag" type="text" value="<%= member.discord_tag || '' %>">
+            </div>
+            <div class="field">
+              <label for="discord_id">ID Discord</label>
+              <input id="discord_id" name="discord_id" type="text" value="<%= member.discord_id || '' %>" placeholder="123456789012345678">
+            </div>
+            <div class="field">
+              <label for="phone">Telephone RP</label>
+              <input id="phone" name="phone" type="text" value="<%= member.phone || '' %>">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="notes">Notes internes</label>
+            <textarea id="notes" name="notes"><%= member.notes || '' %></textarea>
+          </div>
+
+          <label class="check">
+            <input type="checkbox" name="public_listed" <%= member.public_listed ? 'checked' : '' %>>
+            Afficher ce membre sur la page publique des effectifs
+          </label>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><%= isNew ? 'Ajouter aux effectifs' : 'Enregistrer' %></button>
+            <a class="btn btn-ghost" href="<%= isNew ? '/espace/effectifs' : '/espace/effectifs/' + member.id %>">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,42 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../partials/sidenav') %>
+    <div>
+      <div class="page-head"><h1>Mon compte</h1></div>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Informations</h3>
+          <div class="bar-row"><span class="muted">Identifiant</span><span></span><span class="num"><%= user.username %></span></div>
+          <div class="bar-row"><span class="muted">Email</span><span></span><span class="num"><%= user.email %></span></div>
+          <div class="bar-row"><span class="muted">Role</span><span></span><span class="num"><%= user.role %></span></div>
+          <div class="bar-row"><span class="muted">Fiche RP</span><span></span><span class="num"><%= user.rp_name || '—' %></span></div>
+          <div class="bar-row"><span class="muted">Grade</span><span></span><span class="num"><%= user.rank_name || '—' %></span></div>
+        </div>
+
+        <div class="card">
+          <h3>Changer de mot de passe</h3>
+          <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+          <% if (success) { %><div class="alert alert-success"><%= success %></div><% } %>
+          <form method="post" action="/espace/mon-compte">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="field">
+              <label for="current_password">Mot de passe actuel</label>
+              <input id="current_password" name="current_password" type="password" required autocomplete="current-password">
+            </div>
+            <div class="field">
+              <label for="new_password">Nouveau mot de passe</label>
+              <input id="new_password" name="new_password" type="password" required minlength="10" autocomplete="new-password">
+              <p class="help">10 caracteres minimum.</p>
+            </div>
+            <div class="field">
+              <label for="confirm_password">Confirmation</label>
+              <input id="confirm_password" name="confirm_password" type="password" required autocomplete="new-password">
+            </div>
+            <button class="btn btn-primary" type="submit">Mettre a jour</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<section class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <div class="hero-emblem" aria-hidden="true"></div>
+    <img class="hero-fallback" src="/static/img/logo.png" alt="<%= site.name %>">
+    <p class="eyebrow"><%= site.tagline %></p>
+    <h1><%= settings.home_headline || ('Bienvenue sur ' + site.name) %></h1>
+    <p class="hero-sub"><%= settings.home_subline || site.description %></p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="/rejoindre">Rejoindre la ville</a>
+      <a class="btn" href="/serveur">Decouvrir le serveur</a>
+    </div>
+  </div>
+  <span class="hero-scroll">Defiler</span>
+</section>
+
+<hr class="divider">
+
+<section class="section">
+  <div class="wrap">
+    <div class="grid grid-3">
+      <div class="card stat">
+        <div class="stat-value"><%= stats.members %></div>
+        <div class="stat-label">Membres actifs</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-value"><%= stats.staff %></div>
+        <div class="stat-label">Membres du staff</div>
+      </div>
+      <div class="card stat">
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">Ville ouverte</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="grid grid-2" style="align-items:center;gap:44px">
+      <div>
+        <p class="eyebrow">Le serveur</p>
+        <h2>Une ville qui ne dort jamais</h2>
+        <p class="muted" style="white-space:pre-line"><%= settings.about_text || site.description %></p>
+        <a class="btn btn-ghost" href="/serveur">En savoir plus</a>
+      </div>
+      <div class="grid" style="gap:14px">
+        <div class="card card-hover">
+          <h3>Roleplay serieux</h3>
+          <p class="muted" style="margin:0">Un cadre exigeant mais accessible : les scenes priment sur le gain, et chaque personnage a une histoire qui compte.</p>
+        </div>
+        <div class="card card-hover">
+          <h3>Entreprises jouables</h3>
+          <p class="muted" style="margin:0">Societes, factions et administrations gerees par les joueurs, avec des effectifs et une hierarchie reelle.</p>
+        </div>
+        <div class="card card-hover">
+          <h3>Staff present</h3>
+          <p class="muted" style="margin:0">Une equipe disponible, des decisions expliquees et un suivi des signalements.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="card center" style="padding:52px 26px">
+      <p class="eyebrow">Candidatures ouvertes</p>
+      <h2>Prends ta place dans <%= site.name %></h2>
+      <p class="muted" style="max-width:520px;margin:0 auto 26px">
+        Rejoins le Discord, passe l'entretien, et connecte-toi. Tout commence a 6 heures du matin.
+      </p>
+      <div class="hero-actions">
+        <% if (links.discord) { %><a class="btn btn-primary" href="<%= links.discord %>" target="_blank" rel="noopener">Rejoindre le Discord</a><% } %>
+        <a class="btn" href="/reglement">Lire le reglement</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script type="module" src="/static/js/hero.js"></script>

@@ -14,6 +14,7 @@
   <link rel="apple-touch-icon" href="/static/img/logo.png">
   <link rel="stylesheet" href="/static/css/style.css">
   <% if (!currentPath.startsWith('/espace')) { %><link rel="stylesheet" href="/static/css/vitrine.css?v=6am-1"><% } %>
+  <% if (currentPath.startsWith('/espace')) { %><link rel="stylesheet" href="/static/css/espace.css?v=6am-1"><% } %>
   <%- style %>
 </head>
 <body class="<%= bodyClass %>">
@@ -24,6 +25,7 @@
   </main>
   <% if (!nu) { %><%- include('partials/footer') %><% } %>
   <script src="/static/js/app.js" defer></script>
+  <% if (currentPath.startsWith('/espace')) { %><script src="/static/js/espace.js" defer></script><% } %>
   <%- script %>
 </body>
 </html>

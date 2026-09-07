@@ -9,7 +9,7 @@
           <h1>Tableau de bord</h1>
         </div>
         <span class="spacer"></span>
-        <a class="btn btn-sm" href="/espace/activite">Saisir une activite</a>
+        <a class="btn btn-sm btn-primary" href="/espace/activite">Saisir une activité</a>
       </div>
 
       <div class="grid grid-4" style="margin-bottom:26px">
@@ -19,7 +19,7 @@
         </div>
         <div class="card stat">
           <div class="stat-value"><%= kpi.onLeave %></div>
-          <div class="stat-label">En conge</div>
+          <div class="stat-label">En congé</div>
         </div>
         <div class="card stat">
           <div class="stat-value"><%= Math.round(kpi.minutes / 60) %> h</div>
@@ -33,21 +33,63 @@
 
       <div class="grid grid-2">
         <div class="card">
-          <h3>Mon activite · 30 jours</h3>
+          <h3>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            Mon activité · 30 jours
+          </h3>
           <% if (mine) { %>
-            <div class="bar-row"><span class="muted">Temps de service</span><span></span><span class="num"><%= h.formatDuration(mine.minutes) %></span></div>
-            <div class="bar-row"><span class="muted">Actions</span><span></span><span class="num"><%= mine.actions %></span></div>
-            <div class="bar-row"><span class="muted">Chiffre</span><span></span><span class="num"><%= h.formatMoney(mine.amount) %></span></div>
-            <a class="btn btn-sm btn-ghost" href="/espace/activite" style="margin-top:10px">Voir le detail</a>
+            <div class="metrics">
+              <div class="metric">
+                <span class="metric__icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg></span>
+                <span class="metric__label">Temps de service</span>
+                <span class="metric__value"><%= h.formatDuration(mine.minutes) %></span>
+              </div>
+              <div class="metric">
+                <span class="metric__icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 18V9M10 18V5M16 18v-6M22 18h-20"/></svg></span>
+                <span class="metric__label">Actions</span>
+                <span class="metric__value"><%= mine.actions %></span>
+              </div>
+              <div class="metric">
+                <span class="metric__icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3v18M16 7.5c0-1.7-1.8-2.5-4-2.5s-4 .8-4 2.5S9.8 10 12 10s4 .9 4 2.6-1.8 2.6-4 2.6-4-.9-4-2.6"/></svg></span>
+                <span class="metric__label">Chiffre</span>
+                <span class="metric__value"><%= h.formatMoney(mine.amount) %></span>
+              </div>
+            </div>
+            <a class="btn btn-sm btn-ghost" href="/espace/activite" style="margin-top:16px">Voir le détail</a>
+            <div class="spark" aria-hidden="true">
+              <svg viewBox="0 0 320 62" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="sparkFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#5f98d6" stop-opacity=".18"/>
+                    <stop offset="100%" stop-color="#5f98d6" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 48 L40 42 L80 46 L120 33 L160 38 L200 24 L240 30 L280 17 L320 22 L320 62 L0 62 Z" fill="url(#sparkFill)"/>
+                <path d="M0 48 L40 42 L80 46 L120 33 L160 38 L200 24 L240 30 L280 17 L320 22" fill="none" stroke="rgba(140,190,235,.35)" stroke-width="1.2"/>
+              </svg>
+            </div>
           <% } else { %>
-            <p class="muted" style="margin:0">Aucune fiche effectif n'est liee a ton compte. Demande a un administrateur de faire le lien.</p>
+            <div class="vide">
+              <span class="vide__rond"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M16 19a4 4 0 0 0-8 0"/><circle cx="12" cy="10" r="3.2"/><circle cx="12" cy="12" r="9"/></svg></span>
+              <p>Aucune fiche d’effectif n’est liée à ton compte.</p>
+              <small>Un administrateur peut faire le lien depuis ta fiche.</small>
+              <span class="vide__trait"></span>
+            </div>
           <% } %>
         </div>
 
         <div class="card">
-          <h3>Derniers mouvements</h3>
+          <h3>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3v18"/><circle cx="12" cy="8" r="2.2"/><circle cx="12" cy="16" r="2.2"/></svg>
+            Derniers mouvements
+          </h3>
           <% if (!events.length) { %>
-            <p class="muted" style="margin:0">Aucun mouvement enregistre.</p>
+            <div class="vide">
+              <span class="vide__rond"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M5 6h14M5 12h9M5 18h5"/></svg></span>
+              <p>Aucun mouvement enregistré.</p>
+              <small>Embauches, promotions et départs apparaîtront ici.</small>
+              <span class="vide__trait"></span>
+            </div>
           <% } else { %>
             <ul class="timeline" style="margin-top:14px">
               <% events.forEach(function (e) { %>

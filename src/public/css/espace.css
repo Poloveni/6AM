@@ -1,0 +1,385 @@
+/* ==========================================================================
+   6AM — Espace membres
+   Couche purement visuelle, chargee uniquement sur /espace et entierement
+   portee par `.page-app` : aucun style du site public n'est touche, aucune
+   regle existante n'est supprimee. Tout est en CSS, sans dependance.
+   ========================================================================== */
+
+.page-app {
+  --or:        #c8b384;   /* champagne, employe avec parcimonie */
+  --lueur:     rgba(96, 152, 214, .16);
+  --verre:     rgba(150, 180, 210, .12);
+  --mx: 50%;
+  --my: 20%;
+}
+
+/* ---------- 1. Ambiance lumineuse ---------------------------------------- */
+
+.page-app {
+  position: relative;
+  background:
+    radial-gradient(circle at 45% 6%,  rgba(75, 140, 210, .10), transparent 38%),
+    radial-gradient(circle at 88% 24%, rgba(180, 150, 100, .05), transparent 32%),
+    radial-gradient(circle at 8% 62%,  rgba(60, 110, 170, .06), transparent 34%),
+    linear-gradient(180deg, #0a0f16 0%, #070b11 60%, #05080d 100%);
+  background-attachment: fixed;
+}
+
+/* Grain + vignette. Deux pseudo-elements fixes : aucun cout de repaint. */
+.page-app::before,
+.page-app::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;   /* derriere le contenu : sinon le texte est assombri */
+}
+.page-app::before {
+  /* bruit tres fin, genere en SVG — pas de fichier a charger */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  opacity: .035;
+  mix-blend-mode: overlay;
+}
+.page-app::after {
+  background:
+    radial-gradient(140% 120% at 50% 12%, transparent 62%, rgba(0,0,0,.42) 100%),
+    linear-gradient(180deg, rgba(200,179,132,.05) 0%, transparent 20%);
+}
+
+/* Lueur qui suit la souris — une seule variable animee, pas de repaint lourd */
+.app-shell {
+  position: relative;
+  isolation: isolate;
+}
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: -60px -40px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(80,145,220,.055), transparent 62%);
+  opacity: 0;
+  transition: opacity .5s ease;
+}
+.app-shell.is-lit::before { opacity: 1; }
+
+/* Fine ligne lumineuse sous l'en-tete */
+.page-app .site-header {
+  background: linear-gradient(180deg, rgba(7,11,18,.94), rgba(7,11,18,.82));
+  border-bottom: 0;
+  box-shadow: 0 1px 0 rgba(150,180,210,.10), 0 18px 40px -30px rgba(0,0,0,.9);
+}
+.page-app .site-header::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(120,170,225,.38) 22%, rgba(200,179,132,.22) 55%, transparent);
+}
+.page-app .site-header .wrap { position: relative; }
+
+/* ---------- 2. En-tete : marque et navigation ---------------------------- */
+
+.page-app .brand img {
+  filter: drop-shadow(0 0 14px rgba(105,165,225,.45));
+  transition: filter .3s ease;
+}
+.page-app .brand:hover img { filter: drop-shadow(0 0 20px rgba(140,190,240,.65)); }
+.page-app .brand { position: relative; }
+.page-app .brand::before {
+  content: "";
+  position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
+  width: 62px; height: 62px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(90,150,215,.16), transparent 68%);
+  pointer-events: none;
+}
+.page-app .brand-text { letter-spacing: .2em; }
+
+.page-app .nav a { position: relative; overflow: hidden; }
+.page-app .nav a::before {
+  content: "";
+  position: absolute; left: 13px; right: 13px; bottom: 5px; height: 1px;
+  background: linear-gradient(90deg, var(--steel-lt), rgba(200,179,132,.7));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.page-app .nav a:hover::before { transform: scaleX(1); }
+.page-app .nav a.is-active {
+  color: #eaf3fb;
+  background: linear-gradient(180deg, rgba(74,106,143,.26), rgba(74,106,143,.12));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 22px -6px rgba(96,152,214,.5);
+}
+.page-app .nav a.is-active::before { transform: scaleX(1); }
+
+/* ---------- 3. Titre de page --------------------------------------------- */
+
+.page-app .page-head { position: relative; padding-top: 6px; }
+.page-app .page-head::before {
+  content: "";
+  position: absolute; left: -70px; top: -90px;
+  width: 460px; height: 240px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(80,145,215,.16), transparent 72%);
+}
+.page-app .page-head h1 {
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
+  letter-spacing: .005em;
+  line-height: 1.12;
+  text-shadow: 0 0 34px rgba(100,160,220,.20);
+  background: linear-gradient(180deg, #f4f9ff 12%, #cfdcea 78%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.page-app .page-head .eyebrow { color: #7f9bb6; letter-spacing: .3em; }
+
+/* ---------- 4. Cartes ----------------------------------------------------- */
+
+.page-app .card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, rgba(18,28,40,.90), rgba(8,14,21,.95));
+  border: 1px solid var(--verre);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.045),
+    0 20px 50px rgba(0,0,0,.28);
+  transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+/* reflet diagonal tres discret */
+.page-app .card::before {
+  content: "";
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(120deg, rgba(255,255,255,.04), transparent 32%);
+}
+.page-app .card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(150,190,230,.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 26px 60px rgba(0,0,0,.36),
+    0 0 34px -12px var(--lueur);
+}
+/* filet lumineux qui traverse le haut de la carte au survol */
+.page-app .card::after {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(160,205,250,.55), rgba(200,179,132,.35), transparent);
+  transform: scaleX(0); transform-origin: center;
+  transition: transform .45s cubic-bezier(.2,.8,.2,1);
+}
+.page-app .card:hover::after { transform: scaleX(1); }
+
+/* ---------- 5. Cartes de statistique -------------------------------------- */
+
+.page-app .card.stat { padding: 30px 20px 26px; }
+.page-app .card.stat .stat-value {
+  position: relative;
+  font-size: 2.7rem;
+  letter-spacing: -.01em;
+  color: #f2f7fc;
+  text-shadow: 0 0 30px rgba(110,170,230,.28);
+  font-variant-numeric: tabular-nums;
+}
+/* halo derriere le chiffre */
+.page-app .card.stat .stat-value::before {
+  content: "";
+  position: absolute; left: 50%; top: 52%; transform: translate(-50%,-50%);
+  width: 118px; height: 74px; border-radius: 50%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(80,145,215,.20), transparent 72%);
+}
+.page-app .card.stat .stat-label {
+  color: #8ba3ba;
+  letter-spacing: .22em;
+  font-size: .64rem;
+}
+.page-app .card.stat:nth-child(4) .stat-value::before {
+  background: radial-gradient(closest-side, rgba(200,179,132,.16), transparent 72%);
+}
+
+/* ---------- 6. Menu lateral ----------------------------------------------- */
+
+.page-app .side-nav { gap: 2px; }
+.page-app .side-nav .group-label {
+  color: #62788e;
+  letter-spacing: .26em;
+  font-size: .6rem;
+  margin: 26px 0 9px 13px;
+}
+.page-app .side-nav .group-label:first-child { margin-top: 0; }
+
+.page-app .side-nav a {
+  position: relative;
+  padding: 10px 14px 10px 16px;
+  border-left: 0;
+  border-radius: 9px;
+  transition: color .22s ease, background .22s ease, padding-left .22s ease;
+}
+/* barre verticale lumineuse */
+.page-app .side-nav a::before {
+  content: "";
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%) scaleY(0);
+  width: 2px; height: 62%; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(160,205,250,.95), rgba(74,106,143,.6));
+  box-shadow: 0 0 10px rgba(120,175,235,.6);
+  transition: transform .28s cubic-bezier(.2,.8,.2,1);
+}
+.page-app .side-nav a:hover {
+  background: linear-gradient(90deg, rgba(74,106,143,.16), transparent 80%);
+  color: var(--text);
+  padding-left: 20px;
+}
+.page-app .side-nav a:hover::before { transform: translateY(-50%) scaleY(.55); }
+
+.page-app .side-nav a.is-active {
+  color: #eaf3fb;
+  background: linear-gradient(90deg, rgba(74,106,143,.26), rgba(74,106,143,.05) 78%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  padding-left: 20px;
+}
+.page-app .side-nav a.is-active::before { transform: translateY(-50%) scaleY(1); }
+
+/* ---------- 7. Boutons ---------------------------------------------------- */
+
+.page-app .btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(28,40,55,.95), rgba(13,20,29,.95));
+  border: 1px solid rgba(150,180,210,.16);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, color .22s ease;
+}
+.page-app .btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(150,195,235,.36);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 10px 26px -10px rgba(96,152,214,.55);
+}
+.page-app .btn-primary {
+  background: linear-gradient(180deg, rgba(93,132,176,.55), rgba(42,62,87,.95));
+  border-color: rgba(160,200,240,.34);
+  color: #f1f7fd;
+}
+.page-app .btn-primary:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 14px 34px -10px rgba(96,152,214,.7); }
+.page-app .btn-ghost { background: rgba(255,255,255,.015); }
+
+/* CTA principal de la page : liseré champagne */
+.page-app .page-head .btn {
+  border-color: rgba(200,179,132,.34);
+  color: #f0e9da;
+}
+.page-app .page-head .btn:hover {
+  border-color: rgba(214,196,155,.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 12px 30px -10px rgba(200,179,132,.45);
+}
+
+/* ---------- 8. Widget d'activite ------------------------------------------ */
+
+.page-app .card h3 {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 1.06rem;
+  letter-spacing: .01em;
+  margin-bottom: 4px;
+}
+.page-app .card h3 svg { flex: 0 0 auto; opacity: .65; }
+
+.metrics { margin-top: 16px; display: grid; gap: 2px; }
+.metric {
+  position: relative;
+  display: grid; grid-template-columns: 26px 1fr auto;
+  align-items: center; gap: 12px;
+  padding: 13px 12px;
+  border-radius: 9px;
+  transition: background .22s ease;
+}
+.metric + .metric { box-shadow: inset 0 1px 0 rgba(150,180,210,.07); }
+.metric:hover { background: rgba(96,152,214,.06); }
+.metric__icon { color: var(--steel-lt); opacity: .7; display: flex; }
+.metric__label { color: var(--muted); font-size: .9rem; }
+.metric__value {
+  font-family: var(--serif); font-size: 1.32rem; color: #eef5fb;
+  font-variant-numeric: tabular-nums;
+}
+.metric__value .unite { font-family: var(--sans); font-size: .78rem; color: #8ba3ba; margin-left: 3px; }
+
+/* courbe de fond, purement decorative */
+.spark {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 62px;
+  pointer-events: none; opacity: .5;
+}
+.spark svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- 9. Etat vide -------------------------------------------------- */
+
+.vide {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 34px 18px 26px; gap: 12px;
+}
+.vide__rond {
+  width: 58px; height: 58px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--steel-lt);
+  background: radial-gradient(circle, rgba(96,152,214,.14), transparent 70%);
+  border: 1px solid rgba(150,180,210,.14);
+}
+.vide p { margin: 0; color: var(--muted); font-size: .9rem; }
+.vide small { color: #62788e; font-size: .76rem; letter-spacing: .04em; }
+.vide__trait {
+  width: 120px; height: 1px; margin-top: 4px;
+  background: linear-gradient(90deg, transparent, rgba(150,180,210,.28), transparent);
+}
+
+/* ---------- 10. Arrivee de page ------------------------------------------- */
+
+@keyframes monte { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes glisse { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+
+.page-app .page-head            { animation: monte .5s cubic-bezier(.2,.8,.2,1) both; }
+.page-app .side-nav             { animation: glisse .5s cubic-bezier(.2,.8,.2,1) both; }
+.page-app .app-shell > div > .grid > *,
+.page-app .app-shell > div > .card,
+.page-app .app-shell > div > .table-wrap { animation: monte .55s cubic-bezier(.2,.8,.2,1) both; }
+
+.page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(1) { animation-delay: .06s; }
+.page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(2) { animation-delay: .12s; }
+.page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(3) { animation-delay: .18s; }
+.page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(4) { animation-delay: .24s; }
+.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(1) { animation-delay: .28s; }
+.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(2) { animation-delay: .34s; }
+.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(3) { animation-delay: .40s; }
+
+/* ---------- 11. Tableaux et badges ---------------------------------------- */
+
+.page-app .table-wrap { border-color: var(--verre); border-radius: 12px; background: rgba(10,16,24,.5); }
+.page-app thead th { background: rgba(9,14,21,.9); color: #7f97ad; }
+.page-app tbody tr { transition: background .18s ease; }
+.page-app tbody tr:hover { background: rgba(96,152,214,.07); }
+.page-app .chip { border-color: var(--verre); }
+.page-app .chip.is-active { box-shadow: 0 0 22px -8px var(--lueur); }
+
+/* ---------- 12. Pied de page ---------------------------------------------- */
+
+.page-app .site-footer { border-top: 1px solid rgba(150,180,210,.09); background: linear-gradient(180deg, transparent, rgba(0,0,0,.3)); }
+
+/* ---------- 13. Responsive ------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .page-app .page-head::before { left: -30px; width: 320px; }
+  .page-app .side-nav a { padding-left: 14px; }
+  .page-app .side-nav a::before { display: none; }
+  .page-app .side-nav a.is-active { border-bottom: 2px solid var(--steel); }
+  .app-shell::before { display: none; }
+}
+@media (max-width: 560px) {
+  .page-app .card.stat { padding: 22px 14px 20px; }
+  .page-app .card.stat .stat-value { font-size: 2.1rem; }
+  .metric { grid-template-columns: 22px 1fr auto; gap: 9px; padding: 11px 8px; }
+}
+
+/* ---------- 14. Mouvement reduit ------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .page-app .page-head,
+  .page-app .side-nav,
+  .page-app .app-shell > div > .grid > *,
+  .page-app .app-shell > div > .card,
+  .page-app .app-shell > div > .table-wrap { animation: none; }
+  .page-app .card, .page-app .btn, .page-app .side-nav a { transition: none; }
+  .page-app .card:hover, .page-app .btn:hover { transform: none; }
+  .app-shell::before { display: none; }
+}

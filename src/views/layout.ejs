@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><%= title %> · <%= site.name %></title>
-  <meta name="description" content="<%= site.description %>">
+  <meta name="description" content="<%= currentPath.startsWith('/espace') ? site.description : '6AM : une famille de San Andreas aux racines britanniques. Loyauté, maîtrise et patience. Pendant qu’ils dorment, nous préparons demain.' %>">
   <meta property="og:title" content="<%= title %> · <%= site.name %>">
-  <meta property="og:description" content="<%= site.description %>">
+  <meta property="og:description" content="6AM — Pendant qu’ils dorment, nous préparons demain. Groupe fictif FiveM Roleplay.">
   <meta property="og:image" content="/static/img/og.jpg">
   <meta property="og:type" content="website">
   <meta name="theme-color" content="#05080d">
   <link rel="icon" href="/static/img/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/static/img/logo.png">
   <link rel="stylesheet" href="/static/css/style.css">
+  <% if (!currentPath.startsWith('/espace')) { %><link rel="stylesheet" href="/static/css/vitrine.css?v=6am-1"><% } %>
   <%- style %>
 </head>
 <body class="<%= bodyClass %>">

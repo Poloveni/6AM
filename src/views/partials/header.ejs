@@ -9,9 +9,9 @@
 
     <nav class="nav">
       <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Accueil</a>
-      <a href="/serveur" class="<%= currentPath === '/serveur' ? 'is-active' : '' %>">Le serveur</a>
-      <a href="/effectifs" class="<%= currentPath === '/effectifs' ? 'is-active' : '' %>">Effectifs</a>
-      <a href="/reglement" class="<%= currentPath === '/reglement' ? 'is-active' : '' %>">Reglement</a>
+      <a href="/histoire" class="<%= currentPath === '/serveur' ? 'is-active' : '' %>">Notre histoire</a>
+      <a href="/famille" class="<%= currentPath === '/effectifs' ? 'is-active' : '' %>">La famille</a>
+      <a href="/le-code" class="<%= currentPath === '/reglement' ? 'is-active' : '' %>">Le code</a>
       <a href="/rejoindre" class="<%= currentPath === '/rejoindre' ? 'is-active' : '' %>">Nous rejoindre</a>
       <% if (user) { %>
         <a href="/espace" class="<%= currentPath.startsWith('/espace') ? 'is-active' : '' %>">Espace membres</a>

@@ -21,35 +21,33 @@ router.get('/', wrap(async (req, res) => {
   });
 }));
 
-// --- Presentation du serveur ---
-router.get('/serveur', (req, res) => {
-  res.render('public/serveur', { title: 'Le serveur' });
+// --- Notre histoire ---
+router.get('/histoire', (req, res) => {
+  res.render('public/histoire', { title: 'Notre histoire' });
 });
 
-// --- Reglement ---
-router.get('/reglement', (req, res) => {
-  res.render('public/reglement', { title: 'Reglement' });
+// --- Le code ---
+router.get('/le-code', (req, res) => {
+  res.render('public/code', { title: 'Le code' });
 });
 
-// --- Effectifs publics ---
-router.get('/effectifs', wrap(async (req, res) => {
-  const rows = await db('members')
+// --- La famille ---
+router.get('/famille', wrap(async (req, res) => {
+  const members = await db('members')
     .leftJoin('ranks', 'members.rank_id', 'ranks.id')
     .where('members.status', 'active')
     .andWhere('members.public_listed', true)
     .orderBy([{ column: 'ranks.level', order: 'desc' }, { column: 'members.rp_name', order: 'asc' }])
-    .select('members.id', 'members.rp_name', 'ranks.name as rank_name', 'ranks.color as rank_color', 'ranks.level as rank_level');
+    .select('members.id', 'members.rp_name', 'members.bio', 'members.origin',
+            'ranks.name as rank_name', 'ranks.color as rank_color');
 
-  const groups = [];
-  for (const row of rows) {
-    const key = row.rank_name || 'Sans grade';
-    let group = groups.find((g) => g.name === key);
-    if (!group) { group = { name: key, color: row.rank_color || '#4a6a8f', members: [] }; groups.push(group); }
-    group.members.push(row);
-  }
-
-  res.render('public/effectifs', { title: 'Effectifs', groups, total: rows.length });
+  res.render('public/famille', { title: 'La famille', members, total: members.length });
 }));
+
+// --- Anciennes adresses, conservees pour les liens deja partages ---
+router.get('/serveur', (req, res) => res.redirect(301, '/histoire'));
+router.get('/reglement', (req, res) => res.redirect(301, '/le-code'));
+router.get('/effectifs', (req, res) => res.redirect(301, '/famille'));
 
 // --- Rejoindre ---
 router.get('/rejoindre', (req, res) => {

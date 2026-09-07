@@ -6,7 +6,7 @@
     <% if (links.youtube) { %><a href="<%= links.youtube %>" rel="noopener" target="_blank">YouTube</a><% } %>
     <% if (links.tiktok) { %><a href="<%= links.tiktok %>" rel="noopener" target="_blank">TikTok</a><% } %>
     <% if (links.twitter) { %><a href="<%= links.twitter %>" rel="noopener" target="_blank">X</a><% } %>
-    <a href="/reglement">Reglement</a>
+    <a href="/le-code">Le code</a>
     <% if (user) { %>
       <form method="post" action="/deconnexion" style="display:inline">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">

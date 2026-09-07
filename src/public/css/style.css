@@ -377,3 +377,8 @@ input[type=color] { padding: 4px; height: 42px; }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
+
+/* Annuaire de la famille : grille souple, pour ne pas laisser de colonnes
+   vides quand un grade ne compte qu'une personne. */
+.vitrine .v-values.v-roster { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 40px 45px; }
+.vitrine .v-values.v-roster h3 { margin-top: 14px; }

@@ -37,13 +37,13 @@
   <div class="sixam-coordinates">34°03′ N &nbsp; 118°15′ W<br>SAN ANDREAS / 06:00 AM</div>
   <div class="sixam-vertical">LOYALTY ABOVE EVERYTHING</div>
   <div class="sixam-copy" aria-live="polite">
-    <p class="sixam-eyebrow" data-sixam-label>QUAND LA VILLE DORT.</p>
+    <p class="sixam-eyebrow" data-sixam-label>PENDANT QU’ILS DORMENT.</p>
     <h1 data-sixam-word><%= site.name %><span>.</span></h1>
-    <p class="sixam-tagline" data-sixam-sub><%= settings.home_headline || 'Nous écrivons la suite.' %></p>
-    <p class="sixam-description" data-sixam-note><%= settings.home_subline || 'Une couronne. Un nom. Une seule famille.' %></p>
+    <p class="sixam-tagline" data-sixam-sub><%= (settings.home_headline && settings.home_headline !== 'Bienvenue sur 6AM') ? settings.home_headline : 'Nous préparons demain.' %></p>
+    <p class="sixam-description" data-sixam-note><%= (settings.home_subline && settings.home_subline !== 'Une ville qui ne dort jamais. Ecris ton histoire.') ? settings.home_subline : 'L’élégance britannique. La loyauté d’une famille. L’influence en silence.' %></p>
     <div class="sixam-actions">
-      <a class="sixam-enter" href="/rejoindre">ENTRER DANS L’OMBRE <span aria-hidden="true">↗</span></a>
-      <a class="sixam-server" href="/serveur">Découvrir le serveur <span aria-hidden="true">→</span></a>
+      <a class="sixam-enter" href="/rejoindre">RENCONTRER LA 6AM <span aria-hidden="true">↗</span></a>
+      <a class="sixam-server" href="/histoire">Notre histoire <span aria-hidden="true">→</span></a>
     </div>
   </div>
   <div class="sixam-caption"><span aria-hidden="true">+</span><p>LA COURONNE NE SE DONNE PAS.<br><strong>ELLE SE MÉRITE.</strong></p></div>
@@ -57,68 +57,14 @@
   </div>
 </section>
 
-<hr class="divider">
-
-<section class="section">
-  <div class="wrap">
-    <div class="grid grid-3">
-      <div class="card stat">
-        <div class="stat-value"><%= stats.members %></div>
-        <div class="stat-label">Membres actifs</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-value"><%= stats.staff %></div>
-        <div class="stat-label">Membres du staff</div>
-      </div>
-      <div class="card stat">
-        <div class="stat-value">24/7</div>
-        <div class="stat-label">Ville ouverte</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="grid grid-2" style="align-items:center;gap:44px">
-      <div>
-        <p class="eyebrow">Le serveur</p>
-        <h2>Une ville qui ne dort jamais</h2>
-        <p class="muted" style="white-space:pre-line"><%= settings.about_text || site.description %></p>
-        <a class="btn btn-ghost" href="/serveur">En savoir plus</a>
-      </div>
-      <div class="grid" style="gap:14px">
-        <div class="card card-hover">
-          <h3>Roleplay serieux</h3>
-          <p class="muted" style="margin:0">Un cadre exigeant mais accessible : les scenes priment sur le gain, et chaque personnage a une histoire qui compte.</p>
-        </div>
-        <div class="card card-hover">
-          <h3>Entreprises jouables</h3>
-          <p class="muted" style="margin:0">Societes, factions et administrations gerees par les joueurs, avec des effectifs et une hierarchie reelle.</p>
-        </div>
-        <div class="card card-hover">
-          <h3>Staff present</h3>
-          <p class="muted" style="margin:0">Une equipe disponible, des decisions expliquees et un suivi des signalements.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="wrap">
-    <div class="card center" style="padding:52px 26px">
-      <p class="eyebrow">Candidatures ouvertes</p>
-      <h2>Prends ta place dans <%= site.name %></h2>
-      <p class="muted" style="max-width:520px;margin:0 auto 26px">
-        Rejoins le Discord, passe l'entretien, et connecte-toi. Tout commence a 6 heures du matin.
-      </p>
-      <div class="hero-actions">
-        <% if (links.discord) { %><a class="btn btn-primary" href="<%= links.discord %>" target="_blank" rel="noopener">Rejoindre le Discord</a><% } %>
-        <a class="btn" href="/reglement">Lire le reglement</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<script type="module" src="/static/js/hero.js?v=6am-1"></script>
+<div class="vitrine">
+<div class="v-manifesto"><span>LONDRES · SAN ANDREAS</span><p>Le gentleman <em>avant</em> le gangster.</p><span>DEPUIS LE PREMIER 6:00</span></div>
+<section class="v-section v-story" id="histoire"><div><p class="v-kicker">01 / NOTRE HISTOIRE</p><h2>Les fondateurs ont changé.<br><em>L’heure est restée.</em></h2></div><div class="v-prose"><p>L’histoire commence avec Jean Njuts. De Londres à San Andreas, puis des Emerald Syndicate à la création de son propre groupe, une conviction le guide : le collectif passe avant les intérêts personnels.</p><p>Trois fondateurs. Un rendez-vous, chaque matin à six heures. Pendant que la ville dort, ils parlent stratégie, opportunités et avenir. La 6AM trouve son nom — et sa philosophie.</p><a class="v-textlink" href="/histoire">Découvrir notre histoire <span>↗</span></a></div></section>
+<figure class="v-wide"><img src="/static/img/vitrine/famille.webp" alt="Des membres de la 6AM réunis à la villa dans San Andreas" width="743" height="411" loading="lazy"><figcaption><span>LA FAMILLE, AVANT TOUT.</span><span>ARCHIVES 6AM / SAN ANDREAS</span></figcaption></figure>
+<section class="v-section" id="code"><div class="v-heading"><p class="v-kicker">02 / NOTRE CODE</p><h2>Du calme.<br><em>Pas de hasard.</em></h2><p>Une élégance héritée de Londres. Une ligne de conduite tenue à Los Santos.</p></div><div class="v-values"><article><span>01</span><h3>Loyauté</h3><p>Protéger les siens et construire quelque chose qui dure. La famille se reconnaît aux actes.</p></article><article><span>02</span><h3>Maîtrise</h3><p>La discussion avant la menace. La négociation avant l’affrontement. Le sang-froid en toute circonstance.</p></article><article><span>03</span><h3>Patience</h3><p>Observer, réfléchir et préparer la suite. La réputation se construit avec le temps, jamais dans la précipitation.</p></article></div></section>
+<section class="v-section v-place" id="implantation"><figure><img src="/static/img/vitrine/villa.webp" alt="La villa principale de la 6AM dans les bas de Vinewood" width="1293" height="597" loading="lazy"><figcaption>VINEWOOD / LA VILLA PRINCIPALE</figcaption></figure><div><p class="v-kicker">03 / NOTRE IMPLANTATION</p><h2>Une adresse.<br><em>Tout un chemin.</em></h2><p>Avant d’en franchir les portails, Njuts contemplait cette villa depuis le trottoir d’en face. Elle est aujourd’hui le symbole du chemin parcouru par la 6AM.</p><p>Un lieu de rencontres et de négociations, obtenu grâce à la patience, aux relations et à une réputation de sérieux. De Roxwood à Vinewood, le groupe avance.</p><a href="/histoire#implantation" class="v-textlink">Les lieux de notre histoire <span>↗</span></a></div></section>
+<section class="v-section" id="projets"><div class="v-heading"><p class="v-kicker">04 / NOTRE VISION</p><h2>Préparer demain.<br><em>Ensemble.</em></h2><p>Les projets qui dessinent la suite de l’histoire. Des ambitions à faire vivre en roleplay.</p></div><div class="v-projects"><article><img src="/static/img/vitrine/private-table.webp" alt="Visuel du projet 6AM Private Table issu du dossier du groupe" width="1672" height="941" loading="lazy"><div><span class="v-tag">PROJET / RENCONTRES & INFLUENCE</span><h3>Private Table</h3><p>Des soirées de poker privées dans un cadre neutre, discret et organisé. Autour de la table, les statuts s’effacent et de nouvelles relations se créent.</p><details><summary>L’esprit de la table</summary><p>Un accès sur invitation, des règles annoncées avant la partie et une atmosphère calme. Les différends se règlent par le dialogue. Le projet veut faire du jeu un rendez-vous entre les différents acteurs de Los Santos.</p></details></div></article><article><img src="/static/img/vitrine/foundation.webp" alt="Visuel du projet 6AM Foundation issu du dossier du groupe" width="1672" height="941" loading="lazy"><div><span class="v-tag">PROJET / TRANSMISSION & CONFIANCE</span><h3>Foundation</h3><p>Donner une chance aux groupes indépendants qui montrent du sérieux, de la cohésion et une vraie vision. Les aider à grandir en gardant leur identité.</p><details><summary>Un coup de pouce, pas une béquille</summary><p>La Foundation envisage un accompagnement adapté au projet : conseils, mises en relation et soutien ponctuel. La confiance se construit sur le terrain et repose sur des engagements tenus.</p></details></div></article></div></section>
+<section class="v-section v-events" id="animations"><div><p class="v-kicker">05 / FAIRE VIVRE LA VILLE</p><h2>Des rencontres.<br><em>Des histoires à jouer.</em></h2><p>La 6AM imagine des animations où la cohésion, l’observation et les échanges comptent autant que la victoire.</p><a class="v-textlink" href="/histoire#animations">Explorer les concepts RP <span>↗</span></a></div><div class="v-event-list"><article><span>01 / COHÉSION</span><h3>Le défi du Chiliad</h3><p>Un aller-retour atypique entre les sommets et Grapeseed, à relever en équipe.</p></article><article><span>02 / EXPLORATION</span><h3>Cherche et trouve</h3><p>Une chasse aux objets qui invite à connaître les entreprises et les acteurs de San Andreas.</p></article><article><span>03 / OBSERVATION</span><h3>Infiltration risquée</h3><p>Un scénario de discrétion en binôme autour d’une cargaison à retrouver.</p></article></div></section>
+<section class="v-join"><p class="v-kicker">6AM / LA SUITE S’ÉCRIT À PLUSIEURS</p><h2>Pendant qu’ils dorment,<br><em>nous préparons demain.</em></h2><p>Une famille, une philosophie, un héritage.</p><a class="sixam-enter" href="/rejoindre">RENCONTRER LA 6AM <span>↗</span></a><small>Groupe fictif · Univers FiveM Roleplay</small></section>
+</div>
+<script type="module" src="/static/js/hero.js?v=6am-2"></script>

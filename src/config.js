@@ -62,6 +62,12 @@ const config = {
     password: process.env.ADMIN_PASSWORD || '',
   },
 
+  // Pont vers la base du bot Discord (lecture seule, optionnel)
+  bot: {
+    url: process.env.BOT_DATABASE_URL || null,
+    ssl: bool(process.env.BOT_DB_SSL, false),
+  },
+
   discordWebhook: {
     url: process.env.DISCORD_WEBHOOK_URL || '',
     username: process.env.DISCORD_WEBHOOK_USERNAME || '6AM',

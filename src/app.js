@@ -116,6 +116,7 @@ app.use('/espace', require('./routes/dashboard'));
 app.use('/espace/effectifs', require('./routes/effectifs'));
 app.use('/espace/activite', require('./routes/activity'));
 app.use('/espace/statistiques', require('./routes/stats'));
+app.use('/espace/organisation', require('./routes/organisation'));
 app.use('/espace/administration', require('./routes/admin'));
 
 // ---------- Erreurs ----------

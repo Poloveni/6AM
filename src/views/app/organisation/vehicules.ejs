@@ -1,0 +1,58 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../../partials/sidenav') %>
+    <div>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Données du bot Discord · lecture seule</p>
+          <h1>Véhicules</h1>
+        </div>
+      </div>
+
+      <%- include('../../partials/bot-absent') %>
+
+      <div class="grid grid-2">
+        <div class="card">
+          <h3>Sortis du garage</h3>
+          <% if (!sortis.length) { %><p class="muted" style="margin:0">Tout est rangé.</p><% } else { %>
+            <div class="table-wrap" style="border:0;margin-top:12px">
+              <table>
+                <thead><tr><th>Plaque</th><th>Modèle</th><th>Sorti par</th><th>Depuis</th></tr></thead>
+                <tbody>
+                  <% sortis.forEach(function (v) { %>
+                    <tr>
+                      <td><%= v.plaque %></td>
+                      <td class="muted"><%= v.modele || '—' %></td>
+                      <td><%= v.porteur || '—' %></td>
+                      <td class="muted"><%= h.formatDateTime(v.timestamp, site.locale) %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <h3>Passages en fourrière</h3>
+          <% if (!fourrieres.length) { %><p class="muted" style="margin:0">Aucun.</p><% } else { %>
+            <div class="table-wrap" style="border:0;margin-top:12px">
+              <table>
+                <thead><tr><th>Plaque</th><th>Responsable</th><th>Date</th></tr></thead>
+                <tbody>
+                  <% fourrieres.forEach(function (f) { %>
+                    <tr>
+                      <td><%= f.plaque %><% if (f.modele) { %> <span class="muted"><%= f.modele %></span><% } %></td>
+                      <td><%= f.porteur || '—' %></td>
+                      <td class="muted"><%= h.formatDateTime(f.timestamp, site.locale) %></td>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

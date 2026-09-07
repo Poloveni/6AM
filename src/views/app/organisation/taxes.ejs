@@ -1,0 +1,58 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../../partials/sidenav') %>
+    <div>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Données du bot Discord · lecture seule</p>
+          <h1>Taxes &amp; racket</h1>
+        </div>
+      </div>
+
+      <%- include('../../partials/bot-absent') %>
+
+      <div class="grid grid-3" style="margin-bottom:26px">
+        <div class="card stat"><div class="stat-value"><%= total %></div><div class="stat-label">Suivies</div></div>
+        <div class="card stat"><div class="stat-value" style="<%= aPayer ? 'color:var(--warn)' : '' %>"><%= aPayer %></div><div class="stat-label">À encaisser</div></div>
+        <div class="card stat"><div class="stat-value" style="<%= enRetard ? 'color:var(--bad)' : '' %>"><%= enRetard %></div><div class="stat-label">En retard</div></div>
+      </div>
+
+      <% if (!groupes.length && dispo) { %>
+        <div class="card muted center">Aucune taxe active.</div>
+      <% } %>
+
+      <% groupes.forEach(function (g) { %>
+        <div class="card" style="margin-bottom:18px">
+          <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+            <h3 style="margin:0"><%= h.TYPES_TAXE[g.type] || g.type %></h3>
+            <% if (g.zone) { %><span class="badge" style="color:var(--steel)"><span class="dot"></span>Zone</span><% } %>
+            <span class="spacer" style="margin-left:auto"></span>
+            <% if (g.enRetard) { %><span class="badge badge-fired"><span class="dot"></span><%= g.enRetard %> en retard</span><% } %>
+            <% if (g.aPayer) { %><span class="badge badge-leave"><span class="dot"></span><%= g.aPayer %> à encaisser</span><% } %>
+          </div>
+          <div class="table-wrap" style="border:0;margin-top:14px">
+            <table>
+              <thead><tr><th>Nom</th><th>Téléphone</th><th>Échéance</th><th class="num">État</th></tr></thead>
+              <tbody>
+                <% g.lignes.forEach(function (t) { %>
+                  <tr>
+                    <td><%= t.nom %></td>
+                    <td class="muted"><%= t.telephone || '—' %></td>
+                    <td class="muted"><%= h.formatDateTime(t.echeance, site.locale) %></td>
+                    <td class="num">
+                      <% if (t.enRetard) { %><span class="badge badge-fired"><span class="dot"></span>En retard</span>
+                      <% } else if (!t.paye) { %><span class="badge badge-leave"><span class="dot"></span>À encaisser</span>
+                      <% } else { %><span class="badge badge-active"><span class="dot"></span>À jour</span><% } %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% }); %>
+
+      <p class="help">L’encaissement se fait dans Discord : le site n’écrit jamais dans la base du bot.</p>
+    </div>
+  </div>
+</div>

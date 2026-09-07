@@ -1,4 +1,5 @@
 'use strict';
+const botActivites = require('./bot-activites');
 
 const ROLES = { member: 1, staff: 2, admin: 3 };
 
@@ -75,6 +76,10 @@ function escapeHtml(str) {
 
 module.exports = {
   ROLES, STATUS_LABELS, EVENT_LABELS,
+  CATEGORIES_BOT: botActivites.CATEGORIES,
+  STATUTS_ARME: botActivites.STATUTS_ARME,
+  TYPES_TAXE: botActivites.TYPES_TAXE,
+  libelleActivite: botActivites.libelleActivite,
   roleAtLeast, formatDate, formatDateTime, formatMoney, formatDuration,
   toDateOnly, wrap, escapeHtml,
 };

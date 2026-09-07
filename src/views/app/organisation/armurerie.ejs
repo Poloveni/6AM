@@ -1,0 +1,72 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../../partials/sidenav') %>
+    <div>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Données du bot Discord · lecture seule</p>
+          <h1>Armurerie</h1>
+        </div>
+      </div>
+
+      <%- include('../../partials/bot-absent') %>
+
+      <div class="grid grid-4" style="margin-bottom:26px">
+        <div class="card stat"><div class="stat-value"><%= armes.length %></div><div class="stat-label">Au registre</div></div>
+        <div class="card stat"><div class="stat-value"><%= parStatut.en_stock || 0 %></div><div class="stat-label">En stock</div></div>
+        <div class="card stat"><div class="stat-value" style="<%= (parStatut.pretee || 0) ? 'color:var(--warn)' : '' %>"><%= parStatut.pretee || 0 %></div><div class="stat-label">Prêtées</div></div>
+        <div class="card stat"><div class="stat-value" style="<%= (parStatut.perdue || 0) ? 'color:var(--bad)' : '' %>"><%= parStatut.perdue || 0 %></div><div class="stat-label">Perdues</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:22px">
+        <h3>Registre</h3>
+        <% if (!armes.length) { %><p class="muted" style="margin:0">Aucune arme enregistrée.</p><% } else { %>
+          <div class="table-wrap" style="border:0;margin-top:12px">
+            <table>
+              <thead><tr><th>Arme</th><th>Référence</th><th>Type</th><th>Statut</th><th>Détenteur</th></tr></thead>
+              <tbody>
+                <% armes.forEach(function (a) { %>
+                  <tr>
+                    <td><%= a.nom %></td>
+                    <td class="muted"><%= a.reference %></td>
+                    <td class="muted"><%= a.type || '—' %></td>
+                    <td>
+                      <% var cls = a.statut === 'en_stock' ? 'badge-active' : (a.statut === 'pretee' ? 'badge-leave' : 'badge-fired'); %>
+                      <span class="badge <%= cls %>"><span class="dot"></span><%= h.STATUTS_ARME[a.statut] || a.statut %></span>
+                    </td>
+                    <td class="muted"><%= a.porteur || '—' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+
+      <div class="card">
+        <h3>Ventes de munitions · 7 jours</h3>
+        <% if (!ventes.length) { %><p class="muted" style="margin:0">Aucune vente déclarée.</p><% } else { %>
+          <% var totalQ = ventes.reduce(function (s, v) { return s + Number(v.quantite || 0); }, 0); %>
+          <% var totalP = ventes.reduce(function (s, v) { return s + Number(v.prix || 0); }, 0); %>
+          <div class="bar-row"><span class="muted">Total</span><span></span><span class="num"><%= totalQ %> munitions · <%= h.formatMoney(Math.round(totalP), site.locale) %></span></div>
+          <div class="table-wrap" style="border:0;margin-top:12px">
+            <table>
+              <thead><tr><th>Date</th><th>Vendeur</th><th>Acheteur</th><th class="num">Quantité</th><th class="num">Prix</th></tr></thead>
+              <tbody>
+                <% ventes.forEach(function (v) { %>
+                  <tr>
+                    <td class="muted"><%= h.formatDate(v.timestamp, site.locale) %></td>
+                    <td><%= v.vendeur || '—' %></td>
+                    <td class="muted"><%= v.acheteur || '—' %></td>
+                    <td class="num"><%= v.quantite %></td>
+                    <td class="num"><%= h.formatMoney(Math.round(v.prix), site.locale) %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>

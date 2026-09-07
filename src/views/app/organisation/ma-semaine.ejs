@@ -1,0 +1,110 @@
+<div class="wrap">
+  <div class="app-shell">
+    <%- include('../../partials/sidenav') %>
+    <div>
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Activité déclarée dans Discord</p>
+          <h1>Ma semaine</h1>
+        </div>
+        <span class="spacer"></span>
+        <% if (semaine && semaine.prochain) { %>
+          <span class="chip">Remise à zéro : <%= h.formatDateTime(semaine.prochain, site.locale) %></span>
+        <% } %>
+      </div>
+
+      <%- include('../../partials/bot-absent') %>
+
+      <% if (dispo && !mien) { %>
+        <div class="alert alert-info">
+          Ta fiche d’effectif n’a pas d’identifiant Discord renseigné — impossible de retrouver tes déclarations.
+          Un membre du staff peut l’ajouter depuis ta fiche.
+        </div>
+      <% } %>
+
+      <% if (mien) { %>
+        <div class="grid grid-4" style="margin-bottom:26px">
+          <% Object.keys(h.CATEGORIES_BOT).forEach(function (cat) { %>
+            <div class="card stat">
+              <div class="stat-value">
+                <%= mien.parCategorie[cat] || 0 %><% if (objectifs[cat]) { %><span class="muted" style="font-size:1rem"> / <%= objectifs[cat] %></span><% } %>
+              </div>
+              <div class="stat-label"><%= h.CATEGORIES_BOT[cat] %></div>
+            </div>
+          <% }); %>
+        </div>
+
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Paie estimée</h3>
+            <% var categories = Object.keys(taux); %>
+            <% if (!categories.length) { %>
+              <p class="muted" style="margin:0">Aucun taux de paie configuré dans le bot.</p>
+            <% } else { %>
+              <% categories.sort().forEach(function (cat) { %>
+                <div class="bar-row">
+                  <span class="muted"><%= h.CATEGORIES_BOT[cat] || cat %></span>
+                  <span class="muted" style="font-size:.82rem"><%= mien.parCategorie[cat] || 0 %> × <%= taux[cat] %> $</span>
+                  <span class="num"><%= h.formatMoney(Math.round((mien.parCategorie[cat] || 0) * taux[cat]), site.locale) %></span>
+                </div>
+              <% }); %>
+              <div class="bar-row" style="border-top:1px solid var(--line);margin-top:10px;padding-top:12px">
+                <span><strong>Total</strong></span><span></span>
+                <span class="num"><strong><%= h.formatMoney(Math.round(mien.salaire), site.locale) %></strong></span>
+              </div>
+              <p class="help">Estimation calculée comme le bot : quantité × taux. La paie réelle est versée dans Discord.</p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <h3>Le détail</h3>
+            <% var actions = Object.keys(mien.parAction); %>
+            <% if (!actions.length) { %>
+              <p class="muted" style="margin:0">Rien de déclaré cette semaine.</p>
+            <% } else { %>
+              <% actions.sort().forEach(function (a) { %>
+                <div class="bar-row">
+                  <span><%= h.libelleActivite(a) %></span><span></span>
+                  <span class="num"><%= mien.parAction[a] %></span>
+                </div>
+              <% }); %>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="grid grid-3" style="margin-top:22px">
+          <div class="card">
+            <h3>Cooldowns en cours</h3>
+            <% if (!cooldowns.length) { %><p class="muted" style="margin:0">Aucun.</p><% } %>
+            <% cooldowns.forEach(function (c) { %>
+              <div class="bar-row">
+                <span><%= h.libelleActivite(c.action) %></span><span></span>
+                <span class="num muted"><%= h.formatDateTime(c.expires_at, site.locale) %></span>
+              </div>
+            <% }); %>
+          </div>
+
+          <div class="card">
+            <h3>Armes prêtées</h3>
+            <% if (!armes.length) { %><p class="muted" style="margin:0">Aucune.</p><% } %>
+            <% armes.forEach(function (a) { %>
+              <div class="bar-row"><span><%= a.nom %></span><span></span><span class="num muted"><%= a.reference %></span></div>
+            <% }); %>
+          </div>
+
+          <div class="card">
+            <h3>Ventes en attente</h3>
+            <% if (!ventes.length) { %><p class="muted" style="margin:0">Aucune.</p><% } %>
+            <% ventes.forEach(function (v) { %>
+              <div class="bar-row">
+                <span><%= v.item %></span>
+                <span class="muted" style="font-size:.82rem"><%= h.formatDate(v.timestamp, site.locale) %></span>
+                <span class="num">×<%= v.quantite %></span>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>

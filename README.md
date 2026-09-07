@@ -131,6 +131,61 @@ Le contenu editable (titre d'accueil, presentation, reglement) se modifie depuis
 
 ---
 
+## Pont vers le bot Discord (optionnel, lecture seule)
+
+L'espace membres peut afficher les donnees du bot
+[roxwood-network-famille](https://github.com/poulpizar01/roxwood-network-famille) :
+quotas de la semaine, paie estimee, cooldowns, coffre, taxes, armurerie,
+vehicules. Le site **ne fait que lire** — le bot reste seul a ecrire, sinon
+les messages qu'il tient a jour dans Discord se desynchronisent.
+
+Sans `BOT_DATABASE_URL`, ces pages s'affichent avec un encart
+« bot non connecte » : rien ne casse.
+
+### Creer l'utilisateur en lecture seule
+
+Sur le serveur PostgreSQL du bot, en tant que superutilisateur :
+
+```sql
+CREATE USER sixam_ro WITH PASSWORD 'un-mot-de-passe-solide';
+GRANT CONNECT ON DATABASE bot_famille TO sixam_ro;
+GRANT USAGE ON SCHEMA public TO sixam_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO sixam_ro;
+-- Pour que les tables creees plus tard soient aussi lisibles :
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO sixam_ro;
+```
+
+Puis dans le `.env` du site :
+
+```env
+BOT_DATABASE_URL=postgres://sixam_ro:un-mot-de-passe-solide@HOTE:5432/bot_famille
+BOT_DB_SSL=false
+```
+
+Si le bot tourne dans un autre projet Docker sur la meme machine, brancher
+l'application sur son reseau et utiliser le nom du conteneur comme hote.
+
+### Relier les membres
+
+Le bot identifie les joueurs par leur **identifiant Discord**. Renseigner le
+champ « ID Discord » sur chaque fiche d'effectif (Espace membres → Effectifs)
+pour que « Ma semaine » et le classement affichent les bons noms. Un joueur
+sans fiche est affiche avec le pseudo que le bot connait
+(table `user_mapping`), ou « Non relie ».
+
+### Semaine et remise a zero
+
+Le bot vide sa table `stats` **chaque dimanche a 19h00, heure de Paris**, et
+note la date dans `settings.last_weekly_reset`. Le site lit ces memes donnees :
+les chiffres affiches sont donc, par construction, identiques a ceux de Discord.
+
+Une table n'est **pas** lisible en base : la correspondance activite →
+categorie de quota (ATM → `actions`, Labo Cocaine → `labos`...), qui vit dans
+le code du bot. Elle est recopiee dans `src/lib/bot-activites.js` et doit
+suivre les evolutions du bot.
+
+---
+
 ## Structure
 
 ```

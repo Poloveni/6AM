@@ -43,7 +43,7 @@ Le conteneur applique les migrations automatiquement au demarrage.
 Il reste a creer le compte administrateur :
 
 ```bash
-docker compose exec app npm run seed
+docker compose exec web npm run seed
 ```
 
 Le site repond alors sur `http://<ip-du-vps>` (nginx ecoute sur `HTTP_PORT`).

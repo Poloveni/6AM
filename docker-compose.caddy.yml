@@ -1,32 +1,30 @@
 # ==========================================================
 #  Surcouche : raccordement au Caddy deja present sur le VPS.
 #
-#  A utiliser quand la machine heberge deja plusieurs projets
-#  derriere un reverse proxy Caddy partage (reseau "vps_default").
+#  Le service se nomme "web" (et non "app") pour ne pas entrer en
+#  conflit avec les alias reseau des autres projets : sur un reseau
+#  Docker partage, chaque conteneur recoit automatiquement le nom de
+#  son service comme alias. Un service nomme "app" ecraserait celui
+#  d'un autre projet.
 #
-#  L'application rejoint ce reseau sous le nom "sixam-app" ;
-#  le Caddyfile partage n'a plus qu'a faire :
+#  Le Caddyfile partage vise donc le nom de conteneur, sans ambiguite :
 #
 #      6amfbfa.duckdns.org {
-#          reverse_proxy sixam-app:3000
+#          reverse_proxy sixam-web-1:3000
 #      }
 #
-#  Le port defini par APP_PORT reste publie sur 127.0.0.1
-#  uniquement (voir APP_BIND dans .env) : injoignable depuis
-#  Internet, mais pratique pour un "curl localhost:PORT" de
-#  diagnostic sur le serveur.
+#  Le port APP_PORT reste publie sur 127.0.0.1 uniquement : injoignable
+#  depuis Internet, pratique pour un "curl localhost:PORT" de diagnostic.
 #
-#  Lancement :
-#      docker compose -f docker-compose.yml -f docker-compose.caddy.yml \
-#        --profile postgres up -d --build
+#  Lancement (COMPOSE_FILE dans .env applique cette surcouche) :
+#      docker compose --profile postgres up -d --build
 # ==========================================================
 
 services:
-  app:
+  web:
     networks:
-      web: {}
-      vps_default:
-        aliases: [sixam-app]
+      internal: {}
+      vps_default: {}
 
 networks:
   # Reseau cree par la stack Caddy ; on s'y raccroche sans le gerer.

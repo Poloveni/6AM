@@ -1,6 +1,6 @@
 # Rendu par nginx au demarrage : ${DOMAIN} est remplace par la variable d'env.
 upstream sixam_app {
-    server app:3000;
+    server web:3000;
     keepalive 32;
 }
 

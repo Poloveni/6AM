@@ -1,0 +1,15 @@
+# ----------------------------------------------------------
+#  Bloc a ajouter au Caddyfile partage du VPS
+#  (/opt/dynasty8/deploy/vps/Caddyfile)
+#
+#  Caddy obtient et renouvelle le certificat tout seul :
+#  aucun certbot, aucun port a ouvrir.
+# ----------------------------------------------------------
+
+6am-rp.duckdns.org {
+    encode zstd gzip
+
+    reverse_proxy sixam-app:3000 {
+        header_up X-Real-IP {remote_host}
+    }
+}

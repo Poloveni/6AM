@@ -1,0 +1,34 @@
+# ==========================================================
+#  Surcouche : raccordement au Caddy deja present sur le VPS.
+#
+#  A utiliser quand la machine heberge deja plusieurs projets
+#  derriere un reverse proxy Caddy partage (reseau "vps_default").
+#
+#  L'application rejoint ce reseau sous le nom "sixam-app" ;
+#  le Caddyfile partage n'a plus qu'a faire :
+#
+#      6am-rp.duckdns.org {
+#          reverse_proxy sixam-app:3000
+#      }
+#
+#  Le port defini par APP_PORT reste publie sur 127.0.0.1
+#  uniquement (voir APP_BIND dans .env) : injoignable depuis
+#  Internet, mais pratique pour un "curl localhost:PORT" de
+#  diagnostic sur le serveur.
+#
+#  Lancement :
+#      docker compose -f docker-compose.yml -f docker-compose.caddy.yml \
+#        --profile postgres up -d --build
+# ==========================================================
+
+services:
+  app:
+    networks:
+      web: {}
+      vps_default:
+        aliases: [sixam-app]
+
+networks:
+  # Reseau cree par la stack Caddy ; on s'y raccroche sans le gerer.
+  vps_default:
+    external: true

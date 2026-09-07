@@ -7,6 +7,20 @@
 #     DB_CLIENT=mysql2 DB_PORT=3306 docker compose --profile mariadb up -d --build
 #
 #  Toutes les variables viennent du fichier .env a la racine.
+#
+#  DEUX MODES :
+#
+#  1) VPS PARTAGE (defaut) — l'app n'expose qu'un port local, un
+#     reverse proxy deja present sur la machine l'aiguille.
+#     Rien n'est pris sur les ports 80/443.
+#        docker compose --profile postgres up -d --build
+#
+#  2) SERVEUR DEDIE — on ajoute le profil "proxy" pour lancer
+#     aussi nginx et certbot fournis par ce projet.
+#        docker compose --profile postgres --profile proxy up -d --build
+#
+#  APP_BIND=127.0.0.1 (defaut) : joignable seulement depuis le serveur.
+#  APP_BIND=0.0.0.0             : joignable depuis l'exterieur sur APP_PORT.
 # ==========================================================
 
 services:
@@ -18,9 +32,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-    expose:
-      - "3000"
-    networks: [web]
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
+    networks:
+      web: {}
     volumes:
       - app_data:/app/data
     depends_on:
@@ -73,6 +88,7 @@ services:
 
   nginx:
     image: nginx:1.27-alpine
+    profiles: ["proxy"]
     restart: unless-stopped
     depends_on: [app]
     ports:
@@ -88,7 +104,7 @@ services:
 
   certbot:
     image: certbot/certbot:latest
-    profiles: ["ssl"]
+    profiles: ["proxy", "ssl"]
     volumes:
       - ./deploy/certbot/conf:/etc/letsencrypt
       - ./deploy/certbot/www:/var/www/certbot

@@ -201,7 +201,12 @@ src/
   middleware/         authentification, CSRF, messages flash
   routes/             public, auth, dashboard, effectifs, activite, stats, admin
   views/              gabarits EJS
-  public/             css, js (dont le hero Three.js), images, vendor/three
+  public/
+    css/              feuilles de style (vitrine, espace membres)
+    js/               hero Three.js, page d'entree, espace membres
+    img/              embleme (logo, favicons, apple-touch-icon, og)
+    models/           6am-emblem.glb, l'embleme grave affiche dans le hero
+    vendor/           three.module.min.js, GLTFLoader.js, BufferGeometryUtils.js
 deploy/
   caddy/              Caddyfile complet pour un VPS partage sous Caddy
   vps-reorg.sh        migration du reverse proxy vers /opt/vps-proxy
@@ -210,6 +215,35 @@ deploy/
 Dockerfile
 docker-compose.yml
 ```
+
+---
+
+## L'embleme
+
+L'embleme 3D vient d'un export Meshy (135 Mo, 3 M de triangles) reduit hors
+depot avec `gltf-transform` :
+
+```bash
+gltf-transform optimize source.glb src/public/models/6am-emblem.glb \
+  --texture-size 2048 --texture-compress webp --simplify-error 0.002 \
+  --compress quantize
+```
+
+Resultat : 860 Ko, 6 616 triangles. Le detail vit dans la normal map, la
+simplification ne se voit donc pas.
+
+Les images fixes (`logo.png`, `favicon*.png`, `apple-touch-icon.png`,
+`og.jpg`) sont des rendus du meme modele : elles servent l'en-tete, la page
+d'entree, la connexion, l'onglet du navigateur et l'apercu Discord.
+
+Dans le hero, le medaillon plat texture s'affiche tout de suite, puis le
+modele glTF le remplace des qu'il est charge. Connexion en mode economie de
+donnees, 2G, echec reseau ou WebGL indisponible : le medaillon reste, rien ne
+casse.
+
+Les references portent `?v=2` : les fichiers statiques sont servis avec un
+cache de 7 jours en production, il faut incrementer ce numero a chaque
+nouvelle version de l'embleme.
 
 ---
 

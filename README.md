@@ -148,8 +148,10 @@ src/
   views/              gabarits EJS
   public/             css, js (dont le hero Three.js), images, vendor/three
 deploy/
-  nginx/              gabarit de vhost (HTTP + bloc HTTPS a decommenter)
-  init-ssl.sh         premier certificat Let's Encrypt
+  caddy/              Caddyfile complet pour un VPS partage sous Caddy
+  vps-reorg.sh        migration du reverse proxy vers /opt/vps-proxy
+  nginx/              gabarit de vhost (serveur dedie, profil "proxy")
+  init-ssl.sh         premier certificat Let's Encrypt (serveur dedie)
 Dockerfile
 docker-compose.yml
 ```

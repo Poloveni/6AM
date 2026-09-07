@@ -1,377 +1,480 @@
 /* ==========================================================================
    6AM — Espace membres
-   Couche purement visuelle, chargee uniquement sur /espace et entierement
-   portee par `.page-app` : aucun style du site public n'est touche, aucune
-   regle existante n'est supprimee. Tout est en CSS, sans dependance.
+   Couche visuelle chargee uniquement sur /espace, entierement portee par
+   `.page-app`. Le site public n'est pas touche. Aucune dependance.
    ========================================================================== */
 
 .page-app {
-  --or:        #c8b384;   /* champagne, employe avec parcimonie */
-  --lueur:     rgba(96, 152, 214, .16);
-  --verre:     rgba(150, 180, 210, .12);
+  /* Palette locale : plus claire que le site public, pour le contraste. */
+  --or:        #d3bd8c;
+  --acier:     #7fb0e2;
+  --lueur:     rgba(96, 152, 214, .30);
+  --verre:     rgba(130, 175, 220, .16);
+  --verre-fort:rgba(160, 200, 240, .30);
+  --texte:     #e4eefa;
+  --texte-2:   #a9bed3;   /* labels : lisibles, pas delaves */
+  --texte-3:   #8298ae;   /* descriptions */
   --mx: 50%;
   --my: 20%;
+
+  /* Le contenu respire davantage sur grand ecran. */
+  --maxw: 1440px;
 }
 
 /* ---------- 1. Ambiance lumineuse ---------------------------------------- */
 
 .page-app {
   position: relative;
+  color: var(--texte);
   background:
-    radial-gradient(circle at 45% 6%,  rgba(75, 140, 210, .10), transparent 38%),
-    radial-gradient(circle at 88% 24%, rgba(180, 150, 100, .05), transparent 32%),
-    radial-gradient(circle at 8% 62%,  rgba(60, 110, 170, .06), transparent 34%),
-    linear-gradient(180deg, #0a0f16 0%, #070b11 60%, #05080d 100%);
+    radial-gradient(circle at 48% 2%,  rgba(70, 130, 200, .20), transparent 44%),
+    radial-gradient(circle at 82% 16%, rgba(190, 150, 90, .085), transparent 36%),
+    radial-gradient(circle at 6% 54%,  rgba(60, 112, 176, .10), transparent 38%),
+    radial-gradient(circle at 70% 88%, rgba(70, 120, 190, .07), transparent 40%),
+    linear-gradient(180deg, #0c1420 0%, #080d15 55%, #060a11 100%);
   background-attachment: fixed;
 }
 
-/* Grain + vignette. Deux pseudo-elements fixes : aucun cout de repaint. */
+.page-app .muted { color: var(--texte-2); }
+.page-app .help  { color: var(--texte-3); }
+
+/* Grain + vignette, toujours DERRIERE le contenu. */
 .page-app::before,
 .page-app::after {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -1;   /* derriere le contenu : sinon le texte est assombri */
+  z-index: -1;
 }
 .page-app::before {
-  /* bruit tres fin, genere en SVG — pas de fichier a charger */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
-  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.6'/%3E%3C/svg%3E");
+  opacity: .05;
   mix-blend-mode: overlay;
 }
 .page-app::after {
   background:
-    radial-gradient(140% 120% at 50% 12%, transparent 62%, rgba(0,0,0,.42) 100%),
-    linear-gradient(180deg, rgba(200,179,132,.05) 0%, transparent 20%);
+    radial-gradient(150% 130% at 50% 8%, transparent 64%, rgba(0,0,0,.40) 100%),
+    linear-gradient(180deg, rgba(211,189,140,.07) 0%, transparent 18%);
 }
 
-/* Lueur qui suit la souris — une seule variable animee, pas de repaint lourd */
-.app-shell {
-  position: relative;
-  isolation: isolate;
-}
+/* Projecteur qui suit la souris. */
+.app-shell { position: relative; isolation: isolate; }
 .app-shell::before {
   content: "";
-  position: absolute;
-  inset: -60px -40px;
-  pointer-events: none;
-  z-index: -1;
-  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(80,145,220,.055), transparent 62%);
-  opacity: 0;
-  transition: opacity .5s ease;
+  position: absolute; inset: -80px -60px;
+  pointer-events: none; z-index: -1;
+  background: radial-gradient(500px circle at var(--mx) var(--my), rgba(80,145,220,.075), transparent 65%);
+  opacity: 0; transition: opacity .45s ease;
 }
 .app-shell.is-lit::before { opacity: 1; }
 
-/* Fine ligne lumineuse sous l'en-tete */
+/* ---------- 2. En-tete ---------------------------------------------------- */
+
 .page-app .site-header {
-  background: linear-gradient(180deg, rgba(7,11,18,.94), rgba(7,11,18,.82));
+  background: linear-gradient(180deg, rgba(9,15,24,.96), rgba(9,15,24,.80));
   border-bottom: 0;
-  box-shadow: 0 1px 0 rgba(150,180,210,.10), 0 18px 40px -30px rgba(0,0,0,.9);
+  box-shadow: 0 20px 44px -34px rgba(0,0,0,.95);
 }
 .page-app .site-header::after {
   content: "";
   position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(120,170,225,.38) 22%, rgba(200,179,132,.22) 55%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(127,176,226,.55) 24%, rgba(211,189,140,.34) 56%, transparent);
 }
-.page-app .site-header .wrap { position: relative; }
+.page-app .site-header .wrap { position: relative; height: 74px; }
 
-/* ---------- 2. En-tete : marque et navigation ---------------------------- */
-
-.page-app .brand img {
-  filter: drop-shadow(0 0 14px rgba(105,165,225,.45));
-  transition: filter .3s ease;
-}
-.page-app .brand:hover img { filter: drop-shadow(0 0 20px rgba(140,190,240,.65)); }
 .page-app .brand { position: relative; }
 .page-app .brand::before {
   content: "";
-  position: absolute; left: -10px; top: 50%; transform: translateY(-50%);
-  width: 62px; height: 62px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(90,150,215,.16), transparent 68%);
-  pointer-events: none;
+  position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+  width: 68px; height: 68px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(96,158,224,.24), transparent 68%);
 }
-.page-app .brand-text { letter-spacing: .2em; }
+.page-app .brand img {
+  width: 40px; height: 40px;
+  filter: drop-shadow(0 0 16px rgba(115,175,235,.55));
+  transition: filter .3s ease;
+}
+.page-app .brand:hover img { filter: drop-shadow(0 0 24px rgba(150,200,245,.8)); }
+.page-app .brand-text { letter-spacing: .2em; color: #edf4fb; }
 
-.page-app .nav a { position: relative; overflow: hidden; }
+.page-app .nav a { color: var(--texte-2); position: relative; }
+.page-app .nav a:hover { color: #eef5fc; }
 .page-app .nav a::before {
   content: "";
   position: absolute; left: 13px; right: 13px; bottom: 5px; height: 1px;
-  background: linear-gradient(90deg, var(--steel-lt), rgba(200,179,132,.7));
+  background: linear-gradient(90deg, var(--acier), rgba(211,189,140,.8));
   transform: scaleX(0); transform-origin: left;
   transition: transform .28s cubic-bezier(.2,.8,.2,1);
 }
 .page-app .nav a:hover::before { transform: scaleX(1); }
 .page-app .nav a.is-active {
-  color: #eaf3fb;
-  background: linear-gradient(180deg, rgba(74,106,143,.26), rgba(74,106,143,.12));
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 22px -6px rgba(96,152,214,.5);
+  color: #f2f8ff;
+  background: linear-gradient(180deg, rgba(80,140,205,.30), rgba(80,140,205,.12));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 0 26px -6px rgba(96,152,214,.65);
 }
 .page-app .nav a.is-active::before { transform: scaleX(1); }
 
-/* ---------- 3. Titre de page --------------------------------------------- */
+/* ---------- 3. Mise en page ------------------------------------------------ */
 
-.page-app .page-head { position: relative; padding-top: 6px; }
+.page-app .app-shell {
+  grid-template-columns: 254px 1fr;
+  gap: 42px;
+  padding: 40px 0 90px;
+}
+.page-app .page-head { position: relative; margin-bottom: 34px; padding-top: 4px; }
 .page-app .page-head::before {
   content: "";
-  position: absolute; left: -70px; top: -90px;
-  width: 460px; height: 240px; pointer-events: none;
-  background: radial-gradient(closest-side, rgba(80,145,215,.16), transparent 72%);
+  position: absolute; left: -90px; top: -120px;
+  width: 620px; height: 300px; pointer-events: none; z-index: -1;
+  background: radial-gradient(closest-side, rgba(84,152,224,.26), transparent 72%);
 }
-.page-app .page-head h1 {
-  font-size: clamp(2rem, 3.2vw, 2.6rem);
-  letter-spacing: .005em;
-  line-height: 1.12;
-  text-shadow: 0 0 34px rgba(100,160,220,.20);
-  background: linear-gradient(180deg, #f4f9ff 12%, #cfdcea 78%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.page-app .page-head .eyebrow { color: #7f9bb6; letter-spacing: .3em; }
 
-/* ---------- 4. Cartes ----------------------------------------------------- */
+/* ---------- 4. Titre : le point focal ------------------------------------- */
+
+.page-app .page-head h1 {
+  font-size: clamp(2.3rem, 3.6vw, 3.05rem);
+  line-height: 1.08;
+  letter-spacing: .004em;
+  color: #dcecff;                      /* plein, pas de degrade : lisible */
+  text-shadow:
+    0 0 20px rgba(100,160,220,.28),
+    0 0 48px rgba(60,110,180,.16);
+}
+.page-app .page-head .eyebrow {
+  color: #93b0c9;
+  letter-spacing: .32em;
+  font-size: .7rem;
+  margin-bottom: .75rem;
+}
+
+/* ---------- 5. Cartes ------------------------------------------------------ */
 
 .page-app .card {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(145deg, rgba(18,28,40,.90), rgba(8,14,21,.95));
+  padding: 26px 26px 24px;
+  background: linear-gradient(145deg, rgba(20,33,49,.92), rgba(9,16,25,.96));
   border: 1px solid var(--verre);
-  border-radius: 12px;
+  border-radius: 14px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.045),
-    0 20px 50px rgba(0,0,0,.28);
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 18px 44px rgba(0,0,0,.42),
+    0 0 44px -14px rgba(70,120,190,.30);
   transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
 }
-/* reflet diagonal tres discret */
+/* reflet diagonal */
 .page-app .card::before {
   content: "";
   position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(120deg, rgba(255,255,255,.04), transparent 32%);
+  background: linear-gradient(122deg, rgba(255,255,255,.055), transparent 34%);
+}
+/* filet lumineux permanent sur le haut, renforce au survol */
+.page-app .card::after {
+  content: "";
+  position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(150,200,255,.38), transparent);
+  transition: opacity .3s ease, left .4s ease, right .4s ease;
 }
 .page-app .card:hover {
   transform: translateY(-3px);
-  border-color: rgba(150,190,230,.26);
+  border-color: var(--verre-fort);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.07),
-    0 26px 60px rgba(0,0,0,.36),
-    0 0 34px -12px var(--lueur);
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 26px 62px rgba(0,0,0,.5),
+    0 0 46px -10px var(--lueur);
 }
-/* filet lumineux qui traverse le haut de la carte au survol */
-.page-app .card::after {
-  content: "";
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(160,205,250,.55), rgba(200,179,132,.35), transparent);
-  transform: scaleX(0); transform-origin: center;
-  transition: transform .45s cubic-bezier(.2,.8,.2,1);
+.page-app .card:hover::after { left: 2%; right: 2%; }
+
+.page-app .card h3 {
+  display: flex; align-items: center; gap: 11px;
+  font-size: 1.14rem;
+  color: #e9f2fb;
+  margin-bottom: 2px;
 }
-.page-app .card:hover::after { transform: scaleX(1); }
+.page-app .card h3 svg { flex: 0 0 auto; color: var(--acier); opacity: .85; }
 
-/* ---------- 5. Cartes de statistique -------------------------------------- */
+/* ---------- 6. Cartes de statistique -------------------------------------- */
 
-.page-app .card.stat { padding: 30px 20px 26px; }
+.page-app .card.stat { padding: 34px 20px 30px; }
 .page-app .card.stat .stat-value {
   position: relative;
-  font-size: 2.7rem;
-  letter-spacing: -.01em;
-  color: #f2f7fc;
-  text-shadow: 0 0 30px rgba(110,170,230,.28);
+  font-size: 3.15rem;
+  line-height: 1;
+  letter-spacing: -.015em;
+  color: #f5faff;
+  text-shadow: 0 0 18px rgba(120,180,240,.34), 0 0 44px rgba(70,130,205,.18);
   font-variant-numeric: tabular-nums;
+  margin-bottom: 12px;
 }
-/* halo derriere le chiffre */
 .page-app .card.stat .stat-value::before {
   content: "";
-  position: absolute; left: 50%; top: 52%; transform: translate(-50%,-50%);
-  width: 118px; height: 74px; border-radius: 50%; z-index: -1;
-  background: radial-gradient(closest-side, rgba(80,145,215,.20), transparent 72%);
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+  width: 150px; height: 92px; border-radius: 50%; z-index: -1;
+  background: radial-gradient(closest-side, rgba(84,152,224,.30), transparent 72%);
 }
 .page-app .card.stat .stat-label {
-  color: #8ba3ba;
-  letter-spacing: .22em;
-  font-size: .64rem;
+  color: #9fb6cb;
+  letter-spacing: .24em;
+  font-size: .67rem;
 }
 .page-app .card.stat:nth-child(4) .stat-value::before {
-  background: radial-gradient(closest-side, rgba(200,179,132,.16), transparent 72%);
+  background: radial-gradient(closest-side, rgba(211,189,140,.24), transparent 72%);
 }
+.page-app .card.stat:nth-child(4) .stat-value { text-shadow: 0 0 18px rgba(211,189,140,.32); }
 
-/* ---------- 6. Menu lateral ----------------------------------------------- */
+/* ---------- 7. Menu lateral ------------------------------------------------ */
 
-.page-app .side-nav { gap: 2px; }
+.page-app .side-nav { gap: 3px; }
 .page-app .side-nav .group-label {
-  color: #62788e;
-  letter-spacing: .26em;
-  font-size: .6rem;
-  margin: 26px 0 9px 13px;
+  color: #7691a9;
+  letter-spacing: .28em;
+  font-size: .62rem;
+  margin: 30px 0 11px 14px;
 }
 .page-app .side-nav .group-label:first-child { margin-top: 0; }
 
 .page-app .side-nav a {
   position: relative;
-  padding: 10px 14px 10px 16px;
+  padding: 11px 14px 11px 17px;
   border-left: 0;
-  border-radius: 9px;
-  transition: color .22s ease, background .22s ease, padding-left .22s ease;
+  border-radius: 10px;
+  color: var(--texte-2);
+  font-size: .93rem;
+  transition: color .22s ease, background .22s ease, padding-left .22s ease, box-shadow .22s ease;
 }
-/* barre verticale lumineuse */
 .page-app .side-nav a::before {
   content: "";
-  position: absolute; left: 0; top: 50%; transform: translateY(-50%) scaleY(0);
-  width: 2px; height: 62%; border-radius: 2px;
-  background: linear-gradient(180deg, rgba(160,205,250,.95), rgba(74,106,143,.6));
-  box-shadow: 0 0 10px rgba(120,175,235,.6);
+  position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 2px; height: 64%; border-radius: 2px;
+  background: linear-gradient(180deg, #a8d2fb, rgba(96,152,214,.65));
+  box-shadow: 0 0 12px rgba(130,185,240,.75);
   transition: transform .28s cubic-bezier(.2,.8,.2,1);
 }
 .page-app .side-nav a:hover {
-  background: linear-gradient(90deg, rgba(74,106,143,.16), transparent 80%);
-  color: var(--text);
-  padding-left: 20px;
+  color: #eaf3fb;
+  background: linear-gradient(90deg, rgba(70,130,200,.16), rgba(70,130,200,.02) 82%);
+  padding-left: 21px;
 }
-.page-app .side-nav a:hover::before { transform: translateY(-50%) scaleY(.55); }
+.page-app .side-nav a:hover::before { transform: translateY(-50%) scaleY(.6); }
 
 .page-app .side-nav a.is-active {
-  color: #eaf3fb;
-  background: linear-gradient(90deg, rgba(74,106,143,.26), rgba(74,106,143,.05) 78%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-  padding-left: 20px;
+  color: #f2f8ff;
+  background: linear-gradient(90deg, rgba(70,130,200,.30), rgba(70,130,200,.04) 84%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 30px -12px rgba(96,152,214,.9);
+  padding-left: 21px;
 }
 .page-app .side-nav a.is-active::before { transform: translateY(-50%) scaleY(1); }
 
-/* ---------- 7. Boutons ---------------------------------------------------- */
+/* ---------- 8. Boutons ----------------------------------------------------- */
 
 .page-app .btn {
   position: relative;
-  overflow: hidden;
-  border-radius: 9px;
-  background: linear-gradient(180deg, rgba(28,40,55,.95), rgba(13,20,29,.95));
-  border: 1px solid rgba(150,180,210,.16);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, color .22s ease;
+  border-radius: 10px;
+  color: var(--texte);
+  background: linear-gradient(180deg, rgba(32,47,64,.96), rgba(14,22,33,.96));
+  border: 1px solid rgba(140,180,220,.20);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease, filter .22s ease;
 }
 .page-app .btn:hover {
   transform: translateY(-2px);
-  border-color: rgba(150,195,235,.36);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 10px 26px -10px rgba(96,152,214,.55);
+  border-color: var(--verre-fort);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 12px 30px -10px rgba(96,152,214,.6);
 }
-.page-app .btn-primary {
-  background: linear-gradient(180deg, rgba(93,132,176,.55), rgba(42,62,87,.95));
-  border-color: rgba(160,200,240,.34);
-  color: #f1f7fd;
-}
-.page-app .btn-primary:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 14px 34px -10px rgba(96,152,214,.7); }
-.page-app .btn-ghost { background: rgba(255,255,255,.015); }
+.page-app .btn-ghost { background: rgba(255,255,255,.02); }
 
-/* CTA principal de la page : liseré champagne */
+/* CTA principal : bleu acier, present sans etre criard */
+.page-app .btn-primary,
 .page-app .page-head .btn {
-  border-color: rgba(200,179,132,.34);
-  color: #f0e9da;
+  background: linear-gradient(180deg, rgba(108,152,200,.62), rgba(46,72,102,.96));
+  border-color: rgba(168,208,245,.42);
+  color: #f6fbff;
+  font-weight: 500;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 10px 26px -12px rgba(96,152,214,.8);
 }
+.page-app .btn-primary:hover,
 .page-app .page-head .btn:hover {
-  border-color: rgba(214,196,155,.6);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 12px 30px -10px rgba(200,179,132,.45);
+  filter: brightness(1.1);
+  border-color: rgba(190,222,252,.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.26),
+    0 16px 38px -12px rgba(110,170,235,.85);
 }
+.page-app .page-head .btn { padding: 11px 22px; }
 
-/* ---------- 8. Widget d'activite ------------------------------------------ */
+/* ---------- 9. Widget d'activite ------------------------------------------- */
 
-.page-app .card h3 {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 1.06rem;
-  letter-spacing: .01em;
-  margin-bottom: 4px;
-}
-.page-app .card h3 svg { flex: 0 0 auto; opacity: .65; }
-
-.metrics { margin-top: 16px; display: grid; gap: 2px; }
+.metrics { margin-top: 18px; display: grid; gap: 2px; }
 .metric {
   position: relative;
   display: grid; grid-template-columns: 26px 1fr auto;
-  align-items: center; gap: 12px;
-  padding: 13px 12px;
-  border-radius: 9px;
+  align-items: center; gap: 13px;
+  padding: 15px 12px;
+  border-radius: 10px;
   transition: background .22s ease;
 }
-.metric + .metric { box-shadow: inset 0 1px 0 rgba(150,180,210,.07); }
-.metric:hover { background: rgba(96,152,214,.06); }
-.metric__icon { color: var(--steel-lt); opacity: .7; display: flex; }
-.metric__label { color: var(--muted); font-size: .9rem; }
+.metric + .metric { box-shadow: inset 0 1px 0 rgba(140,180,220,.11); }
+.metric:hover { background: rgba(96,152,214,.09); }
+.metric__icon { color: var(--acier); opacity: .85; display: flex; }
+.metric__label { color: var(--texte-2); font-size: .93rem; }
 .metric__value {
-  font-family: var(--serif); font-size: 1.32rem; color: #eef5fb;
+  font-family: var(--serif); font-size: 1.45rem; color: #f3f9ff;
+  text-shadow: 0 0 16px rgba(120,180,240,.22);
   font-variant-numeric: tabular-nums;
 }
-.metric__value .unite { font-family: var(--sans); font-size: .78rem; color: #8ba3ba; margin-left: 3px; }
 
-/* courbe de fond, purement decorative */
-.spark {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 62px;
-  pointer-events: none; opacity: .5;
-}
+.spark { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; pointer-events: none; }
 .spark svg { width: 100%; height: 100%; display: block; }
 
-/* ---------- 9. Etat vide -------------------------------------------------- */
+/* ---------- 10. Repartition et podium -------------------------------------- */
+
+.rang {
+  display: grid; grid-template-columns: 128px 1fr 44px;
+  align-items: center; gap: 14px;
+  padding: 12px 12px; border-radius: 10px;
+  transition: background .2s ease;
+}
+.rang:hover { background: rgba(96,152,214,.08); }
+.rang__nom {
+  display: flex; align-items: center; gap: 9px;
+  font-size: .92rem; letter-spacing: .02em;
+  color: #e2edf8;               /* le nom reste lisible quel que soit le grade */
+}
+.rang__pastille {
+  width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto;
+  box-shadow: 0 0 9px -1px currentColor;
+}
+.rang__piste {
+  height: 8px; border-radius: 999px; overflow: hidden;
+  background: rgba(10,18,28,.9);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.6);
+}
+.rang__jauge { display: block; height: 100%; border-radius: 999px; box-shadow: 0 0 14px -3px currentColor; }
+.rang__val { text-align: right; font-family: var(--serif); font-size: 1.12rem; color: #eef5fc; }
+
+.podium {
+  display: grid; grid-template-columns: 30px 1fr auto;
+  grid-template-areas: "place nom val" "place detail val";
+  align-items: center; column-gap: 13px;
+  padding: 13px 12px; border-radius: 10px;
+  transition: background .2s ease;
+}
+.podium + .podium { box-shadow: inset 0 1px 0 rgba(140,180,220,.11); }
+.podium:hover { background: rgba(96,152,214,.09); }
+.podium__place {
+  grid-area: place;
+  font-family: var(--serif); font-size: 1.05rem; text-align: center;
+  color: var(--acier); opacity: .9;
+}
+.podium:first-child .podium__place { color: var(--or); opacity: 1; text-shadow: 0 0 14px rgba(211,189,140,.5); }
+.podium__nom { grid-area: nom; color: #eaf3fb; font-size: .95rem; }
+.podium__nom:hover { color: #fff; }
+.podium__detail { grid-area: detail; color: var(--texte-3); font-size: .78rem; }
+.podium__val {
+  grid-area: val; font-family: var(--serif); font-size: 1.2rem; color: #f2f8ff;
+  text-shadow: 0 0 14px rgba(120,180,240,.2);
+}
+
+/* ---------- 11. Etat vide --------------------------------------------------- */
 
 .vide {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 34px 18px 26px; gap: 12px;
+  text-align: center; padding: 46px 18px 40px; gap: 13px;
 }
 .vide__rond {
-  width: 58px; height: 58px; border-radius: 50%;
+  width: 66px; height: 66px; border-radius: 50%;
   display: grid; place-items: center;
-  color: var(--steel-lt);
-  background: radial-gradient(circle, rgba(96,152,214,.14), transparent 70%);
-  border: 1px solid rgba(150,180,210,.14);
+  color: var(--acier);
+  background: radial-gradient(circle, rgba(96,152,214,.22), rgba(96,152,214,.04) 70%);
+  border: 1px solid rgba(140,185,230,.24);
+  box-shadow: 0 0 30px rgba(80,140,220,.16), inset 0 1px 0 rgba(255,255,255,.10);
 }
-.vide p { margin: 0; color: var(--muted); font-size: .9rem; }
-.vide small { color: #62788e; font-size: .76rem; letter-spacing: .04em; }
+.vide p { margin: 0; color: var(--texte-2); font-size: .95rem; }
+.vide small { color: var(--texte-3); font-size: .78rem; letter-spacing: .03em; max-width: 300px; }
 .vide__trait {
-  width: 120px; height: 1px; margin-top: 4px;
-  background: linear-gradient(90deg, transparent, rgba(150,180,210,.28), transparent);
+  width: 140px; height: 1px; margin-top: 6px;
+  background: linear-gradient(90deg, transparent, rgba(140,185,230,.4), transparent);
 }
 
-/* ---------- 10. Arrivee de page ------------------------------------------- */
+/* ---------- 12. Tableaux, badges, chips ------------------------------------ */
 
-@keyframes monte { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes glisse { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+.page-app .table-wrap { border-color: var(--verre); border-radius: 14px; background: rgba(12,20,31,.6); }
+.page-app thead th { background: rgba(10,17,26,.95); color: #93aabf; }
+.page-app tbody td { border-bottom-color: rgba(140,180,220,.10); }
+.page-app tbody tr { transition: background .18s ease; }
+.page-app tbody tr:hover { background: rgba(96,152,214,.10); }
+.page-app .chip { border-color: var(--verre); color: var(--texte-2); }
+.page-app .chip.is-active { color: #f2f8ff; box-shadow: 0 0 26px -8px var(--lueur); }
+.page-app .timeline { border-left-color: rgba(140,180,220,.18); }
+.page-app .timeline li::before { box-shadow: 0 0 0 3px #0a1119, 0 0 14px rgba(120,180,240,.6); }
+.page-app .t-type { color: #e6f0fa; }
+.page-app .t-body { color: var(--texte-2); }
+.page-app .alert-info { border-color: rgba(96,152,214,.35); background: rgba(74,106,143,.16); color: #cadcec; }
 
-.page-app .page-head            { animation: monte .5s cubic-bezier(.2,.8,.2,1) both; }
-.page-app .side-nav             { animation: glisse .5s cubic-bezier(.2,.8,.2,1) both; }
+/* ---------- 13. Pied de page ------------------------------------------------ */
+
+.page-app .site-footer {
+  position: relative;
+  margin-top: 0;
+  padding: 34px 0 40px;
+  border-top: 0;
+  color: var(--texte-3);
+  background: linear-gradient(180deg, rgba(10,17,27,0), rgba(6,11,18,.85));
+}
+.page-app .site-footer::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(140,185,230,.28) 30%, rgba(211,189,140,.18) 65%, transparent);
+}
+.page-app .site-footer a { color: var(--texte-2); }
+.page-app .site-footer a:hover { color: var(--acier); }
+
+/* ---------- 14. Arrivee de page --------------------------------------------- */
+
+@keyframes monte { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes glisse { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+
+.page-app .page-head { animation: monte .5s cubic-bezier(.2,.8,.2,1) both; }
+.page-app .side-nav  { animation: glisse .55s cubic-bezier(.2,.8,.2,1) .05s both; }
 .page-app .app-shell > div > .grid > *,
 .page-app .app-shell > div > .card,
-.page-app .app-shell > div > .table-wrap { animation: monte .55s cubic-bezier(.2,.8,.2,1) both; }
+.page-app .app-shell > div > .table-wrap { animation: monte .6s cubic-bezier(.2,.8,.2,1) both; }
 
 .page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(1) { animation-delay: .06s; }
 .page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(2) { animation-delay: .12s; }
 .page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(3) { animation-delay: .18s; }
 .page-app .app-shell > div > .grid:nth-of-type(1) > *:nth-child(4) { animation-delay: .24s; }
-.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(1) { animation-delay: .28s; }
-.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(2) { animation-delay: .34s; }
-.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(3) { animation-delay: .40s; }
+.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(1) { animation-delay: .30s; }
+.page-app .app-shell > div > .grid:nth-of-type(2) > *:nth-child(2) { animation-delay: .36s; }
+.page-app .app-shell > div > .grid:nth-of-type(3) > *:nth-child(1) { animation-delay: .42s; }
+.page-app .app-shell > div > .grid:nth-of-type(3) > *:nth-child(2) { animation-delay: .48s; }
 
-/* ---------- 11. Tableaux et badges ---------------------------------------- */
+/* ---------- 15. Responsive --------------------------------------------------- */
 
-.page-app .table-wrap { border-color: var(--verre); border-radius: 12px; background: rgba(10,16,24,.5); }
-.page-app thead th { background: rgba(9,14,21,.9); color: #7f97ad; }
-.page-app tbody tr { transition: background .18s ease; }
-.page-app tbody tr:hover { background: rgba(96,152,214,.07); }
-.page-app .chip { border-color: var(--verre); }
-.page-app .chip.is-active { box-shadow: 0 0 22px -8px var(--lueur); }
-
-/* ---------- 12. Pied de page ---------------------------------------------- */
-
-.page-app .site-footer { border-top: 1px solid rgba(150,180,210,.09); background: linear-gradient(180deg, transparent, rgba(0,0,0,.3)); }
-
-/* ---------- 13. Responsive ------------------------------------------------ */
-
+@media (max-width: 1200px) {
+  .page-app .app-shell { grid-template-columns: 226px 1fr; gap: 32px; }
+}
 @media (max-width: 900px) {
-  .page-app .page-head::before { left: -30px; width: 320px; }
+  .page-app .app-shell { grid-template-columns: 1fr; gap: 24px; padding-top: 28px; }
+  .page-app .page-head::before { left: -30px; width: 340px; height: 220px; }
   .page-app .side-nav a { padding-left: 14px; }
   .page-app .side-nav a::before { display: none; }
-  .page-app .side-nav a.is-active { border-bottom: 2px solid var(--steel); }
+  .page-app .side-nav a.is-active { border-bottom: 2px solid var(--acier); }
   .app-shell::before { display: none; }
 }
 @media (max-width: 560px) {
-  .page-app .card.stat { padding: 22px 14px 20px; }
-  .page-app .card.stat .stat-value { font-size: 2.1rem; }
-  .metric { grid-template-columns: 22px 1fr auto; gap: 9px; padding: 11px 8px; }
+  .page-app .card { padding: 20px 18px; }
+  .page-app .card.stat { padding: 26px 14px 22px; }
+  .page-app .card.stat .stat-value { font-size: 2.4rem; }
+  .metric { grid-template-columns: 22px 1fr auto; gap: 10px; padding: 12px 8px; }
+  .rang { grid-template-columns: 96px 1fr 38px; gap: 10px; }
 }
 
-/* ---------- 14. Mouvement reduit ------------------------------------------ */
+/* ---------- 16. Mouvement reduit --------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   .page-app .page-head,

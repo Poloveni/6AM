@@ -33,6 +33,34 @@ router.get('/', wrap(async (req, res) => {
       }, { minutes: 0, actions: 0, amount: 0 })
     : null;
 
+  // Repartition des effectifs par grade — remplit le bas de page avec du concret
+  const repartition = await db('members')
+    .leftJoin('ranks', 'members.rank_id', 'ranks.id')
+    .where('members.status', 'active')
+    .groupBy('ranks.name', 'ranks.color', 'ranks.level')
+    .orderBy('ranks.level', 'desc')
+    .select('ranks.name', 'ranks.color')
+    .count({ c: 'members.id' });
+
+  // Classement des membres les plus actifs sur la periode
+  const parMembre = new Map();
+  for (const r of rows) {
+    if (!r.member_id) continue;
+    if (!parMembre.has(r.member_id)) parMembre.set(r.member_id, { minutes: 0, actions: 0, amount: 0 });
+    const m = parMembre.get(r.member_id);
+    m.minutes += Number(r.minutes) || 0;
+    m.actions += Number(r.actions) || 0;
+    m.amount += Number(r.amount) || 0;
+  }
+  const fiches = parMembre.size
+    ? await db('members').whereIn('id', [...parMembre.keys()]).select('id', 'rp_name')
+    : [];
+  const nomsParId = Object.fromEntries(fiches.map((f) => [f.id, f.rp_name]));
+  const top = [...parMembre.entries()]
+    .map(([id, v]) => ({ id, nom: nomsParId[id] || 'Fiche supprimée', ...v }))
+    .sort((a, b) => b.minutes - a.minutes || b.amount - a.amount)
+    .slice(0, 5);
+
   const events = await db('member_events')
     .leftJoin('members', 'member_events.member_id', 'members.id')
     .orderBy('member_events.created_at', 'desc')
@@ -45,6 +73,12 @@ router.get('/', wrap(async (req, res) => {
     kpi: { active: Number(active.c) || 0, onLeave: Number(onLeave.c) || 0, ...totals },
     mine,
     events,
+    repartition: repartition.map((r) => ({
+      nom: r.name || 'Sans grade',
+      couleur: r.color || '#5b6b7d',
+      total: Number(r.c) || 0,
+    })),
+    top,
   });
 }));
 

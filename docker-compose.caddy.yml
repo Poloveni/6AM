@@ -7,7 +7,7 @@
 #  L'application rejoint ce reseau sous le nom "sixam-app" ;
 #  le Caddyfile partage n'a plus qu'a faire :
 #
-#      6am-rp.duckdns.org {
+#      6amfbfa.duckdns.org {
 #          reverse_proxy sixam-app:3000
 #      }
 #

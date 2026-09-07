@@ -382,3 +382,50 @@ input[type=color] { padding: 4px; height: 42px; }
    vides quand un grade ne compte qu'une personne. */
 .vitrine .v-values.v-roster { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 40px 45px; }
 .vitrine .v-values.v-roster h3 { margin-top: 14px; }
+
+/* ==========================================================
+   Vitrine en page unique : nav a ancres, apparitions, flotte
+   ========================================================== */
+
+/* En-tete : transparent en haut de page, plein des qu'on defile */
+.page-home .site-header { background: linear-gradient(180deg, rgba(5,8,13,.92), rgba(5,8,13,0)); border-bottom-color: transparent; }
+.page-home .site-header.is-scrolled { background: rgba(5,8,13,.9); border-bottom-color: var(--line-soft); }
+
+.nav a[data-anchor] { position: relative; }
+.nav a[data-anchor]::after {
+  content: ""; position: absolute; left: 13px; right: 13px; bottom: 3px; height: 1px;
+  background: var(--steel-lt); transform: scaleX(0); transform-origin: left; transition: transform .3s;
+}
+.nav a[data-anchor]:hover::after, .nav a[data-anchor].is-active::after { transform: scaleX(1); }
+.nav a[data-anchor].is-active { color: var(--silver); background: none; }
+
+.nav-cta {
+  border: 1px solid var(--steel);
+  color: var(--steel-lt) !important;
+  padding: 7px 16px !important;
+  border-radius: 8px;
+}
+.nav-cta:hover { background: var(--steel); color: #06101a !important; }
+
+/* Le defilement vers une ancre ne doit pas passer sous l'en-tete */
+html { scroll-behavior: smooth; }
+:target, [id] { scroll-margin-top: 90px; }
+
+/* Apparition au defilement */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.is-in { opacity: 1; transform: none; }
+
+/* Flotte */
+.v-fleet { list-style: none; margin: 26px 0 0; padding: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+.v-fleet li { border-top: 1px solid #385069; padding-top: 14px; }
+.v-fleet strong { display: block; font-family: var(--serif); font-size: 1.9rem; font-weight: 400; color: #dfeaf4; line-height: 1; }
+.v-fleet span { display: block; margin-top: 5px; font-size: .78rem; letter-spacing: .1em; color: #8ba1b6; }
+
+/* Alterner le sens des sections illustrees */
+.v-place--reverse > div { order: -1; }
+@media (max-width: 900px) { .v-place--reverse > div { order: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+}

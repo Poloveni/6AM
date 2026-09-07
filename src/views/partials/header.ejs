@@ -1,4 +1,17 @@
-<header class="site-header">
+<%
+  // Sur l'accueil les liens sont de simples ancres ; ailleurs ils y ramenent.
+  var base = currentPath === '/' ? '' : '/';
+  var ancres = [
+    ['histoire',    'Histoire'],
+    ['code',        'Code'],
+    ['famille',     'Famille'],
+    ['implantation','Implantation'],
+    ['flotte',      'Flotte'],
+    ['evenements',  'Événements'],
+    ['projets',     'Projets'],
+  ];
+%>
+<header class="site-header" id="site-header">
   <div class="wrap">
     <a class="brand" href="/">
       <img src="/static/img/logo.png" alt="<%= site.name %>" width="36" height="36">
@@ -8,15 +21,16 @@
     <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu">&#9776;</button>
 
     <nav class="nav">
-      <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Accueil</a>
-      <a href="/histoire" class="<%= currentPath === '/serveur' ? 'is-active' : '' %>">Notre histoire</a>
-      <a href="/famille" class="<%= currentPath === '/effectifs' ? 'is-active' : '' %>">La famille</a>
-      <a href="/le-code" class="<%= currentPath === '/reglement' ? 'is-active' : '' %>">Le code</a>
-      <a href="/rejoindre" class="<%= currentPath === '/rejoindre' ? 'is-active' : '' %>">Nous rejoindre</a>
+      <% ancres.forEach(function (a) { %>
+        <a href="<%= base %>#<%= a[0] %>" data-anchor="<%= a[0] %>"><%= a[1] %></a>
+      <% }); %>
       <% if (user) { %>
         <a href="/espace" class="<%= currentPath.startsWith('/espace') ? 'is-active' : '' %>">Espace membres</a>
       <% } else { %>
         <a href="/connexion" class="<%= currentPath === '/connexion' ? 'is-active' : '' %>">Connexion</a>
+      <% } %>
+      <% if (links.discord) { %>
+        <a class="nav-cta" href="<%= links.discord %>" target="_blank" rel="noopener">Discord</a>
       <% } %>
     </nav>
   </div>

@@ -1,214 +1,164 @@
-/* ==========================================================
-   6AM — medaillon 3D de la page d'accueil (Three.js)
-   Aucune dependance externe : three est servi depuis /static/vendor.
-   Le medaillon est ancre sur l'element .hero-emblem : il suit donc
-   exactement la mise en page HTML, quelle que soit la taille d'ecran.
-   ========================================================== */
-import * as THREE from '/static/vendor/three.module.min.js';
-
-const canvas = document.getElementById('hero-canvas');
-if (canvas) init(canvas);
-
-function supportsWebGL() {
-  try {
-    const c = document.createElement('canvas');
-    return !!(window.WebGLRenderingContext && (c.getContext('webgl2') || c.getContext('webgl')));
-  } catch (e) { return false; }
-}
-
-function init(canvas) {
-  if (!supportsWebGL()) {
-    document.body.classList.add('no-webgl');
-    canvas.remove();
-    return;
-  }
-
-  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const host = canvas.parentElement;
-  const anchor = host.querySelector('.hero-emblem');
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.6;
-
-  const scene = new THREE.Scene();
-
-  const CAM_Z = 9;
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-  camera.position.set(0, 0, CAM_Z);
-
-  // ---------- Medaillon ----------
-  const medal = new THREE.Group();
-  scene.add(medal);
-
-  const RADIUS = 2;
-  const loader = new THREE.TextureLoader();
-  const logoTex = loader.load('/static/img/logo.png', (t) => {
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-    t.needsUpdate = true;
-  });
-  logoTex.colorSpace = THREE.SRGBColorSpace;
-
-  const faceMat = new THREE.MeshStandardMaterial({
-    map: logoTex,
-    emissiveMap: logoTex,
-    emissive: 0x51708f,
-    emissiveIntensity: 0.55,
-    metalness: 0.45,
-    roughness: 0.42,
-  });
-  const edgeMat = new THREE.MeshStandardMaterial({ color: 0x24344a, metalness: 0.95, roughness: 0.25 });
-  const backMat = new THREE.MeshStandardMaterial({ color: 0x101a26, metalness: 0.9, roughness: 0.45 });
-
-  const coin = new THREE.Mesh(
-    new THREE.CylinderGeometry(RADIUS, RADIUS, 0.2, 160, 1),
-    [edgeMat, faceMat, backMat]
-  );
-  coin.rotation.x = Math.PI / 2;
-  medal.add(coin);
-
-  const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(RADIUS + 0.02, 0.05, 24, 200),
-    new THREE.MeshStandardMaterial({ color: 0x8caed2, metalness: 1, roughness: 0.16 })
-  );
-  medal.add(ring);
-
-  // Halo diffus : degrade radial genere a la volee (pas de fichier externe)
-  const haloTex = (() => {
-    const c = document.createElement('canvas');
-    c.width = c.height = 256;
-    const g = c.getContext('2d').createRadialGradient(128, 128, 0, 128, 128, 128);
-    g.addColorStop(0.00, 'rgba(140,180,225,0.85)');
-    g.addColorStop(0.32, 'rgba(90,135,185,0.32)');
-    g.addColorStop(0.65, 'rgba(50,85,130,0.10)');
-    g.addColorStop(1.00, 'rgba(20,35,60,0)');
-    const ctx = c.getContext('2d');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 256, 256);
-    const tex = new THREE.CanvasTexture(c);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  })();
-
-  const halo = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: haloTex,
-    transparent: true,
-    opacity: 0.75,
-    depthWrite: false,
-    blending: THREE.AdditiveBlending,
+// 6AM cinematic scene. Three.js and the logo are served locally.
+const host = document.querySelector('.sixam');
+if (host) {
+  const word = host.querySelector('[data-sixam-word]');
+  const label = host.querySelector('[data-sixam-label]');
+  const sub = host.querySelector('[data-sixam-sub]');
+  const note = host.querySelector('[data-sixam-note]');
+  const buttons = [...host.querySelectorAll('[data-sixam-chapter]')];
+  const pause = host.querySelector('[data-sixam-pause]');
+  const status = host.querySelector('[data-sixam-status]');
+  const chapters = [
+    { word: word.firstChild.textContent, label: label.textContent, sub: sub.textContent, note: note.textContent },
+    { word: 'LOYALTY', label: 'LA PAROLE ENGAGE.', sub: 'Le silence protège.', note: 'Le respect se gagne. La loyauté se prouve.' },
+    { word: 'LEGACY', label: 'AVANT QUE LE JOUR SE LÈVE.', sub: 'Notre nom reste.', note: 'Pas besoin de faire du bruit pour laisser une trace.' },
+  ];
+  let chapter = 0;
+  let paused = false;
+  let cleanup = () => {};
+  buttons.forEach((button, index) => button.addEventListener('click', () => {
+    chapter = index;
+    const content = chapters[index];
+    word.firstChild.textContent = content.word;
+    word.classList.toggle('is-long', index !== 0);
+    label.textContent = content.label;
+    sub.textContent = content.sub;
+    note.textContent = content.note;
+    buttons.forEach((item, i) => {
+      if (i === index) item.setAttribute('aria-current', 'step');
+      else item.removeAttribute('aria-current');
+    });
   }));
-  halo.scale.setScalar(RADIUS * 5.2);
-  halo.position.z = -0.7;
-  medal.add(halo);
+  pause.addEventListener('click', () => {
+    paused = !paused;
+    pause.textContent = paused ? '▶' : 'Ⅱ';
+    pause.setAttribute('aria-pressed', String(paused));
+    pause.setAttribute('aria-label', paused ? 'Reprendre l’animation' : 'Mettre l’animation en pause');
+  });
 
-  // ---------- Lumieres ----------
-  scene.add(new THREE.AmbientLight(0x4a5f78, 2.4));
-
-  const key = new THREE.DirectionalLight(0xe8f2fb, 3.4);
-  key.position.set(-4, 5, 7);
-  scene.add(key);
-
-  const fill = new THREE.DirectionalLight(0x7ea3c9, 1.9);
-  fill.position.set(5, -2, 4);
-  scene.add(fill);
-
-  const sweep = new THREE.PointLight(0xcfe2f6, 30, 26, 2);
-  sweep.position.set(3, 2, 5);
-  scene.add(sweep);
-
-  // ---------- Poussiere d'etoiles ----------
-  const starCount = 340;
-  const positions = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount; i += 1) {
-    positions[i * 3]     = (Math.random() - 0.5) * 30;
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-    positions[i * 3 + 2] = -Math.random() * 14 - 2;
+  function fallback() {
+    host.classList.remove('is-ready');
+    pause.hidden = true;
+    status.textContent = 'FIVEM ROLEPLAY';
   }
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
-    color: 0x9dbcdb, size: 0.05, transparent: true, opacity: 0.5, sizeAttenuation: true,
-  }));
-  scene.add(stars);
+  // Keep the static emblem and chapter navigation usable if WebGL cannot load.
+  import('/static/vendor/three.module.min.js').then(THREE => {
+    try { start(THREE); } catch (error) { cleanup(); fallback(); }
+  }).catch(fallback);
 
-  // ---------- Interaction ----------
-  const pointer = { x: 0, y: 0 };
-  const target = { x: 0, y: 0 };
-  window.addEventListener('pointermove', (e) => {
-    target.x = (e.clientX / window.innerWidth) * 2 - 1;
-    target.y = (e.clientY / window.innerHeight) * 2 - 1;
-  }, { passive: true });
-
-  let scrollY = window.scrollY || 0;
-  window.addEventListener('scroll', () => { scrollY = window.scrollY || 0; }, { passive: true });
-
-  // ---------- Ancrage sur la mise en page ----------
-  const base = { x: 0, y: 0, scale: 1 };
-
-  function layout() {
-    const w = host.clientWidth;
-    const h = host.clientHeight;
-    if (!w || !h) return;
-
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-
-    // Hauteur du plan visible a z = 0
-    const visibleH = 2 * CAM_Z * Math.tan((camera.fov * Math.PI) / 360);
-    const unit = h / visibleH;                    // pixels par unite 3D
-
-    const hostRect = host.getBoundingClientRect();
-    const rect = anchor ? anchor.getBoundingClientRect() : hostRect;
-
-    const cxPx = rect.left + rect.width / 2 - (hostRect.left + hostRect.width / 2);
-    const cyPx = rect.top + rect.height / 2 - (hostRect.top + hostRect.height / 2);
-
-    base.x = cxPx / unit;
-    base.y = -cyPx / unit;
-    base.scale = (Math.min(rect.width, rect.height) / unit) / (RADIUS * 2);
-  }
-
-  window.addEventListener('resize', layout);
-  if (window.ResizeObserver && anchor) new ResizeObserver(layout).observe(anchor);
-  layout();
-
-  // ---------- Boucle ----------
-  let running = true;
-  document.addEventListener('visibilitychange', () => { running = !document.hidden; });
-  const clock = new THREE.Clock();
-
-  function frame() {
-    requestAnimationFrame(frame);
-    if (!running) return;
-
-    const t = clock.getElapsedTime();
-
-    pointer.x += (target.x - pointer.x) * 0.05;
-    pointer.y += (target.y - pointer.y) * 0.05;
-
-    if (reduced) {
-      medal.rotation.set(0, 0, 0);
-    } else {
-      medal.rotation.y = pointer.x * 0.34 + Math.sin(t * 0.28) * 0.07;
-      medal.rotation.x = pointer.y * 0.22 + Math.cos(t * 0.23) * 0.05;
-      medal.rotation.z = Math.sin(t * 0.16) * 0.03;
-
-      sweep.position.x = Math.cos(t * 0.6) * 6;
-      sweep.position.y = Math.sin(t * 0.45) * 4;
-      stars.rotation.z = t * 0.008;
+  function start(THREE) {
+    const canvas = host.querySelector('canvas');
+    const anchor = host.querySelector('.sixam-anchor');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.75));
+    renderer.setClearColor(0x03070c, 0);
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x050b13, .035);
+    const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
+    camera.position.z = 13;
+    let frameId = 0, disposed = false, loaded = false, inView = true, contextLost = false;
+    const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
+    const texture = new THREE.TextureLoader().load('/static/img/logo.png', () => {
+      if (disposed) return;
+      loaded = true;
+      host.classList.add('is-ready');
+      pause.hidden = motionPreference.matches;
+      status.textContent = motionPreference.matches ? 'FIVEM ROLEPLAY' : 'DÉPLACEZ LA SOURIS POUR EXPLORER';
+    }, undefined, fallback);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    scene.add(new THREE.AmbientLight(0xa2bedb, 1.4));
+    const light = new THREE.PointLight(0xc2e4ff, 80, 25);
+    light.position.set(-3, 4, 5); scene.add(light);
+    const blue = new THREE.PointLight(0x447dff, 55, 20);
+    blue.position.set(5, -2, 4); scene.add(blue);
+    const emblem = new THREE.Group(); scene.add(emblem);
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(2.55, 2.55, .16, 128), new THREE.MeshStandardMaterial({ color: 0x657f98, metalness: .95, roughness: .25 }));
+    body.rotation.x = Math.PI / 2; emblem.add(body);
+    const face = new THREE.Mesh(new THREE.CircleGeometry(2.54, 128), new THREE.MeshBasicMaterial({ map: texture }));
+    face.position.z = .09; emblem.add(face);
+    emblem.add(new THREE.Mesh(new THREE.TorusGeometry(2.57, .018, 8, 180), new THREE.MeshStandardMaterial({ color: 0xb8d8f1, metalness: 1, roughness: .25 })));
+    const orbit = new THREE.Group(); scene.add(orbit);
+    for (let i = 0; i < 3; i++) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(3.05 + i * .25, .005, 4, 160), new THREE.MeshBasicMaterial({ color: 0x658eb3, transparent: true, opacity: .22 - i * .04 }));
+      ring.rotation.set(.2 + i * .14, .2 + i * .17, 0); orbit.add(ring);
     }
-
-    const fade = Math.min(1, scrollY / 620);
-    const bob = reduced ? 0 : Math.sin(t * 0.55) * 0.06;
-
-    medal.position.set(base.x, base.y + bob - fade * 0.6, -fade * 3);
-    medal.scale.setScalar(base.scale * (1 - fade * 0.15));
-    halo.material.opacity = 0.75 * (1 - fade);
-
-    renderer.render(scene, camera);
+    const positions = new Float32Array(700 * 6);
+    for (let i = 0; i < 700; i++) {
+      const x = (Math.random() - .5) * 35, y = (Math.random() - .5) * 25, z = (Math.random() - .5) * 22;
+      positions.set([x, y, z, x - .025, y + .18, z], i * 6);
+    }
+    const rainGeometry = new THREE.BufferGeometry();
+    rainGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const rain = new THREE.LineSegments(rainGeometry, new THREE.LineBasicMaterial({ color: 0x8daecb, transparent: true, opacity: .18 })); scene.add(rain);
+    const dustGeometry = new THREE.BufferGeometry(), dustPositions = new Float32Array(900);
+    for (let i = 0; i < dustPositions.length; i++) dustPositions[i] = (Math.random() - .5) * 32;
+    dustGeometry.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3));
+    const dust = new THREE.Points(dustGeometry, new THREE.PointsMaterial({ color: 0xc5e0ff, size: .022, transparent: true, opacity: .6 })); scene.add(dust);
+    const pointer = { x: 0, y: 0 }, base = { x: 0, y: 0 };
+    function move(event) {
+      const rect = host.getBoundingClientRect();
+      pointer.x = (event.clientX - rect.left) / rect.width - .5;
+      pointer.y = (event.clientY - rect.top) / rect.height - .5;
+    }
+    function resetPointer() { pointer.x = pointer.y = 0; }
+    function layout() {
+      const w = host.clientWidth, h = host.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+      const unit = h / (2 * camera.position.z * Math.tan(camera.fov * Math.PI / 360));
+      const rect = host.getBoundingClientRect(), a = anchor.getBoundingClientRect();
+      base.x = (a.left + a.width / 2 - rect.left - w / 2) / unit;
+      base.y = -(a.top + a.height / 2 - rect.top - h / 2) / unit;
+      const scale = Math.min(a.width, a.height) / unit / 5.1;
+      emblem.scale.setScalar(scale); orbit.scale.setScalar(scale);
+      emblem.position.set(base.x, base.y, 0); orbit.position.copy(emblem.position);
+    }
+    host.addEventListener('pointermove', move, { passive: true });
+    host.addEventListener('pointerleave', resetPointer);
+    window.addEventListener('resize', layout);
+    const resize = new ResizeObserver(layout); resize.observe(host); resize.observe(anchor);
+    const intersection = new IntersectionObserver(entries => { inView = entries[0].isIntersecting; });
+    intersection.observe(host);
+    function lost(event) { event.preventDefault(); contextLost = true; fallback(); }
+    function restored() { contextLost = false; if (loaded) { host.classList.add('is-ready'); pause.hidden = motionPreference.matches; } }
+    canvas.addEventListener('webglcontextlost', lost);
+    canvas.addEventListener('webglcontextrestored', restored);
+    layout();
+    let time = 0, last = performance.now();
+    function frame(now) {
+      frameId = requestAnimationFrame(frame);
+      const dt = Math.min((now - last) / 1000, .04); last = now;
+      if (document.hidden || !inView || contextLost || !loaded) return;
+      pause.hidden = motionPreference.matches;
+      if (!paused && !motionPreference.matches) {
+        time += dt;
+        // Wrap each streak separately to avoid a full-field jump.
+        for (let i = 0; i < positions.length; i += 6) {
+          positions[i + 1] -= dt * .7; positions[i + 4] -= dt * .7;
+          if (positions[i + 1] < -12.5) { positions[i + 1] += 25; positions[i + 4] += 25; }
+        }
+        rainGeometry.attributes.position.needsUpdate = true;
+        dust.rotation.y = time * .012; orbit.rotation.z = time * .035;
+        emblem.rotation.y += (pointer.x * .3 + chapter * .16 - emblem.rotation.y) * .04;
+        emblem.rotation.x += (-pointer.y * .17 - emblem.rotation.x) * .04;
+        emblem.position.y = base.y + Math.sin(time * .7) * .08;
+        orbit.position.copy(emblem.position);
+      }
+      renderer.render(scene, camera);
+    }
+    cleanup = () => {
+      if (disposed) return; disposed = true;
+      cancelAnimationFrame(frameId); resize.disconnect(); intersection.disconnect();
+      host.removeEventListener('pointermove', move); host.removeEventListener('pointerleave', resetPointer);
+      window.removeEventListener('resize', layout);
+      canvas.removeEventListener('webglcontextlost', lost); canvas.removeEventListener('webglcontextrestored', restored);
+      scene.traverse(object => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) (Array.isArray(object.material) ? object.material : [object.material]).forEach(material => material.dispose());
+      });
+      texture.dispose(); renderer.dispose();
+    };
+    window.addEventListener('pagehide', event => { if (!event.persisted) cleanup(); });
+    frameId = requestAnimationFrame(frame);
   }
-  frame();
 }

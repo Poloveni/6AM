@@ -1,17 +1,60 @@
-<section class="hero">
+<style>
+/* Scoped to the public home scene; member pages keep the existing theme. */
+.sixam{position:relative;isolation:isolate;min-height:760px;min-height:max(760px,calc(100svh - 74px));overflow:hidden;background:radial-gradient(ellipse at 70% 42%,#12253a 0%,#070e17 42%,#03070c 76%)}
+.sixam #hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+.sixam-anchor{position:absolute;width:40%;aspect-ratio:1;right:10%;top:15%;pointer-events:none}
+.sixam-anchor img{width:100%;height:100%;object-fit:contain;border-radius:50%;display:block}
+.sixam.is-ready .sixam-anchor img{visibility:hidden}
+.sixam-copy{position:relative;z-index:3;width:44%;padding:155px 0 165px;margin-left:9%}
+.sixam-eyebrow{font-size:12px;letter-spacing:2.4px;color:#a8bed1;display:flex;align-items:center;gap:14px}
+.sixam-eyebrow:before{content:"";width:26px;height:1px;background:#8daac2;flex-shrink:0}
+.sixam h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(100px,13vw,190px);letter-spacing:-.08em;line-height:1;margin:24px 0 14px}
+.sixam h1.is-long{font-size:clamp(55px,7.5vw,110px);line-height:1.5;letter-spacing:-.05em}
+.sixam h1 span{color:#7c9bb6}
+.sixam-tagline{font-family:Georgia,serif;font-style:italic;font-size:clamp(24px,2.2vw,34px);line-height:1.3;color:#d1dbe3;margin-bottom:18px;overflow-wrap:anywhere}
+.sixam-description{font-size:16px;line-height:1.7;color:#9badbf;max-width:340px;overflow-wrap:anywhere}
+.sixam-actions{display:flex;align-items:flex-start;flex-direction:column;gap:17px;margin-top:30px}
+.sixam-enter{display:flex;gap:30px;align-items:center;background:#b8cbdc;border:1px solid #d3e1ed;padding:15px 20px;font-size:12px;letter-spacing:1.6px;color:#111c27;transition:background .2s,transform .2s}
+.sixam-enter:hover{color:#111c27;background:#e3effa;transform:translateY(-2px)}
+.sixam-enter span{font-size:22px}
+.sixam-server{font-size:14px;color:#a3b6c8}.sixam-server span{margin-left:12px}
+.sixam-coordinates{position:absolute;right:4%;top:32px;font:11px/1.9 monospace;letter-spacing:1px;color:#8297aa;text-align:right;z-index:2}
+.sixam-vertical{position:absolute;left:25px;top:40%;writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;letter-spacing:3px;color:#71879b;z-index:2}
+.sixam-caption{position:absolute;right:12%;bottom:23%;display:flex;align-items:center;gap:17px;z-index:2}
+.sixam-caption>span{font-size:26px;color:#a8c7de}.sixam-caption p{font-size:11px;letter-spacing:1.5px;color:#92a7ba;margin:0}.sixam-caption strong{font-weight:400;color:#c0d1df}
+.sixam-bottom{position:absolute;bottom:38px;left:9%;right:5%;display:flex;justify-content:space-between;gap:20px;align-items:center;z-index:4}
+.sixam-chapters{display:flex;gap:34px}.sixam-chapters button{background:none;border:0;border-bottom:1px solid transparent;border-radius:0;padding:18px 0;color:#92a6b8;font:12px var(--sans);letter-spacing:1.3px;cursor:pointer}.sixam-chapters button span{font-family:Georgia,serif;margin-right:10px;color:#7e95aa}.sixam-chapters button[aria-current]{border-color:#abcde4;color:#e0ebf4}
+.sixam-controls{display:flex;gap:20px;align-items:center}.sixam-controls>span{font-size:10px;letter-spacing:1px;color:#8ca1b4}.sixam-controls button{background:transparent;border:1px solid #718ba1;color:#c3d7e7;border-radius:50%;width:42px;height:42px;cursor:pointer}
+.sixam button:focus-visible,.sixam a:focus-visible{outline:2px solid #b5daff;outline-offset:6px}
+@media(max-width:1100px){.sixam-controls>span{display:none}.sixam-chapters{gap:22px}.sixam-copy{width:47%;margin-left:7%}.sixam-caption{right:6%}.sixam-anchor{right:5%}}
+@media(max-width:800px){.sixam{min-height:980px}.sixam-anchor{width:64%;max-width:340px;left:50%;right:auto;transform:translateX(-50%);top:50px}.sixam-copy{width:auto;margin:0;padding:420px 8% 160px}.sixam h1{font-size:90px;margin:15px 0 8px}.sixam h1.is-long{font-size:60px;line-height:1.4}.sixam-eyebrow{font-size:11px;letter-spacing:1.4px}.sixam-tagline{font-size:26px}.sixam-description{max-width:100%}.sixam-vertical,.sixam-caption{display:none}.sixam-coordinates{top:15px;font-size:9px}.sixam-bottom{left:8%;right:8%;bottom:30px;gap:12px}.sixam-chapters{gap:15px}.sixam-chapters button{font-size:10px;letter-spacing:0}.sixam-chapters button span{margin-right:4px}.sixam-controls button{width:36px;height:36px}}
+@media(max-width:360px){.sixam-chapters{gap:9px}.sixam-chapters button span{display:none}}
+@media(prefers-reduced-motion:reduce){.sixam *{transition:none!important;animation:none!important}}
+</style>
+<section class="sixam" aria-label="6AM — Avant l’aube">
   <canvas id="hero-canvas" aria-hidden="true"></canvas>
-  <div class="hero-inner">
-    <div class="hero-emblem" aria-hidden="true"></div>
-    <img class="hero-fallback" src="/static/img/logo.png" alt="<%= site.name %>">
-    <p class="eyebrow"><%= site.tagline %></p>
-    <h1><%= settings.home_headline || ('Bienvenue sur ' + site.name) %></h1>
-    <p class="hero-sub"><%= settings.home_subline || site.description %></p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="/rejoindre">Rejoindre la ville</a>
-      <a class="btn" href="/serveur">Decouvrir le serveur</a>
+  <div class="sixam-anchor" aria-hidden="true"><img src="/static/img/logo.png" alt=""></div>
+  <div class="sixam-coordinates">34°03′ N &nbsp; 118°15′ W<br>SAN ANDREAS / 06:00 AM</div>
+  <div class="sixam-vertical">LOYALTY ABOVE EVERYTHING</div>
+  <div class="sixam-copy" aria-live="polite">
+    <p class="sixam-eyebrow" data-sixam-label>QUAND LA VILLE DORT.</p>
+    <h1 data-sixam-word><%= site.name %><span>.</span></h1>
+    <p class="sixam-tagline" data-sixam-sub><%= settings.home_headline || 'Nous écrivons la suite.' %></p>
+    <p class="sixam-description" data-sixam-note><%= settings.home_subline || 'Une couronne. Un nom. Une seule famille.' %></p>
+    <div class="sixam-actions">
+      <a class="sixam-enter" href="/rejoindre">ENTRER DANS L’OMBRE <span aria-hidden="true">↗</span></a>
+      <a class="sixam-server" href="/serveur">Découvrir le serveur <span aria-hidden="true">→</span></a>
     </div>
   </div>
-  <span class="hero-scroll">Defiler</span>
+  <div class="sixam-caption"><span aria-hidden="true">+</span><p>LA COURONNE NE SE DONNE PAS.<br><strong>ELLE SE MÉRITE.</strong></p></div>
+  <div class="sixam-bottom">
+    <nav class="sixam-chapters" aria-label="Chapitres de 6AM">
+      <button type="button" data-sixam-chapter="0" aria-current="step"><span>01</span> L’EMBLÈME</button>
+      <button type="button" data-sixam-chapter="1"><span>02</span> LE CODE</button>
+      <button type="button" data-sixam-chapter="2"><span>03</span> L’HÉRITAGE</button>
+    </nav>
+    <div class="sixam-controls"><span data-sixam-status>FIVEM ROLEPLAY</span><button type="button" data-sixam-pause aria-label="Mettre l’animation en pause" aria-pressed="false" hidden>Ⅱ</button></div>
+  </div>
 </section>
 
 <hr class="divider">
@@ -78,4 +121,4 @@
   </div>
 </section>
 
-<script type="module" src="/static/js/hero.js"></script>
+<script type="module" src="/static/js/hero.js?v=6am-1"></script>

@@ -56,9 +56,9 @@ if (host) {
     scene.fog = new THREE.FogExp2(0x050b13, .035);
     const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
     camera.position.z = 13;
-    let frameId = 0, disposed = false, loaded = false, inView = true, contextLost = false, modele = null;
+    let frameId = 0, disposed = false, loaded = false, inView = true, contextLost = false;
     const motionPreference = matchMedia('(prefers-reduced-motion: reduce)');
-    const texture = new THREE.TextureLoader().load('/static/img/logo.png?v=2', () => {
+    const texture = new THREE.TextureLoader().load('/static/img/logo.png', () => {
       if (disposed) return;
       loaded = true;
       host.classList.add('is-ready');
@@ -71,82 +71,17 @@ if (host) {
     light.position.set(-3, 4, 5); scene.add(light);
     const blue = new THREE.PointLight(0x447dff, 55, 20);
     blue.position.set(5, -2, 4); scene.add(blue);
-    // Éteinte tant que le médaillon plat est affiché : elle ne sert qu'aux
-    // reliefs dorés de l'emblème gravé.
-    const champagne = new THREE.PointLight(0xe6d2a8, 0, 24);
-    champagne.position.set(1.5, 5, 3); scene.add(champagne);
     const emblem = new THREE.Group(); scene.add(emblem);
-    // Médaillon plat : affiché immédiatement, il sert aussi de repli si le
-    // modèle 3D ne se charge pas.
-    const plat = new THREE.Group(); emblem.add(plat);
     const body = new THREE.Mesh(new THREE.CylinderGeometry(2.55, 2.55, .16, 128), new THREE.MeshStandardMaterial({ color: 0x657f98, metalness: .95, roughness: .25 }));
-    body.rotation.x = Math.PI / 2; plat.add(body);
+    body.rotation.x = Math.PI / 2; emblem.add(body);
     const face = new THREE.Mesh(new THREE.CircleGeometry(2.54, 128), new THREE.MeshBasicMaterial({ map: texture }));
-    face.position.z = .09; plat.add(face);
-    plat.add(new THREE.Mesh(new THREE.TorusGeometry(2.57, .018, 8, 180), new THREE.MeshStandardMaterial({ color: 0xb8d8f1, metalness: 1, roughness: .25 })));
-    chargerEmbleme();
+    face.position.z = .09; emblem.add(face);
+    emblem.add(new THREE.Mesh(new THREE.TorusGeometry(2.57, .018, 8, 180), new THREE.MeshStandardMaterial({ color: 0xb8d8f1, metalness: 1, roughness: .25 })));
     const orbit = new THREE.Group(); scene.add(orbit);
     for (let i = 0; i < 3; i++) {
       const ring = new THREE.Mesh(new THREE.TorusGeometry(3.05 + i * .25, .005, 4, 160), new THREE.MeshBasicMaterial({ color: 0x658eb3, transparent: true, opacity: .22 - i * .04 }));
       ring.rotation.set(.2 + i * .14, .2 + i * .17, 0); orbit.add(ring);
     }
-    // Ciel équirectangulaire généré à la volée : sans quelque chose à
-    // réfléchir, un métal reste noir. 128×64 pixels suffisent et évitent
-    // de charger une HDR.
-    function ciel() {
-      const W = 128, H = 64, d = new Uint8Array(W * H * 4);
-      for (let y = 0; y < H; y++) {
-        const v = y / (H - 1);
-        for (let x = 0; x < W; x++) {
-          const u = x / (W - 1);
-          let r = 150 * (1 - v) + 12 * v, g = 185 * (1 - v) + 20 * v, b = 225 * (1 - v) + 34 * v;
-          const k = Math.max(0, 1 - Math.hypot((u - .28) * 1.6, v - .12) / .34);
-          r += 235 * k * k; g += 245 * k * k; b += 255 * k * k;
-          const j = Math.max(0, 1 - Math.hypot((u - .78) * 1.6, v - .22) / .26);
-          r += 210 * j * j; g += 180 * j * j; b += 120 * j * j;
-          const i = (y * W + x) * 4;
-          d[i] = Math.min(255, r); d[i + 1] = Math.min(255, g); d[i + 2] = Math.min(255, b); d[i + 3] = 255;
-        }
-      }
-      const t = new THREE.DataTexture(d, W, H, THREE.RGBAFormat);
-      t.mapping = THREE.EquirectangularReflectionMapping;
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.needsUpdate = true;
-      return t;
-    }
-
-    // Le vrai emblème gravé (860 Ko) remplace le médaillon plat dès qu'il est
-    // prêt. Connexion en mode économie, échec réseau ou GLB illisible : on
-    // garde le médaillon, la page ne change pas de comportement.
-    function chargerEmbleme() {
-      const reseau = navigator.connection || {};
-      if (reseau.saveData || /^(slow-)?2g$/.test(reseau.effectiveType || '')) return;
-      import('/static/vendor/GLTFLoader.js').then(({ GLTFLoader }) => {
-        if (disposed) return;
-        new GLTFLoader().load('/static/models/6am-emblem.glb', gltf => {
-          if (disposed) return;
-          const objet = gltf.scene;
-          const boite = new THREE.Box3().setFromObject(objet);
-          const taille = boite.getSize(new THREE.Vector3());
-          objet.position.sub(boite.getCenter(new THREE.Vector3()));
-          // Même diamètre que le médaillon plat : la mise en page ne bouge pas.
-          objet.scale.setScalar(5.12 / Math.max(taille.x, taille.y));
-          const ciel3d = ciel();
-          scene.environment = ciel3d;
-          scene.environmentIntensity = 2.1;
-          // Les autres objets de la scène sont non éclairés (Basic / Points) :
-          // ces lumières ne servent plus qu'à l'emblème, on peut les régler
-          // pour le métal gravé sans rien déplacer d'autre.
-          light.intensity = 130;
-          blue.color.set(0x86b4e6); blue.intensity = 70; blue.distance = 26;
-          champagne.intensity = 34;
-          modele = { objet, ciel: ciel3d };
-          emblem.add(objet);
-          plat.visible = false;
-        }, undefined, () => {});
-      }).catch(() => {});
-    }
-
     const positions = new Float32Array(700 * 6);
     for (let i = 0; i < 700; i++) {
       const x = (Math.random() - .5) * 35, y = (Math.random() - .5) * 25, z = (Math.random() - .5) * 22;
@@ -219,15 +154,8 @@ if (host) {
       canvas.removeEventListener('webglcontextlost', lost); canvas.removeEventListener('webglcontextrestored', restored);
       scene.traverse(object => {
         if (object.geometry) object.geometry.dispose();
-        if (object.material) (Array.isArray(object.material) ? object.material : [object.material]).forEach(material => {
-          // Les textures du modèle glTF pèsent plusieurs Mo en VRAM.
-          for (const cle of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap']) {
-            if (material[cle]) material[cle].dispose();
-          }
-          material.dispose();
-        });
+        if (object.material) (Array.isArray(object.material) ? object.material : [object.material]).forEach(material => material.dispose());
       });
-      if (modele) { modele.ciel.dispose(); scene.environment = null; }
       texture.dispose(); renderer.dispose();
     };
     window.addEventListener('pagehide', event => { if (!event.persisted) cleanup(); });

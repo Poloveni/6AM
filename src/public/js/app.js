@@ -104,3 +104,54 @@
   }, { rootMargin: '-45% 0px -50% 0px' });
   cibles.forEach(function (el) { spy.observe(el); });
 })();
+
+/* ==========================================================
+   Vitrine : parallaxe tres legere sur les couches decoratives
+   Quelques pixels seulement, uniquement pour donner de la
+   profondeur. Aucune dependance, aucune animation permanente :
+   on ne calcule que pendant le defilement et seulement pour
+   les elements visibles.
+   ========================================================== */
+(function () {
+  'use strict';
+  var couches = [].slice.call(document.querySelectorAll('[data-parallaxe]'));
+  if (!couches.length) return;
+
+  var doux = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (doux && doux.matches) return;
+
+  var visibles = couches;
+  if (window.IntersectionObserver) {
+    visibles = [];
+    var io = new IntersectionObserver(function (entrees) {
+      entrees.forEach(function (e) {
+        var i = visibles.indexOf(e.target);
+        if (e.isIntersecting && i === -1) visibles.push(e.target);
+        else if (!e.isIntersecting && i !== -1) visibles.splice(i, 1);
+      });
+    }, { rootMargin: '120px 0px' });
+    couches.forEach(function (el) { io.observe(el); });
+  }
+
+  var enAttente = false;
+  function placer() {
+    enAttente = false;
+    var h = window.innerHeight || 1;
+    visibles.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      // -1 quand l'element est en bas de l'ecran, +1 quand il est en haut
+      var t = ((h / 2) - (r.top + r.height / 2)) / h;
+      var amplitude = parseFloat(el.getAttribute('data-parallaxe')) || 10;
+      el.style.transform = 'translate3d(0,' + (t * amplitude).toFixed(2) + 'px,0)';
+    });
+  }
+  function auDefilement() {
+    if (enAttente) return;
+    enAttente = true;
+    requestAnimationFrame(placer);
+  }
+
+  window.addEventListener('scroll', auDefilement, { passive: true });
+  window.addEventListener('resize', auDefilement, { passive: true });
+  placer();
+})();

@@ -12,8 +12,8 @@
   <meta name="theme-color" content="#05080d">
   <link rel="icon" href="/static/img/favicon.png" type="image/png">
   <link rel="apple-touch-icon" href="/static/img/logo.png">
-  <link rel="stylesheet" href="/static/css/style.css">
-  <% if (!currentPath.startsWith('/espace')) { %><link rel="stylesheet" href="/static/css/vitrine.css?v=6am-1"><% } %>
+  <link rel="stylesheet" href="/static/css/style.css?v=6am-2">
+  <% if (!currentPath.startsWith('/espace')) { %><link rel="stylesheet" href="/static/css/vitrine.css?v=6am-2"><% } %>
   <% if (currentPath.startsWith('/espace')) { %><link rel="stylesheet" href="/static/css/espace.css?v=6am-1"><% } %>
   <%- style %>
   <%# Filet de securite : sans JavaScript, les blocs a apparition restent visibles. %>
@@ -26,7 +26,7 @@
     <%- body %>
   </main>
   <% if (!nu) { %><%- include('partials/footer') %><% } %>
-  <script src="/static/js/app.js" defer></script>
+  <script src="/static/js/app.js?v=6am-2" defer></script>
   <% if (currentPath.startsWith('/espace')) { %><script src="/static/js/espace.js" defer></script><% } %>
   <%- script %>
 </body>

@@ -129,12 +129,15 @@ router.get('/contenu', wrap(async (req, res) => {
 }));
 
 router.post('/contenu', wrap(async (req, res) => {
-  const keys = ['home_headline', 'home_subline', 'about_text', 'rules_text'];
+  const keys = ['home_headline', 'home_subline', 'about_text', 'rules_text', 'maintenance_message'];
   for (const key of keys) {
     if (req.body[key] !== undefined) {
       await settings.set(key, String(req.body[key]).slice(0, 8000));
     }
   }
+  // Case a cocher : absente du corps de requete quand elle n'est pas cochee.
+  await settings.set('maintenance', req.body.maintenance === 'on' ? 'on' : 'off');
+
   req.flash('success', 'Contenu enregistre.');
   res.redirect('/espace/administration/contenu');
 }));

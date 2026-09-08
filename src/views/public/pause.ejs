@@ -1,0 +1,77 @@
+<style>
+  .pause {
+    position: relative; min-height: 100vh; min-height: 100svh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 40px 24px; text-align: center;
+    background: radial-gradient(ellipse at 50% 42%, #14263a 0%, #080e17 54%, #03060a 100%);
+  }
+  /* Grain tres leger : il evite l'aplat noir parfaitement plat. */
+  .pause::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23p)' opacity='.055'/%3E%3C/svg%3E");
+  }
+
+  .pause__carte {
+    position: relative; z-index: 1;
+    width: min(560px, 100%); padding: clamp(38px, 6vw, 62px) clamp(26px, 5vw, 56px);
+    background: linear-gradient(150deg, rgba(14,23,34,.94), rgba(5,10,16,.97));
+    border: 1px solid rgba(130,170,205,.13);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 40px 90px rgba(0,0,0,.55);
+  }
+  .pause__carte::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(165,196,226,.30), transparent);
+  }
+
+  .pause__logo {
+    width: clamp(84px, 16vw, 112px); height: auto; display: block; margin: 0 auto 30px;
+    filter: drop-shadow(0 0 44px rgba(90,140,195,.34)) drop-shadow(0 14px 30px rgba(0,0,0,.8));
+  }
+
+  .pause__kicker {
+    margin: 0 0 20px; font-size: .68rem; letter-spacing: .3em; text-transform: uppercase;
+    color: #9ab4cc;
+  }
+  .pause__titre {
+    font-family: var(--serif); font-weight: 400; margin: 0;
+    font-size: clamp(28px, 4.4vw, 42px); line-height: 1.18; letter-spacing: -.02em;
+    color: #e9f2fa;
+  }
+  .pause__trait {
+    width: 78px; height: 1px; margin: 26px auto 28px;
+    background: linear-gradient(90deg, transparent, rgba(216,190,138,.62), transparent);
+  }
+  .pause__texte { margin: 0 0 14px; color: #c6d7e7; font-size: 1rem; line-height: 1.7; }
+  .pause__texte--doux { color: #a2b7ca; font-size: .93rem; margin-bottom: 0; }
+
+  .pause__pied {
+    margin: 34px 0 0; padding-top: 24px; border-top: 1px solid rgba(130,170,205,.10);
+    font-size: .62rem; letter-spacing: .26em; text-transform: uppercase; color: #7e94a9;
+  }
+  .pause__pied a { color: #9ab4cc; }
+  .pause__pied a:hover { color: var(--silver); }
+
+  @media (max-width: 420px) { .pause__pied { letter-spacing: .16em; } }
+</style>
+
+<main class="pause">
+  <div class="pause__carte">
+    <img class="pause__logo" src="/static/img/logo.png" alt="<%= site.name %>" width="400" height="400">
+
+    <p class="pause__kicker"><%= site.tagline %></p>
+    <h1 class="pause__titre">Site temporairement<br>indisponible</h1>
+    <div class="pause__trait" aria-hidden="true"></div>
+
+    <% if (message) { %>
+      <p class="pause__texte"><%= message %></p>
+    <% } else { %>
+      <p class="pause__texte">La 6AM ferme ses portes le temps d’une mise au point.</p>
+      <p class="pause__texte pause__texte--doux">La vitrine et l’espace membres seront de retour d’ici peu. Merci de votre patience.</p>
+    <% } %>
+
+    <p class="pause__pied">
+      <%= site.name %>
+      <% if (links.discord) { %> · <a href="<%= links.discord %>" rel="noopener" target="_blank">Discord</a><% } %>
+    </p>
+  </div>
+</main>

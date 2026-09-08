@@ -110,6 +110,10 @@ app.get('/healthz', async (req, res) => {
   }
 });
 
+// ---------- Site en pause ----------
+// Monte apres /healthz : la sonde de sante doit repondre meme en pause.
+app.use(require('./middleware/pause'));
+
 app.use('/', require('./routes/public'));
 app.use('/', require('./routes/auth'));
 app.use('/espace', require('./routes/dashboard'));

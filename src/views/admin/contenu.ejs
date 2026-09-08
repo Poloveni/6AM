@@ -8,6 +8,29 @@
       <div class="card">
         <form method="post" action="/espace/administration/contenu">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <div class="field">
+            <label for="maintenance" style="display:flex;align-items:center;gap:10px;cursor:pointer">
+              <input id="maintenance" name="maintenance" type="checkbox" value="on"
+                     style="width:auto;margin:0" <%= values.maintenance === 'on' ? 'checked' : '' %>>
+              Mettre le site en pause
+            </label>
+            <p class="help" style="margin-top:8px">
+              Coupe la totalite du site, espace membres compris : les visiteurs voient une page
+              d'attente. <strong>Une fois active, cette page ne sera plus accessible.</strong>
+              Pour rouvrir, lancer sur le serveur&nbsp;:
+              <code>docker compose exec web npm run reprise</code>
+            </p>
+          </div>
+          <div class="field">
+            <label for="maintenance_message">Message affiche pendant la pause</label>
+            <input id="maintenance_message" name="maintenance_message" type="text" maxlength="400"
+                   placeholder="Laisser vide pour le texte par defaut"
+                   value="<%= values.maintenance_message || '' %>">
+          </div>
+
+          <hr style="border:0;border-top:1px solid var(--line);margin:26px 0">
+
           <div class="field">
             <label for="home_headline">Titre de l'accueil</label>
             <input id="home_headline" name="home_headline" type="text" value="<%= values.home_headline || '' %>">

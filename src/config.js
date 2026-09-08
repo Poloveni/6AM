@@ -20,6 +20,8 @@ const config = {
   port: int(process.env.PORT, 3000),
   appUrl: (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, ''),
   trustProxy: bool(process.env.TRUST_PROXY, false),
+  // on | off | vide. Vide = c'est le reglage "maintenance" en base qui decide.
+  maintenance: process.env.MAINTENANCE || '',
 
   site: {
     name: process.env.SITE_NAME || '6AM',

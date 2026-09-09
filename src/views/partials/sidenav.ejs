@@ -1,26 +1,49 @@
-<nav class="side-nav">
-  <span class="group-label">Espace</span>
-  <a href="/espace" class="<%= currentPath === '/espace' ? 'is-active' : '' %>">Tableau de bord</a>
-  <a href="/espace/effectifs" class="<%= currentPath.startsWith('/espace/effectifs') ? 'is-active' : '' %>">Effectifs</a>
-  <a href="/espace/activite" class="<%= currentPath.startsWith('/espace/activite') ? 'is-active' : '' %>">Activite</a>
-  <a href="/espace/statistiques" class="<%= currentPath.startsWith('/espace/statistiques') ? 'is-active' : '' %>">Statistiques</a>
+<%
+  // Navigation de l'espace membres, groupee par domaine.
+  // Le libelle de la synthese de l'organisation ne peut pas etre « Tableau de
+  // bord » : ce nom est deja celui de l'espace personnel, et deux entrees
+  // identiques menant a deux pages differentes sont illisibles.
+  var estStaff = user && h.roleAtLeast(user.role, 'staff');
+  var estAdmin = user && user.role === 'admin';
 
-  <span class="group-label">Organisation</span>
-  <a href="/espace/organisation/ma-semaine" class="<%= currentPath === '/espace/organisation/ma-semaine' ? 'is-active' : '' %>">Ma semaine</a>
-  <a href="/espace/organisation/armurerie" class="<%= currentPath === '/espace/organisation/armurerie' ? 'is-active' : '' %>">Armurerie</a>
-  <% if (user && h.roleAtLeast(user.role, 'staff')) { %>
-    <a href="/espace/organisation" class="<%= currentPath === '/espace/organisation' ? 'is-active' : '' %>">Tableau de bord</a>
-    <a href="/espace/organisation/taxes" class="<%= currentPath === '/espace/organisation/taxes' ? 'is-active' : '' %>">Taxes &amp; racket</a>
-    <a href="/espace/organisation/vehicules" class="<%= currentPath === '/espace/organisation/vehicules' ? 'is-active' : '' %>">Véhicules</a>
-  <% } %>
+  var groupes = [
+    { titre: 'Espace', liens: [
+      ['/espace',                 'Tableau de bord', currentPath === '/espace'],
+      ['/espace/effectifs',       'Effectifs',       currentPath.startsWith('/espace/effectifs')],
+      ['/espace/activite',        'Activité',        currentPath.startsWith('/espace/activite')],
+      ['/espace/statistiques',    'Statistiques',    currentPath.startsWith('/espace/statistiques')],
+    ] },
+    { titre: 'Organisation', liens: [
+      ['/espace/organisation/ma-semaine', 'Ma semaine', currentPath === '/espace/organisation/ma-semaine'],
+      ['/espace/organisation/armurerie',  'Armurerie',  currentPath === '/espace/organisation/armurerie'],
+    ].concat(estStaff ? [
+      ['/espace/organisation',            'Synthèse',   currentPath === '/espace/organisation'],
+      ['/espace/organisation/taxes',      'Taxes',      currentPath === '/espace/organisation/taxes'],
+      ['/espace/organisation/vehicules',  'Véhicules',  currentPath === '/espace/organisation/vehicules'],
+    ] : []) },
+  ];
 
-  <% if (user && user.role === 'admin') { %>
-    <span class="group-label">Administration</span>
-    <a href="/espace/administration" class="<%= currentPath === '/espace/administration' ? 'is-active' : '' %>">Comptes</a>
-    <a href="/espace/administration/grades" class="<%= currentPath.startsWith('/espace/administration/grades') ? 'is-active' : '' %>">Grades</a>
-    <a href="/espace/administration/contenu" class="<%= currentPath.startsWith('/espace/administration/contenu') ? 'is-active' : '' %>">Contenu du site</a>
-  <% } %>
+  if (estAdmin) {
+    groupes.push({ titre: 'Administration', liens: [
+      ['/espace/administration',          'Comptes', currentPath === '/espace/administration'],
+      ['/espace/administration/grades',   'Grades',  currentPath.startsWith('/espace/administration/grades')],
+      ['/espace/administration/contenu',  'Contenu', currentPath.startsWith('/espace/administration/contenu')],
+    ] });
+  }
 
-  <span class="group-label">Compte</span>
-  <a href="/espace/mon-compte" class="<%= currentPath === '/espace/mon-compte' ? 'is-active' : '' %>">Mon compte</a>
+  groupes.push({ titre: 'Compte', liens: [
+    ['/espace/mon-compte', user && user.rp_name ? user.rp_name : 'Mon compte', currentPath === '/espace/mon-compte'],
+  ] });
+%>
+<nav class="side-nav" aria-label="Navigation de l’espace membres">
+  <% groupes.forEach(function (g) { %>
+    <div class="nav-groupe">
+      <span class="group-label"><%= g.titre %></span>
+      <div class="nav-liens">
+        <% g.liens.forEach(function (l) { %>
+          <a href="<%= l[0] %>" class="<%= l[2] ? 'is-active' : '' %>"<%= l[2] ? ' aria-current="page"' : '' %>><%= l[1] %></a>
+        <% }); %>
+      </div>
+    </div>
+  <% }); %>
 </nav>

@@ -14,6 +14,7 @@ const loadUser = wrap(async (req, res, next) => {
     .first(
       'users.id', 'users.username', 'users.email', 'users.role',
       'users.member_id', 'users.is_active',
+      'users.discord_id', 'users.discord_username', 'users.discord_avatar',
       'members.rp_name as rp_name', 'members.status as member_status',
       'ranks.name as rank_name', 'ranks.color as rank_color'
     );

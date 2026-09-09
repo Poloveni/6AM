@@ -70,6 +70,14 @@ const config = {
     ssl: bool(process.env.BOT_DB_SSL, false),
   },
 
+  // Connexion « Se connecter avec Discord » (meme application que le bot).
+  // Les trois valeurs doivent etre presentes, sinon le bouton n'apparait pas.
+  discordAuth: {
+    clientId: process.env.DISCORD_CLIENT_ID || '',
+    clientSecret: process.env.DISCORD_CLIENT_SECRET || '',
+    guildId: process.env.DISCORD_GUILD_ID || '',
+  },
+
   discordWebhook: {
     url: process.env.DISCORD_WEBHOOK_URL || '',
     username: process.env.DISCORD_WEBHOOK_USERNAME || '6AM',

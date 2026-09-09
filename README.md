@@ -118,6 +118,59 @@ l'identique sur les deux moteurs.
 
 ---
 
+## Connexion par Discord
+
+L'espace membres s'ouvre avec « Se connecter avec Discord ». Toute personne
+presente sur le serveur Discord de la 6AM peut entrer ; son compte du site est
+cree au premier passage avec le role `member`.
+
+### Mettre en place
+
+Dans https://discord.com/developers/applications, ouvrir **l'application du bot**
+(c'est la meme, il n'y a rien de nouveau a creer) :
+
+1. onglet **OAuth2** : relever le *Client ID*, generer le *Client Secret* ;
+2. toujours dans **OAuth2 > Redirects**, ajouter exactement :
+   `https://6amfbfa.duckdns.org/connexion/discord/retour`
+   (l'URL doit correspondre au caractere pres a `APP_URL` + `/connexion/discord/retour`) ;
+3. relever l'identifiant du serveur : clic droit sur le serveur dans Discord >
+   *Copier l'identifiant du serveur* (le mode developpeur doit etre actif dans
+   Parametres > Avance).
+
+Puis dans le `.env` du serveur :
+
+```
+DISCORD_CLIENT_ID=...
+DISCORD_CLIENT_SECRET=...
+DISCORD_GUILD_ID=...
+```
+
+Tant que l'une des trois valeurs manque, le bouton n'apparait pas et la page
+renvoie vers la connexion de secours.
+
+### Ce que le site demande a Discord
+
+Deux portees seulement : `identify` (pseudo, identifiant, avatar) et
+`guilds.members.read` (verifier l'appartenance au serveur). Pas d'adresse email.
+Le jeton d'acces ne sert qu'une fois, le temps d'ouvrir la session, puis il est
+revoque : rien n'est conserve cote site.
+
+### Raccordement aux fiches effectif
+
+Si `members.discord_id` contient deja l'identifiant Discord de la personne, son
+compte est automatiquement rattache a sa fiche. Sinon le compte est cree seul et
+un administrateur peut le relier depuis **Administration > Comptes**.
+
+### Connexion de secours
+
+Le formulaire email + mot de passe reste disponible sur `/connexion/secours`.
+Il n'est pas affiche sur la page de connexion, mais il permet aux administrateurs
+d'entrer si Discord tombe ou si l'application OAuth est mal configuree. Les
+comptes ouverts par Discord n'ont pas de mot de passe et ne peuvent pas s'en
+servir.
+
+---
+
 ## Roles
 
 | Role     | Droits                                                                    |

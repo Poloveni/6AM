@@ -82,8 +82,31 @@ router.get('/', wrap(async (req, res) => {
   });
 }));
 
+/**
+ * Etat du compte pour la page « Mon compte ».
+ *  aMotDePasse : un compte ouvert par Discord n'en a pas.
+ *  peutDefinir : un administrateur sans mot de passe peut s'en donner un,
+ *                pour garder une entree par /connexion/secours si Discord
+ *                devient indisponible.
+ */
+async function etatDuCompte(user) {
+  const row = await db('users').where({ id: user.id })
+    .first('password_hash', 'discord_id', 'discord_username', 'discord_linked_at');
+  const aMotDePasse = Boolean(row && row.password_hash);
+  return {
+    discord_id: row ? row.discord_id : null,
+    discord_username: row ? row.discord_username : null,
+    discord_linked_at: row ? row.discord_linked_at : null,
+    aMotDePasse,
+    peutDefinir: !aMotDePasse && user.role === 'admin',
+  };
+}
+
 router.get('/mon-compte', wrap(async (req, res) => {
-  res.render('app/compte', { title: 'Mon compte', bodyClass: 'page-app', error: null, success: null });
+  res.render('app/compte', {
+    title: 'Mon compte', bodyClass: 'page-app', error: null, success: null,
+    compte: await etatDuCompte(req.user),
+  });
 }));
 
 router.post('/mon-compte', wrap(async (req, res) => {
@@ -91,23 +114,39 @@ router.post('/mon-compte', wrap(async (req, res) => {
   const next = String(req.body.new_password || '');
   const confirm = String(req.body.confirm_password || '');
 
+  const etat = await etatDuCompte(req.user);
   const render = (error, success) => res.render('app/compte', {
-    title: 'Mon compte', bodyClass: 'page-app', error, success,
+    title: 'Mon compte', bodyClass: 'page-app', error, success, compte: etat,
   });
 
-  if (next.length < 10) return render('Le nouveau mot de passe doit faire au moins 10 caracteres.', null);
+  // Un compte ouvert par Discord n'a pas de mot de passe : seul un
+  // administrateur peut s'en definir un, et sans avoir a saisir l'ancien.
+  if (!etat.aMotDePasse && !etat.peutDefinir) {
+    return render('Ce compte se connecte avec Discord : il n’a pas de mot de passe.', null);
+  }
+
+  if (next.length < 10) return render('Le mot de passe doit faire au moins 10 caracteres.', null);
   if (next !== confirm) return render('La confirmation ne correspond pas.', null);
 
-  const row = await db('users').where({ id: req.user.id }).first('password_hash');
-  if (!row || !(await bcrypt.compare(current, row.password_hash))) {
-    return render('Mot de passe actuel incorrect.', null);
+  if (etat.aMotDePasse) {
+    const row = await db('users').where({ id: req.user.id }).first('password_hash');
+    // bcrypt.compare leve une exception si le hachage est absent : on ne
+    // l'appelle que lorsqu'il existe vraiment.
+    if (!row || !row.password_hash || !(await bcrypt.compare(current, row.password_hash))) {
+      return render('Mot de passe actuel incorrect.', null);
+    }
   }
 
   await db('users').where({ id: req.user.id }).update({
     password_hash: await bcrypt.hash(next, 12),
     updated_at: new Date(),
   });
-  return render(null, 'Mot de passe mis a jour.');
+  return res.render('app/compte', {
+    title: 'Mon compte', bodyClass: 'page-app',
+    error: null,
+    success: etat.aMotDePasse ? 'Mot de passe mis a jour.' : 'Mot de passe de secours defini.',
+    compte: { ...etat, aMotDePasse: true, peutDefinir: false },
+  });
 }));
 
 module.exports = router;

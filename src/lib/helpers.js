@@ -79,7 +79,13 @@ module.exports = {
   CATEGORIES_BOT: botActivites.CATEGORIES,
   STATUTS_ARME: botActivites.STATUTS_ARME,
   TYPES_TAXE: botActivites.TYPES_TAXE,
+  TIERS: botActivites.TIERS,
   libelleActivite: botActivites.libelleActivite,
+  libelleActiviteIcone: botActivites.libelleActiviteIcone,
+  // Type fixe ou zone : le bot stocke la cle de zone dans le meme champ.
+  libelleTaxe: botActivites.libelleTaxe,
+  estZoneTaxe: botActivites.estZone,
+  plafondBraquage: botActivites.plafondBraquage,
   roleAtLeast, formatDate, formatDateTime, formatMoney, formatDuration,
   toDateOnly, wrap, escapeHtml,
 };

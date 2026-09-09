@@ -188,9 +188,10 @@ Le contenu editable (titre d'accueil, presentation, reglement) se modifie depuis
 
 L'espace membres peut afficher les donnees du bot
 [roxwood-network-famille](https://github.com/poulpizar01/roxwood-network-famille) :
-quotas de la semaine, paie estimee, cooldowns, coffre, taxes, armurerie,
-vehicules. Le site **ne fait que lire** — le bot reste seul a ecrire, sinon
-les messages qu'il tient a jour dans Discord se desynchronisent.
+quotas de la semaine, paie estimee, plafonds de braquage, cooldowns, coffre
+(total et detail par coffre), taxes, armurerie, vehicules. Le site **ne fait
+que lire** — le bot reste seul a ecrire, sinon les messages qu'il tient a jour
+dans Discord se desynchronisent.
 
 Sans `BOT_DATABASE_URL`, ces pages s'affichent avec un encart
 « bot non connecte » : rien ne casse.
@@ -232,10 +233,41 @@ Le bot vide sa table `stats` **chaque dimanche a 19h00, heure de Paris**, et
 note la date dans `settings.last_weekly_reset`. Le site lit ces memes donnees :
 les chiffres affiches sont donc, par construction, identiques a ceux de Discord.
 
-Une table n'est **pas** lisible en base : la correspondance activite →
-categorie de quota (ATM → `actions`, Labo Cocaine → `labos`...), qui vit dans
-le code du bot. Elle est recopiee dans `src/lib/bot-activites.js` et doit
-suivre les evolutions du bot.
+### Ce qui est recopie du code du bot
+
+Une partie de la configuration du bot vit dans son **code**, pas en base, et
+n'est donc pas lisible a distance. `src/lib/bot-activites.js` en tient le
+miroir et **doit suivre les evolutions du bot** :
+
+| Recopie | Source cote bot |
+|---|---|
+| Activite → categorie de quota, icone, ordre | `ACTIVITY_TYPES_FIXED`, `config-store.ts` |
+| Types d'organisation (tiers) | `GROUP_TIERS`, `config-store.ts` |
+| Labos accessibles par tier | `LABO_TIERS`, `config-store.ts` |
+| Plafonds de braquage par tier | `BRAQUAGE_LIMITS_BY_TIER`, `config-store.ts` |
+| Types de taxe fixes | `FIXED_TYPE_META`, `modules/taxes.ts` |
+| Zones taxables et leurs cles | `ZONES_BY_TIER` + `slugifyZone`, `modules/taxes.ts` |
+| Statuts d'arme | `statutLabel`, `modules/armurerie.ts` |
+
+Le reste vient de la base : `settings.type_groupe` donne le tier courant, qui
+commande a son tour les labos actifs, les plafonds affiches et le classement
+des drogues en « production » ou « a vendre ».
+
+### Tables lues
+
+`settings`, `channels`, `quota_targets`, `salary_rates`, `items`, `stocks`,
+`coffre_stocks`, `stock_history`, `stats`, `transactions`, `braquages`,
+`cooldowns`, `taxes`, `armurerie`, `munitions_ventes`, `vehicules`,
+`fourrieres`, `pending_sales`, `user_mapping`.
+
+### Pourquoi la base plutot que l'API du bot
+
+Le bot expose depuis peu une API REST en lecture seule (`API_PORT`). Elle
+n'est pas utilisee ici : son authentification repose sur un jeton Discord
+**par utilisateur**, ce qui obligerait chaque membre a se connecter une
+seconde fois, alors que le site a deja sa propre connexion Discord. La lecture
+directe en base, avec un utilisateur sans droit d'ecriture, donne les memes
+chiffres sans second passage par Discord.
 
 ---
 

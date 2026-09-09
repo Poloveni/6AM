@@ -2,6 +2,7 @@
 const router = require('express').Router();
 const db = require('../db/knex');
 const bot = require('../lib/bot');
+const A = require('../lib/bot-activites');
 const { wrap } = require('../lib/helpers');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
@@ -61,15 +62,32 @@ router.get('/', requireRole('staff'), wrap(async (req, res) => {
   const base = { title: 'Organisation', bodyClass: 'page-app', dispo, diag: bot.diagnostic() };
   if (!dispo) {
     return res.render('app/organisation/index', {
-      ...base, semaine: null, classement: [], objectifs: {}, taux: {},
-      coffre: [], mouvements: [], sansDeclaration: [], totaux: { salaire: 0, membres: 0 },
+      ...base, semaine: null, tier: null, classement: [], objectifs: {}, taux: {},
+      coffre: [], coffres: [], braquages: [], mouvements: [], sansDeclaration: [],
+      totaux: { salaire: 0, membres: 0 },
     });
   }
 
-  const [semaine, objectifs, taux, parMembre, coffre, mouvements, fiches, jeu] = await Promise.all([
-    bot.semaine(), bot.objectifs(), bot.taux(), bot.activiteParMembre(),
-    bot.coffre(), bot.mouvements(20), effectifsParDiscord(), bot.correspondances(),
-  ]);
+  const [semaine, tier, objectifs, taux, parMembre, coffre, coffres, braq, mouvements, fiches, jeu] =
+    await Promise.all([
+      bot.semaine(), bot.typeGroupe(), bot.objectifs(), bot.taux(), bot.activiteParMembre(),
+      bot.coffre(), bot.coffreParSalon(), bot.braquagesSemaine(),
+      bot.mouvements(20), effectifsParDiscord(), bot.correspondances(),
+    ]);
+
+  // Braquages des 7 derniers jours face au plafond du type d'organisation.
+  const braquages = Object.keys(A.BRAQUAGES_PAR_TIER[tier] || {}).map((action) => {
+    const plafond = A.plafondBraquage(action, tier);
+    const fait = braq.parAction[action] || 0;
+    return {
+      action,
+      label: A.libelleActiviteIcone(action),
+      fait,
+      plafond,
+      accessible: plafond !== 0,
+      atteint: plafond > 0 && fait >= plafond,
+    };
+  }).sort((x, y) => (A.ACTIVITES[x.action]?.ordre || 99) - (A.ACTIVITES[y.action]?.ordre || 99));
 
   const classement = [...parMembre.entries()]
     .map(([discordId, d]) => ({ discordId, ...d, ...nommer(discordId, fiches, jeu) }))
@@ -80,7 +98,8 @@ router.get('/', requireRole('staff'), wrap(async (req, res) => {
     .filter((f) => f.status === 'active' && !parMembre.has(String(f.discord_id)));
 
   res.render('app/organisation/index', {
-    ...base, semaine, classement, objectifs, taux, coffre, mouvements, sansDeclaration,
+    ...base, semaine, tier, classement, objectifs, taux, coffre, coffres, braquages,
+    mouvements, sansDeclaration,
     totaux: {
       salaire: classement.reduce((s, m) => s + m.salaire, 0),
       membres: classement.length,
@@ -93,17 +112,21 @@ router.get('/taxes', requireRole('staff'), wrap(async (req, res) => {
   const dispo = await bot.disponible();
   const lignes = dispo ? await bot.taxes() : [];
 
-  const TYPES_FIXES = ['sporex', 'heroine', 'vente', 'fertilisant'];
   const maintenant = Date.now();
   const enrichies = lignes.map((t) => ({
     ...t,
     enRetard: !t.paye && new Date(t.echeance).getTime() < maintenant,
-    zone: !TYPES_FIXES.includes(t.type),
+    zone: A.estZone(t.type),
   }));
 
   const groupes = new Map();
   for (const t of enrichies) {
-    if (!groupes.has(t.type)) groupes.set(t.type, { type: t.type, zone: t.zone, lignes: [], aPayer: 0, enRetard: 0 });
+    if (!groupes.has(t.type)) {
+      groupes.set(t.type, {
+        type: t.type, label: A.libelleTaxe(t.type), zone: t.zone,
+        lignes: [], aPayer: 0, enRetard: 0,
+      });
+    }
     const g = groupes.get(t.type);
     g.lignes.push(t);
     if (!t.paye) g.aPayer += 1;
@@ -112,7 +135,8 @@ router.get('/taxes', requireRole('staff'), wrap(async (req, res) => {
 
   res.render('app/organisation/taxes', {
     title: 'Taxes & racket', bodyClass: 'page-app', dispo, diag: bot.diagnostic(),
-    groupes: [...groupes.values()].sort((a, b) => Number(a.zone) - Number(b.zone) || a.type.localeCompare(b.type)),
+    groupes: [...groupes.values()]
+      .sort((a, b) => Number(a.zone) - Number(b.zone) || a.label.localeCompare(b.label, 'fr')),
     total: enrichies.length,
     aPayer: enrichies.filter((t) => !t.paye).length,
     enRetard: enrichies.filter((t) => t.enRetard).length,

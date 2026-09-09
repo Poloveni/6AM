@@ -24,7 +24,7 @@
       <% groupes.forEach(function (g) { %>
         <div class="card" style="margin-bottom:18px">
           <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
-            <h3 style="margin:0"><%= h.TYPES_TAXE[g.type] || g.type %></h3>
+            <h3 style="margin:0"><%= g.label %></h3>
             <% if (g.zone) { %><span class="badge" style="color:var(--steel)"><span class="dot"></span>Zone</span><% } %>
             <span class="spacer" style="margin-left:auto"></span>
             <% if (g.enRetard) { %><span class="badge badge-fired"><span class="dot"></span><%= g.enRetard %> en retard</span><% } %>

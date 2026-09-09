@@ -8,6 +8,9 @@
           <h1>Organisation</h1>
         </div>
         <span class="spacer"></span>
+        <% if (tier) { %>
+          <span class="chip"><%= h.TIERS[tier] || tier %></span>
+        <% } %>
         <% if (semaine && semaine.debut) { %>
           <span class="chip">Semaine depuis le <%= h.formatDateTime(semaine.debut, site.locale) %></span>
         <% } %>
@@ -70,6 +73,52 @@
         <% } %>
       </div>
 
+      <% if (braquages.length) { %>
+        <div class="card" style="margin-bottom:22px">
+          <h3>Braquages · 7 derniers jours</h3>
+          <p class="help" style="margin-top:0">
+            Plafonds du type d’organisation « <%= h.TIERS[tier] || tier %> ».
+            Fenêtre glissante tenue par le bot, indépendante de la remise à zéro des quotas.
+          </p>
+          <div class="grid grid-3" style="gap:14px">
+            <% braquages.forEach(function (b) { %>
+              <div class="card stat" style="<%= !b.accessible ? 'opacity:.45' : '' %>">
+                <div class="stat-value" style="<%= b.atteint ? 'color:var(--warn)' : '' %>">
+                  <%= b.fait %><span class="muted" style="font-size:.5em">/<%= b.plafond %></span>
+                </div>
+                <div class="stat-label"><%= b.label %></div>
+                <% if (!b.accessible) { %><div class="help" style="margin:6px 0 0">Non accessible</div><% } %>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (coffres.length > 1) { %>
+        <div class="card" style="margin-bottom:22px">
+          <h3>Répartition par coffre</h3>
+          <p class="help" style="margin-top:0">Détail par salon de log suivi — le total ci-dessus les additionne.</p>
+          <div class="table-wrap" style="border:0">
+            <table>
+              <thead><tr><th>Coffre</th><th>Contenu</th><th class="num">Total</th></tr></thead>
+              <tbody>
+                <% coffres.forEach(function (c) { %>
+                  <tr>
+                    <td class="muted">#<%= c.salon.slice(-6) %></td>
+                    <td>
+                      <% if (!c.groupes.length) { %><span class="muted">vide</span><% } %>
+                      <% c.groupes.slice(0, 6).forEach(function (g, i) { %><%= i ? ' · ' : '' %><%= g.nom %> <span class="muted"><%= g.total %></span><% }); %>
+                      <% if (c.groupes.length > 6) { %><span class="muted"> · +<%= c.groupes.length - 6 %></span><% } %>
+                    </td>
+                    <td class="num"><%= c.total.toLocaleString('fr-FR') %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <% } %>
+
       <div class="grid grid-2">
         <div class="card">
           <h3>Coffre</h3>
@@ -77,7 +126,7 @@
           <% var maxCoffre = Math.max(1, ...coffre.map(function (g) { return g.total; })); %>
           <% coffre.forEach(function (g) { %>
             <div class="bar-row">
-              <span><%= g.nom %></span>
+              <span><%= g.nom %><% if (g.production) { %> <span class="muted" style="font-size:.72em">production</span><% } %></span>
               <span class="bar-track"><span class="bar-fill" style="width:<%= Math.round((g.total / maxCoffre) * 100) %>%"></span></span>
               <span class="num"><%= g.total.toLocaleString('fr-FR') %></span>
             </div>

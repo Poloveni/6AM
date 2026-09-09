@@ -1,0 +1,36 @@
+# ==========================================================
+#  Surcouche : raccordement a la base du bot Discord.
+#
+#  Le bot tourne dans SON PROPRE projet Docker, donc sur son propre
+#  reseau. Sans cette surcouche, le conteneur du site ne peut pas le
+#  joindre, quels que soient les droits accordes en base.
+#
+#  Surcouche separee, et non ajout dans docker-compose.caddy.yml :
+#  un reseau `external: true` doit exister au moment du `up`. Un
+#  deploiement sans bot n'a pas ce reseau et echouerait. On l'active
+#  donc explicitement, par COMPOSE_FILE dans le .env :
+#
+#      COMPOSE_FILE=docker-compose.yml:docker-compose.caddy.yml:docker-compose.bot.yml
+#
+#  Le nom du reseau se regle par BOT_NETWORK (defaut : le reseau par
+#  defaut du projet "roxwood-network"). Pour le retrouver :
+#
+#      docker inspect <conteneur-db-du-bot> \
+#        --format '{{range $$k,$$v := .NetworkSettings.Networks}}{{$$k}} {{end}}'
+#
+#  Le site n'a besoin que de LIRE : l'utilisateur PostgreSQL utilise
+#  dans BOT_DATABASE_URL ne doit avoir que le droit SELECT. Ce reseau
+#  ouvre la porte, la garantie vient du serveur PostgreSQL.
+# ==========================================================
+
+services:
+  web:
+    networks:
+      internal: {}
+      vps_default: {}
+      bot: {}
+
+networks:
+  bot:
+    external: true
+    name: ${BOT_NETWORK:-roxwood-network_default}

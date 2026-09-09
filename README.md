@@ -237,6 +237,24 @@ Elle est dans un fichier separe parce qu'un reseau `external: true` doit
 exister au moment du `up` : un deploiement sans bot echouerait si elle etait
 toujours active.
 
+**Avant d'activer cette surcouche, verifier `DB_HOST`.** Le conteneur web se
+retrouve alors sur plusieurs reseaux, et le DNS de Docker resout un nom sur
+tous a la fois. Un nom courant comme `db` a de bonnes chances d'exister aussi
+chez le voisin : Docker renvoie alors l'une ou l'autre adresse, le site se
+connecte une fois sur deux a la mauvaise base, les migrations echouent et le
+conteneur redemarre en boucle. La base du site repond aussi a `sixam-db`,
+unique :
+
+```env
+DB_HOST=sixam-db
+```
+
+Pour verifier qu'un nom est ambigu sur un reseau donne :
+
+```bash
+docker run --rm --network <reseau> alpine getent hosts db
+```
+
 L'hote de `BOT_DATABASE_URL` est alors le **nom du conteneur** de la base du
 bot (`roxwood-network-db-1`), jamais le nom de son service : sur un reseau
 partage, les noms de service deviennent des alias et se marchent dessus d'un

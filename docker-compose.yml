@@ -58,7 +58,11 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       internal:
-        aliases: [db]
+        # "db" reste pour la compatibilite, mais c'est un nom que d'autres
+        # projets utilisent aussi : des que le conteneur web est raccorde a un
+        # reseau exterieur (docker-compose.bot.yml), le DNS de Docker a deux
+        # reponses possibles et alterne. Utiliser "sixam-db" dans DB_HOST.
+        aliases: [db, sixam-db]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sixam} -d ${POSTGRES_DB:-sixam}"]
       interval: 10s
@@ -79,7 +83,7 @@ services:
       - mariadata:/var/lib/mysql
     networks:
       internal:
-        aliases: [db]
+        aliases: [db, sixam-db]
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 10s

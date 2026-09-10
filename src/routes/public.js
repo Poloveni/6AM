@@ -4,13 +4,7 @@ const db = require('../db/knex');
 const { wrap } = require('../lib/helpers');
 
 // --- Page d'entree : emblème et bouton Entrer ---
-router.get('/', (req, res) => {
-  res.render('public/entree', {
-    title: res.locals.site.name,
-    bodyClass: 'page-entree',
-    plein: true,          // ni en-tete ni pied de page
-  });
-});
+router.get('/', (req, res) => res.redirect(302, '/accueil'));
 
 // --- Accueil : page unique, toutes les sections ---
 router.get('/accueil', wrap(async (req, res) => {

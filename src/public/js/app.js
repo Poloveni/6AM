@@ -8,9 +8,20 @@
   var toggle = document.querySelector('.nav-toggle');
   var nav = document.querySelector('.nav');
   if (toggle && nav) {
+    function closeMenu() {
+      nav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Ouvrir le menu');
+    }
+    nav.addEventListener('click', function (event) { if (event.target.closest('a')) closeMenu(); });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && nav.classList.contains('is-open')) { closeMenu(); toggle.focus(); }
+    });
+    document.addEventListener('click', function (event) { if (!nav.contains(event.target) && !toggle.contains(event.target)) closeMenu(); });
     toggle.addEventListener('click', function () {
       nav.classList.toggle('is-open');
       toggle.setAttribute('aria-expanded', nav.classList.contains('is-open') ? 'true' : 'false');
+      toggle.setAttribute('aria-label', nav.classList.contains('is-open') ? 'Fermer le menu' : 'Ouvrir le menu');
     });
   }
 

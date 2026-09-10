@@ -25,7 +25,7 @@ const config = {
 
   site: {
     name: process.env.SITE_NAME || '6AM',
-    tagline: process.env.SITE_TAGLINE || 'Serveur GTA RP',
+    tagline: process.env.SITE_TAGLINE || 'Los Santos · 6AM',
     description: process.env.SITE_DESCRIPTION || 'Serveur roleplay 6AM.',
     locale: process.env.SITE_LOCALE || 'fr-FR',
   },

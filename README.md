@@ -341,3 +341,22 @@ docker compose exec db-mariadb mariadb-dump -u sixam -p sixam > sauvegarde.sql
 - En-tetes Helmet avec Content-Security-Policy stricte (`default-src 'self'`)
 - Limitation de debit sur la page de connexion
 - Le `.env` est ignore par git — ne jamais le committer
+
+## Refonte visuelle — septembre 2026
+
+Direction : club britannique à l’aube, noir encré, ivoire et champagne. La nouvelle
+feuille `src/public/css/dawn.css` harmonise la vitrine, la connexion et les composants
+membres. L’accueil réutilise les photographies locales et conserve les sections,
+les contenus administrables et les effectifs dynamiques. La racine redirige vers
+`/accueil` ; les anciennes routes de chapitres restent fonctionnelles.
+
+L’accueil ne charge plus la scène Three.js : image principale prioritaire, autres
+images différées. Navigation mobile avec fermeture après sélection, clic extérieur
+et Échap ; lien d’évitement et prise en compte du mouvement réduit. Les pages de
+connexion et de gestion sont exclues de l’indexation.
+
+Validation : compilation des 38 vues EJS, syntaxe JavaScript, inspection navigateur
+aux largeurs 320, 390, 768 et 1440 px, ancres, images, menu mobile et accordéons.
+L’aperçu local emploie des données vides et ne constitue pas une validation des
+services PostgreSQL/MySQL ou Discord. Aucun test de connexion réel ni mesure
+Lighthouse n’a été effectué. Aucun déploiement ni modification des secrets.

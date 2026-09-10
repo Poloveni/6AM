@@ -5,9 +5,6 @@
     ['histoire',    'Histoire'],
     ['code',        'Code'],
     ['famille',     'Famille'],
-    ['implantation','Implantation'],
-    ['flotte',      'Flotte'],
-    ['evenements',  'Événements'],
     ['projets',     'Projets'],
   ];
 %>
@@ -18,9 +15,9 @@
       <span class="brand-text"><%= site.name %></span>
     </a>
 
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Menu">&#9776;</button>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-label="Ouvrir le menu" aria-controls="navigation-principale">&#9776;</button>
 
-    <nav class="nav">
+    <nav class="nav" id="navigation-principale" aria-label="Navigation principale">
       <% ancres.forEach(function (a) { %>
         <a href="<%= base %>#<%= a[0] %>" data-anchor="<%= a[0] %>"><%= a[1] %></a>
       <% }); %>

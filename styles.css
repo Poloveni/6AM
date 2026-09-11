@@ -181,10 +181,6 @@ p{margin:0 0 1em}
 .swatch span{display:block;aspect-ratio:1;border:1px solid var(--line);margin-bottom:10px;box-shadow:inset 0 0 30px rgba(0,0,0,.4)}
 .swatch b{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink)}
 .swatch i{display:block;font-family:var(--body);font-style:italic;font-size:13px;color:var(--ink2)}
-.flotte__list{list-style:none;margin:0;padding:0;columns:2;column-gap:40px}
-.flotte__list li{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px dotted var(--line);break-inside:avoid;font-size:17px}
-.flotte__list li b{font-weight:500;color:var(--ink)}
-.flotte__list li span{font-family:var(--serif);font-size:11px;letter-spacing:.2em;color:var(--steel)}
 
 /* ---------- REJOINDRE ---------- */
 .section--contact{background:radial-gradient(ellipse at 50% 30%,#0f1a33 0%,#060a13 60%,var(--bg) 100%);padding:140px 0}
@@ -248,7 +244,6 @@ p{margin:0 0 1em}
   .nav{padding:12px 18px}
   .section{padding:80px 0}
   .code{grid-template-columns:1fr}
-  .flotte__list{columns:1}
   .hero__hint{display:none}
   .hero__content{text-align:center;padding:56vh 18px 70px}
   .hero__content>*{margin-left:auto;margin-right:auto}
@@ -275,6 +270,10 @@ p{margin:0 0 1em}
 .implant__text p{color:var(--ink2);font-size:17px}
 .implant__note{font-style:italic;border-left:2px solid var(--steel2);padding-left:14px;color:var(--ink)!important}
 .flotte__title{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--steel3);margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.flotte__meanings{display:flex;flex-direction:column;gap:26px}
+.flotte__meaning .eyebrow{margin-bottom:6px}
+.flotte__meaning h4{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--steel3);margin-bottom:8px}
+.flotte__meaning p{color:var(--ink2);font-size:16px}
 
 
 /* ---------- AMBITIONS ---------- */

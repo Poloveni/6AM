@@ -6,5 +6,5 @@
 window.SIXAM = {
   // Lien d'invitation au serveur Discord de 6AM (ex. 'https://discord.gg/abcdef').
   // Tant qu'il est vide, les boutons « Discord » descendent vers la section « Rejoindre ».
-  discord: ''
+  discord: 'https://discord.gg/MJeS9Rs3RB'
 };

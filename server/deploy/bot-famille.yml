@@ -1,0 +1,47 @@
+# 6AM — bot Discord « roxwood-network-famille » (quotas, paie, braquages, coffre…)
+# Lancé et mis à jour par :   sudo bash /opt/sixam/server/deploy/bot-install.sh
+# Code du bot : /opt/bot-famille (clone de github.com/poulpizar01/roxwood-network-famille)
+# Réglages secrets : /opt/bot-famille/.env (TOKEN, CLIENT_ID, POSTGRES_PASSWORD), jamais dans Git.
+#
+# Différences avec le docker-compose.yml fourni avec le bot : aucun port publié
+# (base et API injoignables depuis Internet) et noms de conteneurs explicites.
+name: bot-famille
+services:
+  db:
+    container_name: bot-famille-db-1
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: roxwood_network_famille
+      POSTGRES_DB: roxwood_network_famille
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD manquant (relance bot-install.sh)}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U roxwood_network_famille -d roxwood_network_famille"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  bot:
+    container_name: bot-famille-bot-1
+    build:
+      context: ${BOT_DIR:-/opt/bot-famille}   # Dockerfile du bot (applique les migrations au démarrage)
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TOKEN: ${TOKEN:?TOKEN manquant (relance bot-install.sh)}
+      CLIENT_ID: ${CLIENT_ID:?CLIENT_ID manquant (relance bot-install.sh)}
+      DATABASE_URL: postgresql://roxwood_network_famille:${POSTGRES_PASSWORD}@db:5432/roxwood_network_famille
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+volumes:
+  db_data:

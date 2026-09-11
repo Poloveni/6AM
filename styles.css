@@ -174,13 +174,6 @@ p{margin:0 0 1em}
 .rank--open .rank__name{color:var(--gold);font-size:18px;letter-spacing:.1em}
 
 /* ---------- COULEURS & FLOTTE ---------- */
-.flotte{display:grid;grid-template-columns:1fr 1.3fr;gap:50px;align-items:start;border-top:1px solid var(--line);padding-top:60px}
-.flotte__colors{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.flotte__colors p{grid-column:1/-1;color:var(--ink2);font-size:16px;margin-top:10px;font-style:italic}
-.swatch{text-align:center;font-family:var(--serif)}
-.swatch span{display:block;aspect-ratio:1;border:1px solid var(--line);margin-bottom:10px;box-shadow:inset 0 0 30px rgba(0,0,0,.4)}
-.swatch b{display:block;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink)}
-.swatch i{display:block;font-family:var(--body);font-style:italic;font-size:13px;color:var(--ink2)}
 
 /* ---------- REJOINDRE ---------- */
 .section--contact{background:radial-gradient(ellipse at 50% 30%,#0f1a33 0%,#060a13 60%,var(--bg) 100%);padding:140px 0}
@@ -227,7 +220,6 @@ p{margin:0 0 1em}
 @media (max-width:1000px){
   .histoire{grid-template-columns:1fr}
   .code{grid-template-columns:1fr 1fr}
-  .flotte{grid-template-columns:1fr}
   .galerie{grid-template-columns:repeat(3,1fr);grid-auto-rows:180px}
 }
 @media (max-width:1100px){
@@ -270,10 +262,24 @@ p{margin:0 0 1em}
 .implant__text p{color:var(--ink2);font-size:17px}
 .implant__note{font-style:italic;border-left:2px solid var(--steel2);padding-left:14px;color:var(--ink)!important}
 .flotte__title{font-family:var(--serif);font-weight:600;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:var(--steel3);margin-bottom:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
-.flotte__meanings{display:flex;flex-direction:column;gap:26px}
-.flotte__meaning .eyebrow{margin-bottom:6px}
-.flotte__meaning h4{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--steel3);margin-bottom:8px}
-.flotte__meaning p{color:var(--ink2);font-size:16px}
+/* Signification des couleurs : 3 colonnes égales ; les lignes (carré, libellé, titre, texte)
+   sont partagées entre colonnes (subgrid) pour que les explications démarrent à la même hauteur */
+.couleurs{border-top:1px solid var(--line);padding-top:60px}
+.couleurs__title{text-align:center;margin-bottom:40px}
+.couleurs__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 48px}
+.couleur{display:grid;grid-row:span 4;grid-template-rows:subgrid;justify-items:center;text-align:center;align-content:start}
+.couleur__carre{display:block;width:150px;max-width:100%;aspect-ratio:1;border:1px solid var(--line);box-shadow:inset 0 0 30px rgba(0,0,0,.4);margin-bottom:16px}
+.couleur__label{font-family:var(--serif);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2);margin-bottom:10px}
+.couleur__label b{color:var(--ink);font-weight:700}
+.couleur__label i{font-family:var(--body);font-size:14px;letter-spacing:.02em;text-transform:none;color:var(--ink2)}
+.couleur h4{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;color:var(--steel3);margin-bottom:10px;align-self:end}
+.couleur p:last-child{color:var(--ink2);font-size:16px;line-height:1.65;max-width:34ch}
+.couleurs__note{text-align:center;color:var(--ink2);font-size:16px;font-style:italic;margin-top:40px}
+@media (max-width:720px){
+  .couleurs__grid{grid-template-columns:1fr;gap:44px}
+  .couleur{display:flex;flex-direction:column;align-items:center}
+  .couleur h4{align-self:center}
+}
 
 
 /* ---------- AMBITIONS ---------- */

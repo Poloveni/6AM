@@ -4,25 +4,26 @@
  *  value  : identifiant technique (minuscules, sans espace ni accent).
  *           Ne le change plus une fois le site en service : il est enregistré
  *           dans la base pour chaque membre.
- *  label  : nom affiché sur le site (modifiable quand tu veux).
+ *  label  : nom affiché sur le site (modifiable quand tu veux) — « correspondance
+ *           classique » de 6AM : Lord, Duke, Chancellor, Marshal, Gentleman, Candidate.
+ *  alias  : ancien nom, rappelé en petit à côté (ex. « Lord · Lead »).
+ *  icon   : icône du grade (symbole de assets/grades.svg, sans le préfixe « g- »).
  *  admin  : peut valider les nouveaux membres et gérer l'administration.
- *  top    : pouvoirs complets (nommer un Lead, modifier l'organigramme public).
+ *  top    : pouvoirs complets (nommer un Lord, modifier l'organigramme public).
  *  hidden : n'apparaît pas dans l'organigramme public.
  *
  * Le DERNIER grade de la liste est donné automatiquement aux nouveaux comptes.
  */
 export const RANKS = [
-  { value: 'lead',       label: 'Lead',       admin: true, top: true },
-  { value: 'co-lead',    label: 'Co-Lead',    admin: true, top: true },
-  { value: 'devweb',     label: 'Dev Web',    admin: true, top: true, hidden: true },
-  { value: 'bras-droit', label: 'Bras droit', admin: true },
-  { value: 'lieutenant', label: 'Lieutenant' },
-  { value: 'dealer',     label: 'Dealer' },
-  { value: 'recrue',     label: 'Recrue' },
+  { value: 'lead',       label: 'Lord',       alias: 'Lead',       icon: 'crown',     admin: true, top: true },
+  { value: 'co-lead',    label: 'Duke',       alias: 'Co-Lead',    icon: 'fleur',     admin: true, top: true },
+  { value: 'devweb',     label: 'Dev Web',    alias: '',           icon: 'laptop',    admin: true, top: true, hidden: true },
+  { value: 'bras-droit', label: 'Chancellor', alias: 'Bras droit', icon: 'lion',      admin: true },
+  { value: 'lieutenant', label: 'Marshal',    alias: 'Lieutenant', icon: 'swords' },
+  { value: 'dealer',     label: 'Gentleman',  alias: 'Dealer',     icon: 'handshake' },
+  { value: 'recrue',     label: 'Candidate',  alias: 'Recrue',     icon: 'quill' },
 ];
 
-// Grade donné aux IDs Discord de ADMIN_DISCORD_IDS lors de leur toute première
-// connexion (la personne qui installe le site). Modifiable ensuite dans l'administration.
 export const BOOTSTRAP_RANK = 'devweb';
 
 /*

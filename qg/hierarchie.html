@@ -40,14 +40,14 @@
 <script>
   const $ = id => document.getElementById(id), esc = QG.esc;
   let data;
-  const rankOptions = sel => data.ranks.map(r => `<option value="${esc(r.value)}" ${r.value === sel ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
+  const rankOptions = sel => data.ranks.map(r => `<option value="${esc(r.value)}" ${r.value === sel ? 'selected' : ''}>${esc(r.label)}${r.alias ? ` (${esc(r.alias)})` : ''}</option>`).join('');
   function render() {
     $('addRank').innerHTML = rankOptions(data.ranks[data.ranks.length - 1].value);
     const byRank = {}; data.entries.forEach(e => (byRank[e.rank] = byRank[e.rank] || []).push(e));
-    $('tiers').innerHTML = data.ranks.map(({ value, label }) => {
+    $('tiers').innerHTML = data.ranks.map(({ value, label, alias }) => {
       const list = byRank[value] || [];
       return `<section class="block org-tier">
-        <h2 class="block__title">${esc(label)} <span class="badge badge--steel">${list.length}</span></h2>
+        <h2 class="block__title">${esc(label)}${alias ? ` <small class="block__alias">· ${esc(alias)}</small>` : ''} <span class="badge badge--steel">${list.length}</span></h2>
         <div class="org-cards">${list.map((e, i) => `
           <form class="org-card ${e.is_open ? 'is-open' : ''}" data-id="${e.id}">
             <div class="org-card__row">

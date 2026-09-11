@@ -30,7 +30,7 @@
     $('grid').innerHTML = list.map(m => `
       <article class="membre" data-tier="${m.tier}">
         <img src="${esc(QG.avatar(m.avatarUrl))}" alt="" width="76" height="76" loading="lazy">
-        <span class="rank-pill" data-tier="${m.tier}">${esc(m.rankLabel)}</span>
+        <span class="rank-pill" data-tier="${m.tier}">${esc(m.rankLabel)}${m.rankAlias ? ` <small>· ${esc(m.rankAlias)}</small>` : ''}</span>
         <span class="membre__name">${esc(m.displayName)}</span>
         <span class="membre__user">@${esc(m.username)}</span>
         ${m.phoneRp ? `<span class="membre__phone">☎ ${esc(m.phoneRp)}</span>` : ''}

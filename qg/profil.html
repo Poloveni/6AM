@@ -50,7 +50,7 @@
   const $ = id => document.getElementById(id);
   function render(m) {
     $('avatar').src = QG.avatar(m.avatarUrl);
-    $('rank').textContent = m.rankLabel; $('rank').dataset.tier = m.tier;
+    $('rank').innerHTML = QG.esc(m.rankLabel) + (m.rankAlias ? ` <small>· ${QG.esc(m.rankAlias)}</small>` : ''); $('rank').dataset.tier = m.tier;
     $('displayName').textContent = m.displayName;
     $('username').textContent = '@' + m.username;
     $('joinedAt').textContent = QG.date(m.approvedAt || m.joinedAt);

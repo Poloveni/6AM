@@ -31,6 +31,8 @@ if (SESSION_SECRET.length < 32 || SESSION_SECRET === 'change-me') { console.erro
 // ---------- Grades (voir ranks.js) ----------
 const RANKS = RANK_LIST.map(r => r.value);
 const RANK_LABEL = Object.fromEntries(RANK_LIST.map(r => [r.value, r.label]));
+const RANK_INFO = Object.fromEntries(RANK_LIST.map(r => [r.value, { alias: r.alias || '', icon: r.icon || '' }]));
+const rankExtra = r => ({ rankAlias: RANK_INFO[r]?.alias || '', rankIcon: RANK_INFO[r]?.icon || '' });
 const ADMIN_RANKS = RANK_LIST.filter(r => r.admin).map(r => r.value);
 const TOP_RANKS = RANK_LIST.filter(r => r.top).map(r => r.value);
 const PUBLIC_RANKS = RANK_LIST.filter(r => !r.hidden);
@@ -179,12 +181,12 @@ const requireApproved = async (req, res, next) => {
 };
 const requireAdmin = (req, res, next) => canAdmin(req.member) ? next() : res.status(403).json({ error: 'forbidden' });
 const requireTop = (req, res, next) => isTop(req.member) ? next() : res.status(403).json({ error: 'top-only' });
-// niveau du grade pour l'affichage : 0 = Lead / Co-Lead / Dev Web, 1 = autres admins, 2 = les autres
+// niveau du grade pour l'affichage : 0 = Lord / Duke / Dev Web, 1 = autres admins, 2 = les autres
 const tierOf = r => TOP_RANKS.includes(r) ? 0 : ADMIN_RANKS.includes(r) ? 1 : 2;
 const avatarUrl = m => m.avatar ? `https://cdn.discordapp.com/avatars/${m.discord_id}/${m.avatar}.${m.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256` : null;
 const publicMember = m => ({
   id: m.id, discordId: m.discord_id, username: m.username, avatarUrl: avatarUrl(m),
-  displayName: m.display_name || m.username, rank: m.rank, rankLabel: RANK_LABEL[m.rank] || m.rank, tier: tierOf(m.rank), bio: m.bio, phoneRp: m.phone_rp,
+  displayName: m.display_name || m.username, rank: m.rank, rankLabel: RANK_LABEL[m.rank] || m.rank, ...rankExtra(m.rank), tier: tierOf(m.rank), bio: m.bio, phoneRp: m.phone_rp,
   isAdmin: canAdmin(m), isTop: isTop(m), status: m.status, joinedAt: m.joined_at, lastLogin: m.last_login, approvedAt: m.approved_at,
 });
 // les routes async renvoient leurs erreurs au gestionnaire commun (Express 5 le fait aussi)
@@ -211,7 +213,7 @@ app.patch('/api/me', requireAuth, requireApproved, wrap(async (req, res) => {
 // les membres : visibles par les membres connectés
 app.get('/api/membres', requireAuth, requireApproved, wrap(async (_req, res) => {
   const { rows } = await pool.query(`SELECT * FROM members WHERE status = 'approved' ORDER BY array_position($1::text[], rank), display_name`, [RANKS]);
-  res.json(rows.map(m => { const p = publicMember(m); return { id: p.id, displayName: p.displayName, username: p.username, rank: p.rank, rankLabel: p.rankLabel, tier: p.tier, avatarUrl: p.avatarUrl, bio: p.bio, phoneRp: p.phoneRp }; }));
+  res.json(rows.map(m => { const p = publicMember(m); return { id: p.id, displayName: p.displayName, username: p.username, rank: p.rank, rankLabel: p.rankLabel, rankAlias: p.rankAlias, rankIcon: p.rankIcon, tier: p.tier, avatarUrl: p.avatarUrl, bio: p.bio, phoneRp: p.phoneRp }; }));
 }));
 
 // ---------- Administration ----------
@@ -237,13 +239,13 @@ app.patch('/api/admin/members/:id', requireAuth, requireApproved, requireAdmin, 
   if (req.body.rank !== undefined && req.body.rank !== target.rank) {
     if (!RANKS.includes(req.body.rank)) return res.status(400).json({ error: 'Grade inconnu.' });
     // seuls les grades « top » peuvent donner ou retirer un grade « top »
-    if ((TOP_RANKS.includes(req.body.rank) || TOP_RANKS.includes(target.rank)) && !isTop(req.member)) return res.status(403).json({ error: 'Seul le Lead peut faire ce changement.' });
+    if ((TOP_RANKS.includes(req.body.rank) || TOP_RANKS.includes(target.rank)) && !isTop(req.member)) return res.status(403).json({ error: 'Seuls le Lord et le Duke peuvent faire ce changement.' });
     add('rank', req.body.rank);
   }
   if (req.body.status !== undefined && req.body.status !== target.status) {
     if (!['pending', 'approved', 'rejected'].includes(req.body.status)) return res.status(400).json({ error: 'Statut inconnu.' });
     if (target.id === req.member.id) return res.status(400).json({ error: 'Tu ne peux pas changer ton propre statut.' });
-    if (TOP_RANKS.includes(target.rank) && !isTop(req.member)) return res.status(403).json({ error: 'Seul le Lead peut faire ce changement.' });
+    if (TOP_RANKS.includes(target.rank) && !isTop(req.member)) return res.status(403).json({ error: 'Seuls le Lord et le Duke peuvent faire ce changement.' });
     add('status', req.body.status);
     add('approved_at', req.body.status === 'approved' ? new Date() : null);
     add('approved_by', req.body.status === 'approved' ? req.member.id : null);
@@ -254,15 +256,15 @@ app.patch('/api/admin/members/:id', requireAuth, requireApproved, requireAdmin, 
   res.json(publicMember(m));
 }));
 
-app.get('/api/ranks', (_req, res) => res.json(RANK_LIST.map(r => ({ value: r.value, label: r.label, top: !!r.top, hidden: !!r.hidden }))));
+app.get('/api/ranks', (_req, res) => res.json(RANK_LIST.map(r => ({ value: r.value, label: r.label, alias: r.alias || '', icon: r.icon || '', top: !!r.top, hidden: !!r.hidden }))));
 
-// ---------- Organigramme public (lecture libre, modification par le Lead / Co-Lead) ----------
+// ---------- Organigramme public (lecture libre, modification par le Lord / Duke) ----------
 const orgPayload = async () => {
   const { rows: entries } = await pool.query('SELECT id, rank, name, subtitle, description, photo, is_open, position FROM org_entries ORDER BY array_position($1::text[], rank), position, id', [RANKS]);
   const { rows: descs } = await pool.query('SELECT * FROM org_rank_desc');
   const visible = new Set(PUBLIC_RANKS.map(r => r.value));
   return {
-    ranks: PUBLIC_RANKS.map(r => ({ value: r.value, label: r.label })),
+    ranks: PUBLIC_RANKS.map(r => ({ value: r.value, label: r.label, alias: r.alias || '', icon: r.icon || '' })),
     entries: entries.filter(e => visible.has(e.rank)),
     rankDesc: Object.fromEntries(descs.filter(d => visible.has(d.rank) && d.description).map(d => [d.rank, d.description])),
   };
@@ -319,7 +321,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 
   fileFilter: (_req, f, cb) => cb(null, /^image\/(jpeg|png|webp|gif|heic|heif)$/.test(f.mimetype)) });
 const PHOTO_SELECT = `SELECT p.*, m.display_name, m.username, m.rank FROM photos p JOIN members m ON m.id = p.member_id WHERE p.deleted_at IS NULL`;
 const photoRow = r => ({ id: r.id, url: `/uploads/${r.file}`, thumb: `/uploads/${r.thumb}`, width: r.width, height: r.height, caption: r.caption, createdAt: r.created_at,
-  author: { id: r.member_id, displayName: r.display_name || r.username, username: r.username, rank: r.rank, rankLabel: RANK_LABEL[r.rank] || r.rank } });
+  author: { id: r.member_id, displayName: r.display_name || r.username, username: r.username, rank: r.rank, rankLabel: RANK_LABEL[r.rank] || r.rank, ...rankExtra(r.rank) } });
 
 app.get('/api/gallery', wrap(async (req, res) => {
   const lim = Math.min(Math.max(Number(req.query.limit) || 60, 1), 200);
@@ -386,7 +388,7 @@ app.get('/api/dossier', requireAuth, requireApproved, wrap(async (_req, res) => 
 
 // ---------- Le Salon (discussion en direct : SSE + POST) ----------
 const chatClients = new Map();            // connexion -> membre
-const chatAuthor = m => ({ id: m.member_id ?? m.id, displayName: m.display_name || m.username, username: m.username, rank: m.rank, rankLabel: RANK_LABEL[m.rank] || m.rank, tier: tierOf(m.rank), avatarUrl: avatarUrl(m) });
+const chatAuthor = m => ({ id: m.member_id ?? m.id, displayName: m.display_name || m.username, username: m.username, rank: m.rank, rankLabel: RANK_LABEL[m.rank] || m.rank, ...rankExtra(m.rank), tier: tierOf(m.rank), avatarUrl: avatarUrl(m) });
 const chatBroadcast = (event, data) => {
   const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
   for (const res of chatClients.keys()) { try { res.write(payload); } catch { chatClients.delete(res); } }

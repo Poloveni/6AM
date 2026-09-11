@@ -336,3 +336,7 @@ label.btn:focus-within{outline:2px solid var(--steel);outline-offset:3px}
 .role-tag::before{content:"@"}
 .bot-hint{border:1px solid var(--steel2);background:rgba(143,167,207,.07);padding:14px 18px;margin-bottom:30px;color:var(--ink)}
 .bot-hint a,.bot-guide a:not(.btn),.bot-off a{color:var(--steel3);border-bottom:1px solid var(--steel2)}
+
+/* grades : ancien nom (correspondance) rappelé en petit */
+.rank-pill small{font-size:8px;letter-spacing:.16em;opacity:.75}
+.block__alias{font-family:var(--serif);font-weight:400;font-size:12px;letter-spacing:.16em;color:var(--ink2)}

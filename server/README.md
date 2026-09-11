@@ -23,7 +23,7 @@ sudo bash /opt/sixam/server/deploy/vps-setup.sh
 ```
 Le script pose les questions (Entrée = garder la valeur proposée), écrit `server/.env`, démarre le nouveau site, aiguille Caddy vers lui, puis propose de mettre l'ancienne version (`/opt/6am`) à l'arrêt — **sans supprimer ses données**. Il est **rejouable** sans risque : relance-le pour changer une valeur.
 
-À la fin, ouvre `https://6amfbfa.duckdns.org/qg/` et connecte-toi : avec ton ID en admin, tu arrives directement validé, avec le grade **Dev Web** (tous les droits). Quand Njuts se connecte, valide-le dans Gestion → Administration et donne-lui le grade **Lead**.
+À la fin, ouvre `https://6amfbfa.duckdns.org/qg/` et connecte-toi : avec ton ID en admin, tu arrives directement validé, avec le grade **Dev Web** (tous les droits). Quand Njuts se connecte, valide-le dans Gestion → Administration et donne-lui le grade **Lord** (ancien « Lead »).
 
 ## 4. Mettre à jour après un changement poussé sur GitHub
 

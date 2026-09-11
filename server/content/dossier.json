@@ -116,16 +116,16 @@
           "table": {
             "entetes": ["Membre", "Grade", "ID unique", "Naissance", "Lieu"],
             "lignes": [
-              ["Jean Njuts", "Lead", "314508", "30/12/1992", "London City"],
-              ["Hugo Delawid", "Co-Lead", "182012", "09/06/2000", "Los Santos"],
-              ["Francis Detton", "Bras droit", "358940", "01/02/1996", "Dallas"],
-              ["Amado Gomez", "Lieutenant", "277", "19/02/1990", "Los Santos"],
-              ["Théo Grande", "Dealer", "374197", "14/10/2005", "Birmingham"],
-              ["Angel Delawid", "Dealer", "182012", "15/10/1999", "Los Santos"],
-              ["Thomas Sano", "Dealer", "194326", "20/02/1998", "San Andreas"],
-              ["Olivia Ritchi", "Dealer", "341732", "07/01/2000", "Manchester"],
-              ["Ash Jackson", "Recrue", "371797", "—", "Miami"],
-              ["Hamid Salvatore", "Recrue", "362124", "—", "Miami"]
+              ["Jean Njuts", "Lord (Lead)", "314508", "30/12/1992", "London City"],
+              ["Hugo Delawid", "Duke (Co-Lead)", "182012", "09/06/2000", "Los Santos"],
+              ["Francis Detton", "Chancellor (Bras droit)", "358940", "01/02/1996", "Dallas"],
+              ["Amado Gomez", "Marshal (Lieutenant)", "277", "19/02/1990", "Los Santos"],
+              ["Théo Grande", "Gentleman (Dealer)", "374197", "14/10/2005", "Birmingham"],
+              ["Angel Delawid", "Gentleman (Dealer)", "182012", "15/10/1999", "Los Santos"],
+              ["Thomas Sano", "Gentleman (Dealer)", "194326", "20/02/1998", "San Andreas"],
+              ["Olivia Ritchi", "Gentleman (Dealer)", "341732", "07/01/2000", "Manchester"],
+              ["Ash Jackson", "Candidate (Recrue)", "371797", "—", "Miami"],
+              ["Hamid Salvatore", "Candidate (Recrue)", "362124", "—", "Miami"]
             ]
           }
         }

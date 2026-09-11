@@ -45,7 +45,7 @@
   let me, ranks = [];
   const topRank = v => ranks.some(r => r.value === v && r.top);
   const rankSelect = m => `<select class="select" data-id="${m.id}" data-field="rank" aria-label="Grade de ${esc(m.displayName)}" ${topRank(m.rank) && !me.isTop ? 'disabled' : ''}>` +
-    ranks.filter(r => !r.top || me.isTop || r.value === m.rank).map(r => `<option value="${esc(r.value)}" ${r.value === m.rank ? 'selected' : ''}>${esc(r.label)}</option>`).join('') + '</select>';
+    ranks.filter(r => !r.top || me.isTop || r.value === m.rank).map(r => `<option value="${esc(r.value)}" ${r.value === m.rank ? 'selected' : ''}>${esc(r.label)}${r.alias ? ` (${esc(r.alias)})` : ''}</option>`).join('') + '</select>';
   const avatar = m => `<img class="avatar" src="${esc(QG.avatar(m.avatarUrl))}" alt="">`;
   const nameInput = m => `<input class="input" data-id="${m.id}" data-field="displayName" value="${esc(m.displayName)}" maxlength="64" aria-label="Nom RP de @${esc(m.username)}">`;
 

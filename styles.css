@@ -18,6 +18,12 @@
   --line:rgba(143,167,207,.22);
   --glow:rgba(110,145,210,.35);
   --metal:linear-gradient(180deg,#f7f9fd 0%,#c3cfe2 42%,#6f84a8 78%,#3c4c6c 100%);
+  /* or de l'organigramme « correspondance classique » (section La Famille uniquement) */
+  --gold:#d6b46a;
+  --gold2:#8a6a35;
+  --gold3:#f5e4b3;
+  --gold-line:rgba(214,180,106,.45);
+  --gold-metal:linear-gradient(180deg,#fbf0cf 0%,#e3c47f 40%,#b18a45 75%,#6f5226 100%);
   --display:'Cinzel',Georgia,serif;
   --serif:'Cinzel',Georgia,serif;
   --body:'EB Garamond',Georgia,'Times New Roman',serif;
@@ -134,28 +140,38 @@ p{margin:0 0 1em}
 /* ---------- HIÉRARCHIE (organigramme) ---------- */
 .org{display:flex;flex-direction:column;align-items:center}
 .org__tier{display:flex;justify-content:center}
-.org__tier--row{gap:18px;flex-wrap:wrap}
-.org__line{width:1px;height:38px;background:linear-gradient(to bottom,var(--steel),var(--steel2))}
-.org__desc{max-width:640px;text-align:center;color:var(--ink2);font-size:15px;font-style:italic;margin:14px 0 0}
-.rank{position:relative;text-align:center;border:1px solid var(--line);padding:22px 26px;min-width:190px;background:linear-gradient(180deg,rgba(143,167,207,.07),rgba(0,0,0,.2));transition:.3s}
-.rank:hover{border-color:var(--steel)}
-.rank::before,.rank::after{content:"";position:absolute;width:12px;height:12px;border:1px solid var(--steel)}
+.org__tier--row{gap:26px 18px;flex-wrap:wrap}
+.org__line{width:1px;height:44px;background:linear-gradient(to bottom,var(--gold),var(--gold2))}
+.org__desc{max-width:640px;text-align:center;color:#bca77a;font-size:15px;font-style:italic;margin:14px 0 0}
+/* cartes des grades : cuir noir, double filet doré, médaillon avec l'icône du grade */
+.rank{position:relative;text-align:center;border:1px solid var(--gold-line);padding:34px 28px 22px;min-width:200px;margin-top:22px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(214,180,106,.10),transparent 60%),linear-gradient(180deg,#15120d,#080705);
+  box-shadow:inset 0 0 0 4px #0b0906,inset 0 0 0 5px rgba(214,180,106,.22),0 12px 30px rgba(0,0,0,.45);transition:border-color .3s,box-shadow .3s}
+.rank:hover{border-color:var(--gold);box-shadow:inset 0 0 0 4px #0b0906,inset 0 0 0 5px rgba(214,180,106,.4),0 0 34px rgba(214,180,106,.14)}
+.rank::before,.rank::after{content:"";position:absolute;width:14px;height:14px;border:1px solid var(--gold)}
 .rank::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
 .rank::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
-.rank__title{display:block;font-family:var(--serif);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--steel)}
-.rank__name{display:block;font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.04em;color:var(--ink);margin-top:6px}
-.rank__age{display:block;font-size:14px;color:var(--ink2);font-style:italic;margin-top:2px}
+.rank__icon{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 35%,#231c11,#0a0806);border:1px solid var(--gold);box-shadow:0 0 0 3px #080705,0 0 16px rgba(214,180,106,.25);color:var(--gold)}
+.rank__icon svg{width:26px;height:26px;fill:currentColor}
+.rank__title{display:block;font-family:var(--serif);font-weight:600;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.rank__title small{font-weight:400;font-size:10px;letter-spacing:.18em;color:#9d8c6b}
+.rank__title small::before,.rank-tag small::before{content:"· "}
+.rank__name{display:block;font-family:var(--display);font-weight:700;font-size:26px;letter-spacing:.04em;color:#f3ecdf;margin-top:6px}
+.rank__age{display:block;font-size:14px;color:#a99f8c;font-style:italic;margin-top:2px}
 .rank p{max-width:420px;margin:12px auto 0;color:var(--ink2);font-size:15px}
-/* le 1er grade (chef) : cadre argent + nom en métal */
-.rank--t0{padding:34px 44px;border-color:var(--steel);box-shadow:0 0 50px rgba(110,145,210,.18)}
-.rank--t0 .rank__name{font-size:38px;background:var(--metal);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.rank--t1{padding:28px 40px;border-color:rgba(143,167,207,.55)}
+.rank--t0{margin-top:30px;padding:46px 48px 30px;border-color:var(--gold);box-shadow:inset 0 0 0 4px #0b0906,inset 0 0 0 5px rgba(214,180,106,.45),0 0 60px rgba(214,180,106,.16)}
+.rank--t0 .rank__icon{width:60px;height:60px;top:-30px}
+.rank--t0 .rank__icon svg{width:36px;height:36px}
+.rank--t0 .rank__title{font-size:14px}
+.rank--t0 .rank__name{font-size:38px;background:var(--gold-metal);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.rank--t1{padding:40px 40px 26px;border-color:rgba(214,180,106,.7)}
 .rank--t1 .rank__name{font-size:32px}
 .rank--t2 .rank__name{font-size:28px}
-.rank--small{min-width:160px}
+.rank--small{min-width:170px}
 .rank--small .rank__name{font-size:22px}
 .rank--open{border-style:dashed;opacity:.85}
-.rank--open .rank__name{color:var(--steel);font-size:18px;letter-spacing:.1em}
+.rank--open .rank__name{color:var(--gold);font-size:18px;letter-spacing:.1em}
 
 /* ---------- COULEURS & FLOTTE ---------- */
 .flotte{display:grid;grid-template-columns:1fr 1.3fr;gap:50px;align-items:start;border-top:1px solid var(--line);padding-top:60px}
@@ -238,8 +254,11 @@ p{margin:0 0 1em}
   .hero__content>*{margin-left:auto;margin-right:auto}
   .hero__actions{justify-content:center}
   .no-3d .hero__fallback{right:50%;top:110px;transform:translateX(50%);width:min(260px,60vw)}
-  .rank{min-width:0;flex:1 1 140px;padding:18px 14px}
-  .rank--t0,.rank--t1{padding:24px 18px}
+  .rank{min-width:0;flex:1 1 140px;padding:30px 14px 18px}
+  .rank--t0,.rank--t1{padding:40px 18px 24px}
+  .rank--t0 .rank__name{font-size:32px}
+  .rank--small .rank__title small{display:block;margin-top:4px}
+  .rank--small .rank__title small::before{content:none}
   .galerie{grid-template-columns:repeat(2,1fr);grid-auto-rows:150px}
   .lightbox{padding:60px 10px}.lightbox__nav{display:none}
 }
@@ -275,7 +294,9 @@ p{margin:0 0 1em}
 .dossier__nophoto{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--display);font-weight:700;font-size:34px;color:var(--steel2);letter-spacing:.06em;background:radial-gradient(circle at 50% 40%,#16243f,#070b14)}
 .dossier__body{position:relative;z-index:1;min-width:0}
 .dossier__label{font-family:var(--serif);font-size:9px;letter-spacing:.34em;text-transform:uppercase;color:var(--steel2);margin:0 0 10px}
-.rank-tag{display:inline-block;font-family:var(--serif);font-size:10px;letter-spacing:.24em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--steel);color:var(--steel3)}
+.rank-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--serif);font-size:10px;letter-spacing:.24em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--gold-line);color:var(--gold);background:rgba(214,180,106,.06)}
+.rank-tag svg{width:14px;height:14px;fill:currentColor;flex:none}
+.rank-tag small{font-size:9px;letter-spacing:.14em;color:#9d8c6b}
 .dossier__name{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.04em;color:var(--ink);margin:10px 0 2px;line-height:1.2}
 .dossier__meta{font-style:italic;color:var(--steel);font-size:15px;margin-bottom:12px}
 .dossier__body p{font-size:15.5px;color:var(--ink2);line-height:1.6;margin-bottom:.8em}
@@ -335,3 +356,5 @@ p{margin:0 0 1em}
   .subhead{margin-top:60px;font-size:13px}
 }
 [hidden]{display:none!important}
+.footer__credit{opacity:.6}
+.footer__credit a{color:inherit;border-bottom:1px solid var(--line)}

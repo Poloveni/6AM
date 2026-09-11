@@ -25,7 +25,7 @@
     return `<article class="msg ${mine ? 'msg--mine' : ''} ${grouped ? 'msg--grouped' : ''} ${!mine && isMentioned(m.content) ? 'msg--mention' : ''}" data-id="${m.id}">
       <img class="msg__avatar" src="${esc(QG.avatar(m.author.avatarUrl))}" alt="">
       <div class="msg__body">
-        <header class="msg__head"><b class="msg__name">${esc(m.author.displayName)}</b><span class="msg__rank" data-tier="${m.author.tier}">${esc(m.author.rankLabel)}</span><time datetime="${esc(m.createdAt)}">${time(m.createdAt)}</time>${canDel ? `<button class="msg__del" type="button" data-del="${m.id}" aria-label="Supprimer ce message">✕</button>` : ''}</header>
+        <header class="msg__head"><b class="msg__name">${esc(m.author.displayName)}</b><span class="msg__rank" data-tier="${m.author.tier}"${m.author.rankAlias ? ` title="${esc(m.author.rankAlias)}"` : ''}>${esc(m.author.rankLabel)}</span><time datetime="${esc(m.createdAt)}">${time(m.createdAt)}</time>${canDel ? `<button class="msg__del" type="button" data-del="${m.id}" aria-label="Supprimer ce message">✕</button>` : ''}</header>
         <p class="msg__text">${format(m.content)}</p>
       </div>
     </article>`;
@@ -74,7 +74,7 @@
 
   function renderOnline(list) {
     $('onlineCount').textContent = list.length;
-    $('online').innerHTML = list.map(u => `<li><img src="${esc(QG.avatar(u.avatarUrl))}" alt=""><span>${esc(u.displayName)}</span><i data-tier="${u.tier}">${esc(u.rankLabel)}</i></li>`).join('');
+    $('online').innerHTML = list.map(u => `<li><img src="${esc(QG.avatar(u.avatarUrl))}" alt=""><span>${esc(u.displayName)}</span><i data-tier="${u.tier}"${u.rankAlias ? ` title="${esc(u.rankAlias)}"` : ''}>${esc(u.rankLabel)}</i></li>`).join('');
   }
 
   function connect() {

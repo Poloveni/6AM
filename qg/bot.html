@@ -18,74 +18,6 @@
     <h1>Le Bot</h1>
     <p>Données du bot Discord — lecture seule</p>
   </div>
-  <!-- mode d'emploi du bot côté Discord (d'après le README du bot) -->
-  <details class="panel bot-guide" id="guide">
-    <summary><span>Guide</span> Installer et configurer le bot sur Discord</summary>
-    <div class="bot-guide__body">
-      <p class="block__hint">Le bot est hébergé sur le VPS et relié au site. Il reste à l'ajouter au serveur Discord 6AM puis à le configurer, dans cet ordre. Toutes les commandes <code>/config</code> demandent la permission <b>Administrateur</b> sur le serveur 6AM. Clique sur une commande pour la copier.</p>
-      <ol class="guide-steps">
-        <li>
-          <h3>Inviter le bot sur le serveur 6AM</h3>
-          <p>Ouvre le lien, choisis <b>6AM</b>, puis <b>Continuer</b> et <b>Autoriser</b> (permission « Gérer le serveur » nécessaire).</p>
-          <p class="guide-actions"><a class="btn btn--sm" href="https://discord.com/oauth2/authorize?client_id=1545822264115732600&amp;permissions=85072&amp;integration_type=0&amp;scope=bot+applications.commands" target="_blank" rel="noopener">Inviter le bot</a></p>
-          <p class="guide-note">Si les salons de logs du jeu (coffres, garages) sont privés, donne l'accès au rôle <b>Roxwood Network Darkbot</b> : « Voir le salon » et « Voir les anciens messages ».</p>
-          <p class="guide-check">Contrôle : le bot apparaît dans la liste des membres avec l'étiquette APP.</p>
-        </li>
-        <li>
-          <h3>Choisir le type d'organisation</h3>
-          <p><code class="cmd">/config type-groupe set</code> → Gang ou Organisation. Il fixe les limites de braquage, les labos et les taxes. <code class="cmd">/config type-groupe list</code> affiche le barème.</p>
-        </li>
-        <li>
-          <h3>Créer les salons du bot</h3>
-          <p>Crée une catégorie <b>Bot 6AM</b> (clic droit sur le nom du serveur → Créer une catégorie ; si elle est privée, ajoute le rôle du bot). Puis <code class="cmd">/config category set</code> et choisis <b>Bot 6AM</b>.</p>
-          <p class="guide-check">Contrôle : « X salon(s) créé(s) » — stock, quotas, paie, armurerie, taxes, bilan, admin, labos…</p>
-        </li>
-        <li>
-          <h3>Brancher les salons de logs du jeu</h3>
-          <ul>
-            <li><code class="cmd">/config channel add-log-coffre</code> → chaque salon de logs de coffre de 6AM ;</li>
-            <li><code class="cmd">/config channel set</code> → rôle <code>logs_garages</code> → le salon des logs de garage (fourrières) ;</li>
-            <li><code class="cmd">/config channel set</code> → rôle <code>coffre_admin</code> → le salon du coffre admin, s'il existe.</li>
-          </ul>
-          <p class="guide-check">Contrôle : <code class="cmd">/config channel list</code></p>
-        </li>
-        <li>
-          <h3>Donner les droits</h3>
-          <p><code class="cmd">/config role set</code> → cible <code>admin</code> → rôle de la direction (commandes sensibles), puis cible <code>taxes</code> → rôle qui gère les taxes.</p>
-        </li>
-        <li>
-          <h3>Déclarer les objets du coffre</h3>
-          <p><code class="cmd">/config item add</code> pour chaque objet. <b>Le nom doit être écrit exactement comme dans les logs du jeu</b> (accents, majuscules) : sinon l'objet est ignoré sans message. Options : <code>vente_pnj</code> (drogue vendue aux PNJ), <code>groupe</code> (regroupement), <code>labo_lie</code> (labo qui le produit). Déjà créés : Munition de pistolet, Argent Sale, Argent.</p>
-          <p class="guide-check">Contrôle : <code class="cmd">/config item list</code></p>
-        </li>
-        <li>
-          <h3>Fixer les objectifs et la paie</h3>
-          <p><code class="cmd">/config quota set</code> (objectif de la semaine) et <code class="cmd">/config salaire set</code> ($ par unité), pour <code>actions</code>, <code>vente</code>, <code>recolte</code>, <code>labos</code>. Sans objectif, une catégorie n'apparaît pas ; sans taux, elle ne rapporte rien.</p>
-        </li>
-        <li>
-          <h3>Relier les noms en jeu aux comptes Discord</h3>
-          <p><code class="cmd">/adduser</code> pour chaque membre (nom en jeu ↔ compte Discord), sinon ses mouvements de coffre ne lui sont pas attribués. Contrôle : <code class="cmd">/listusers</code></p>
-        </li>
-        <li>
-          <h3>Importer l'historique du coffre</h3>
-          <p><code class="cmd">/sync-stock</code> relit les anciens logs et calcule le stock actuel.</p>
-          <p class="guide-check">Contrôle final : les panneaux apparaissent dans stock, quotas, armurerie et taxes, et cette page se remplit (mise à jour chaque minute).</p>
-        </li>
-      </ol>
-      <h3 class="bot-sub">Si ça coince</h3>
-      <div class="table-scroll"><table class="dtable guide-table">
-        <tbody>
-          <tr><td><b>/config n'apparaît pas</b></td><td>Attendre 1 minute puis Ctrl + R dans Discord ; vérifier qu'on est sur le serveur 6AM et Administrateur.</td></tr>
-          <tr><td><b>Le coffre ne bouge pas</b></td><td>Orthographe de l'objet différente des logs, ou le bot ne voit pas le salon de logs (étape 1).</td></tr>
-          <tr><td><b>« Cannot rename channel »</b></td><td>Donner au bot « Gérer les salons » sur les salons de labo.</td></tr>
-          <tr><td><b>Un panneau n'apparaît pas</b></td><td><code class="cmd">/config channel list</code> et vérifier que le bot peut écrire dans le salon.</td></tr>
-          <tr><td><b>Cette page : « La base du bot ne répond pas »</b></td><td>Sur le VPS : <code class="cmd">sudo bash /opt/sixam/server/deploy/bot-install.sh</code> (Entrée aux deux questions).</td></tr>
-        </tbody>
-      </table></div>
-      <p class="guide-note">Mise à jour du bot : relancer la même commande sur le VPS. Documentation complète : <a href="https://github.com/poulpizar01/roxwood-network-famille#configuration--tout-se-fait-depuis-discord-via-config" target="_blank" rel="noopener">README du bot</a>.</p>
-    </div>
-  </details>
-
   <div class="qg-loading" id="loading">Chargement…</div>
 
   <!-- bot pas encore relié -->
@@ -93,9 +25,10 @@
     <h2 class="block__title">Bot non relié</h2>
     <p>Le site n'est pas encore branché sur le bot Discord. Sur le VPS, lance une seule fois (installe le bot puis le relie au site) :</p>
     <pre class="bot-cmd">sudo bash /opt/sixam/server/deploy/bot-install.sh</pre>
-    <p class="block__hint">Le site obtient alors un accès en lecture seule : il affiche les données du bot mais ne peut jamais les modifier.</p>
+    <p class="block__hint">Le site obtient alors un accès en lecture seule : il affiche les données du bot mais ne peut jamais les modifier. Ensuite : <a href="installation-bot.html">Installation bot</a> (configuration sur Discord).</p>
   </section>
   <p class="empty" id="down" hidden></p>
+  <p class="bot-hint" id="guideHint" hidden>Le bot n'a encore aucune donnée pour 6AM : suis le guide <a href="installation-bot.html">Installation bot</a> pour l'ajouter et le configurer sur Discord.</p>
 
   <div id="content" hidden>
     <div class="bot-bar">
@@ -231,20 +164,13 @@
   async function load() {
     const d = await QG.api('../api/bot').catch(err => ({ error: err.message }));
     $('loading').hidden = true;
-    if (d.configured === false) { $('off').hidden = false; $('guide').open = true; return; }
+    if (d.configured === false) { $('off').hidden = false; return; }
     if (d.error) { $('down').textContent = d.error + ' Réessaie dans un instant.'; $('down').hidden = false; return; }
     $('down').hidden = true; $('content').hidden = false;
     render(d);
-    // bot pas encore configuré sur Discord : on déplie le guide
-    if (!guideVu && !d.quotas.joueurs.length && !d.coffre.length && !d.armurerie.armes.length) $('guide').open = true;
-    guideVu = true;
+    // bot pas encore configuré sur Discord : renvoi vers le guide
+    $('guideHint').hidden = !!(d.quotas.joueurs.length || d.coffre.length || d.armurerie.armes.length);
   }
-  let guideVu = false;
-  // clic sur une commande : copie dans le presse-papiers
-  document.addEventListener('click', e => {
-    const c = e.target.closest('code.cmd'); if (!c) return;
-    navigator.clipboard?.writeText(c.textContent.trim()).then(() => QG.toast('Commande copiée : ' + c.textContent.trim()), () => {});
-  });
   QG.me().then(me => { if (!me.isAdmin) { location.replace('profil.html'); return; } load(); setInterval(() => { if (!document.hidden) load(); }, 60000); }).catch(() => {});
   $('refresh').addEventListener('click', () => { load(); QG.toast('Données actualisées'); });
 </script>

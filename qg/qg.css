@@ -312,15 +312,7 @@ label.btn:focus-within{outline:2px solid var(--steel);outline-offset:3px}
 @media (max-width:720px){.bot-bar{padding:14px 16px;gap:12px 22px}.bot-bar .btn{margin-left:0}.tile b{font-size:22px}}
 
 /* Le Bot — guide d'installation Discord */
-.bot-guide{margin-bottom:40px;padding:0}
-.bot-guide summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:14px;padding:20px 26px;font-family:var(--serif);font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--steel3)}
-.bot-guide summary::-webkit-details-marker{display:none}
-.bot-guide summary span{font-size:10px;letter-spacing:.22em;color:var(--bg);background:var(--steel);padding:3px 8px}
-.bot-guide summary::after{content:"+";margin-left:auto;font-size:20px;color:var(--steel)}
-.bot-guide[open] summary::after{content:"−"}
-.bot-guide summary:hover{color:#fff}
-.bot-guide summary:focus-visible{outline:1px solid var(--steel);outline-offset:-4px}
-.bot-guide__body{padding:0 26px 26px}
+.bot-guide{margin-bottom:40px}
 .bot-guide code{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:var(--steel3);background:rgba(0,0,0,.4);border:1px solid var(--line);padding:1px 6px;white-space:nowrap}
 .bot-guide code.cmd{cursor:copy}
 .bot-guide code.cmd:hover{border-color:var(--steel)}
@@ -338,4 +330,9 @@ label.btn:focus-within{outline:2px solid var(--steel);outline-offset:3px}
 .guide-check::before{content:"✓ ";color:var(--steel3)}
 .guide-table td:first-child{width:34%;min-width:170px}
 .guide-table td{vertical-align:top;font-size:15px}
-@media (max-width:720px){.bot-guide summary{padding:16px;font-size:11px;gap:10px}.bot-guide__body{padding:0 16px 18px}.guide-steps>li{padding:14px 14px 14px 54px}.guide-steps>li::before{left:12px}.bot-guide code{white-space:normal;word-break:break-word}}
+@media (max-width:720px){.guide-steps>li{padding:14px 14px 14px 54px}.guide-steps>li::before{left:12px}.bot-guide code{white-space:normal;word-break:break-word}}
+/* nom du bot affiché comme une mention de rôle Discord (droit, lisible, jamais en faux gras italique) */
+.role-tag{font-style:normal;font-weight:500;font-family:var(--body);color:#dfe6ff;background:rgba(88,101,242,.22);border-radius:3px;padding:0 5px;white-space:nowrap}
+.role-tag::before{content:"@"}
+.bot-hint{border:1px solid var(--steel2);background:rgba(143,167,207,.07);padding:14px 18px;margin-bottom:30px;color:var(--ink)}
+.bot-hint a,.bot-guide a:not(.btn),.bot-off a{color:var(--steel3);border-bottom:1px solid var(--steel2)}

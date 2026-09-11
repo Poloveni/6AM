@@ -2,7 +2,7 @@
 
 Site du groupe fictif **6AM** (roleplay GTA), sur le modèle du site Maja 13. Contenu tiré du dossier « Projet PF — 6AM ».
 
-- **Vitrine publique** : écran d'entrée, puis page d'accueil avec l'écusson en 3D : histoire, philosophie, implantation, la famille (organigramme + dossiers), projets (Private Table, Foundation), animations, galerie, ambitions, contact.
+- **Vitrine publique** : écran d'entrée, puis page d'accueil avec l'écusson en 3D : histoire, philosophie, implantation, la famille (organigramme + dossiers), galerie, ambitions, contact.
 - **Le QG** (`/qg/`) : espace membres avec connexion Discord — profil, liste des membres, discussion en direct (le Salon), galerie photo, le Dossier interne, validation des nouveaux et édition de l'organigramme et des dossiers publics.
 
 ## Où modifier quoi
@@ -17,7 +17,7 @@ Site du groupe fictif **6AM** (roleplay GTA), sur le modèle du site Maja 13. Co
 | L'organigramme et les dossiers des membres (textes, photos) | depuis le QG → Gestion → Hiérarchie du site |
 | Le Dossier interne (plaques, stocks, objectifs, Dead Flash) | `server/content/dossier.json` — jamais visible hors du QG |
 | Le logo | `assets/` (`logo.webp`, `logo-sm.webp`, `favicon.png`, `medallion.jpg` pour la 3D) |
-| Les images (villas, projets, animations, galerie) | `assets/visuels/` · portraits : `assets/membres/` |
+| Les images (villas, galerie) | `assets/visuels/` · portraits : `assets/membres/` |
 
 ## Structure
 

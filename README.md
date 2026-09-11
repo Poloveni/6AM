@@ -2,8 +2,8 @@
 
 Site du groupe fictif **6AM** (roleplay GTA), sur le modèle du site Maja 13. Contenu tiré du dossier « Projet PF — 6AM ».
 
-- **Vitrine publique** : écran d'entrée, puis page d'accueil avec l'écusson en 3D : histoire, philosophie, implantation, la famille (organigramme + dossiers), galerie, ambitions, contact.
-- **Le QG** (`/qg/`) : espace membres avec connexion Discord — profil, liste des membres, discussion en direct (le Salon), galerie photo, le Dossier interne, validation des nouveaux et édition de l'organigramme et des dossiers publics.
+- **Vitrine publique** : écran d'entrée, puis page d'accueil avec l'écusson en 3D : histoire, philosophie, implantation, la famille (organigramme), galerie, ambitions, contact.
+- **Le QG** (`/qg/`) : espace membres avec connexion Discord — profil, liste des membres, discussion en direct (le Salon), galerie photo, le Dossier interne, validation des nouveaux et édition de l'organigramme public.
 
 ## Où modifier quoi
 
@@ -14,7 +14,7 @@ Site du groupe fictif **6AM** (roleplay GTA), sur le modèle du site Maja 13. Co
 | Le lien d'invitation Discord | `config.js` → `discord: 'https://discord.gg/...'` |
 | Les couleurs | `styles.css`, tout en haut (`--steel`, `--bg`…) |
 | Les noms des grades | `server/src/ranks.js` (champ `label`) |
-| L'organigramme et les dossiers des membres (textes, photos) | depuis le QG → Gestion → Hiérarchie du site |
+| L'organigramme public (noms, âges, villes) | depuis le QG → Gestion → Hiérarchie du site |
 | Le Dossier interne (plaques, stocks, objectifs, Dead Flash) | `server/content/dossier.json` — jamais visible hors du QG |
 | Le logo | `assets/` (`logo.webp`, `logo-sm.webp`, `favicon.png`, `medallion.jpg` pour la 3D) |
 | Les images (villas, galerie) | `assets/visuels/` · portraits : `assets/membres/` |

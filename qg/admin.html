@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administration — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="admin">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page qg-page--wide">
+  <div class="qg-head">
+    <h1>Administration</h1>
+    <p>Validation et gestion des membres</p>
+  </div>
+  <div class="qg-loading" id="loading">Chargement…</div>
+
+  <section class="block" id="pendingBlock" hidden>
+    <h2 class="block__title">En attente <span class="badge" id="pendingCount">0</span></h2>
+    <p class="block__hint">Nouveaux comptes Discord qui attendent ton feu vert. Tu peux fixer le nom RP et le grade avant de valider.</p>
+    <div class="pending-grid" id="pending"></div>
+  </section>
+
+  <section class="block" id="membersBlock" hidden>
+    <h2 class="block__title">Membres <span class="badge badge--steel" id="memberCount">0</span></h2>
+    <p class="block__hint">Modifie le nom RP ou le grade puis clique sur <b>Enregistrer</b>. Le pseudo Discord ne se change pas ici : il vient de Discord.</p>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th><span class="skip">Avatar</span></th><th>Discord</th><th>Nom RP</th><th>Grade</th><th>Statut</th><th>Depuis le</th><th><span class="skip">Actions</span></th></tr></thead>
+        <tbody id="members"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id), esc = QG.esc;
+  const STATUS = { pending: 'En attente', approved: 'Validé', rejected: 'Refusé' };
+  let me, ranks = [];
+  const topRank = v => ranks.some(r => r.value === v && r.top);
+  const rankSelect = m => `<select class="select" data-id="${m.id}" data-field="rank" aria-label="Grade de ${esc(m.displayName)}" ${topRank(m.rank) && !me.isTop ? 'disabled' : ''}>` +
+    ranks.filter(r => !r.top || me.isTop || r.value === m.rank).map(r => `<option value="${esc(r.value)}" ${r.value === m.rank ? 'selected' : ''}>${esc(r.label)}</option>`).join('') + '</select>';
+  const avatar = m => `<img class="avatar" src="${esc(QG.avatar(m.avatarUrl))}" alt="">`;
+  const nameInput = m => `<input class="input" data-id="${m.id}" data-field="displayName" value="${esc(m.displayName)}" maxlength="64" aria-label="Nom RP de @${esc(m.username)}">`;
+
+  function render(list) {
+    const pending = list.filter(m => m.status === 'pending');
+    const others = list.filter(m => m.status !== 'pending');
+    $('pendingCount').textContent = pending.length; $('memberCount').textContent = others.length;
+    $('pendingBlock').hidden = false; $('membersBlock').hidden = false;
+    $('pending').innerHTML = pending.length ? pending.map(m => `
+      <article class="pending-card" data-row="${m.id}">
+        ${avatar(m)}
+        <div class="pending-card__body">
+          <span class="membre__user">@${esc(m.username)} · demande du ${QG.date(m.joinedAt, { day: 'numeric', month: 'short' })}</span>
+          <label>Nom RP${nameInput(m)}</label>
+          <label>Grade${rankSelect(m)}</label>
+        </div>
+        <div class="pending-card__actions">
+          <button class="btn btn--steel btn--sm" type="button" data-approve="${m.id}">Approuver</button>
+          <button class="btn btn--ghost btn--sm btn--danger" type="button" data-reject="${m.id}">Refuser</button>
+        </div>
+      </article>`).join('') : '<p class="empty">Personne en attente.</p>';
+    $('members').innerHTML = others.map(m => `
+      <tr data-row="${m.id}" class="${m.status === 'rejected' ? 'is-rejected' : ''} ${m.id === me.id ? 'is-me' : ''}">
+        <td>${avatar(m)}</td>
+        <td><b>@${esc(m.username)}</b></td>
+        <td>${nameInput(m)}</td>
+        <td>${rankSelect(m)}</td>
+        <td><span class="status status--${m.status}">${STATUS[m.status]}</span></td>
+        <td class="muted">${QG.date(m.approvedAt || m.joinedAt, { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+        <td class="row-actions">
+          <button class="btn btn--steel btn--sm" type="button" data-save="${m.id}">Enregistrer</button>
+          ${m.id !== me.id ? (m.status === 'rejected'
+            ? `<button class="btn btn--ghost btn--sm" type="button" data-approve="${m.id}">Réintégrer</button>`
+            : `<button class="btn btn--ghost btn--sm btn--danger" type="button" data-reject="${m.id}">Exclure</button>`) : ''}
+        </td>
+      </tr>`).join('');
+  }
+  async function load() {
+    me = await QG.me();
+    if (!me.isAdmin) { location.replace('profil.html'); return; }
+    [ranks] = await Promise.all([QG.api('../api/ranks')]);
+    render(await QG.api('../api/admin/members')); $('loading').hidden = true;
+  }
+  const fieldsOf = id => { const body = {}; document.querySelectorAll(`[data-id="${id}"]`).forEach(el => { if (!el.disabled) body[el.dataset.field] = el.value; }); return body; };
+  async function patch(id, body, msg) {
+    try { await QG.api(`../api/admin/members/${id}`, { method: 'PATCH', body: JSON.stringify(body) }); QG.toast(msg); render(await QG.api('../api/admin/members')); }
+    catch (e) { QG.toast(e.message, false); }
+  }
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('button[data-save],button[data-approve],button[data-reject]'); if (!b) return;
+    if (b.dataset.save) return patch(b.dataset.save, fieldsOf(b.dataset.save), 'Enregistré ✦');
+    if (b.dataset.approve) return patch(b.dataset.approve, { ...fieldsOf(b.dataset.approve), status: 'approved' }, 'Bienvenue chez 6AM ✦');
+    if (b.dataset.reject) {
+      const row = b.closest('[data-row]'); const name = row?.querySelector('[data-field="displayName"]')?.value || 'ce membre';
+      if (await QG.confirm(`${name} n'aura plus accès au QG. Tu pourras le réintégrer plus tard.`, { title: "Retirer l'accès ?", ok: "Retirer l'accès", danger: true }))
+        patch(b.dataset.reject, { status: 'rejected' }, 'Accès retiré');
+    }
+  });
+  load().catch(() => {});
+</script>
+</body>
+</html>

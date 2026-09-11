@@ -1,16 +1,8 @@
 node_modules/
-.env
-.env.*
-!.env.example
-npm-debug.log*
-*.log
-data/
+server/node_modules/
+server/.env
+server/.env.bak.*
+server/deploy/.env
 uploads/
 .DS_Store
 Thumbs.db
-deploy/certbot/
-
-# Archives temporaires de verification
-_check.tgz
-_verif.tgz
-_check.sh

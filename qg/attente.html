@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>En attente — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-login">
+  <a class="qg-login__back" href="../accueil.html">← Retour au site</a>
+  <img class="qg-login__logo" src="../assets/logo.webp" alt="Écusson de 6AM" width="190" height="190">
+  <p class="eyebrow" id="eyebrow">Demande reçue</p>
+  <h1 id="title">En attente</h1>
+  <p class="qg-login__lead" id="lead">Ton compte Discord <b id="who"></b> est bien enregistré. Un responsable de 6AM doit maintenant valider ton entrée — reviens ici une fois qu'il t'a donné le feu vert.</p>
+  <div class="qg-login__actions">
+    <button class="btn btn--ghost" type="button" id="refresh">Vérifier</button>
+    <button class="btn btn--ghost" type="button" id="logout">Déconnexion</button>
+  </div>
+  <p class="qg-login__small">Loyauté · Silence · Couronne</p>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  async function check(manual) {
+    const m = await QG.me({ approved: false }).catch(() => null); if (!m) return;
+    if (m.status === 'approved') { location.replace('profil.html'); return; }
+    $('who').textContent = '@' + m.username;
+    if (m.status === 'rejected') {
+      $('eyebrow').textContent = 'Demande refusée';
+      $('title').textContent = 'Désolé';
+      $('lead').textContent = "Ta demande n'a pas été retenue. Si tu penses qu'il y a une erreur, vois ça avec un responsable sur Discord.";
+      $('refresh').hidden = true;
+    } else if (manual) QG.toast('Toujours en attente de validation.');
+  }
+  check(false);
+  $('refresh').addEventListener('click', () => check(true));
+  $('logout').addEventListener('click', QG.logout);
+</script>
+</body>
+</html>

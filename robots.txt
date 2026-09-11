@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /qg/
+
+Sitemap: https://6amfbfa.duckdns.org/sitemap.xml

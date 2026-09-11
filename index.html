@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6AM</title>
+<!-- TEXTE : description affichée par Google et sur Discord quand on partage le lien -->
+<meta name="description" content="6AM — groupe indépendant de Los Santos. Le gentleman avant le gangster. Pendant qu'ils dorment, nous préparons demain.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="theme-color" content="#04060b">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="6AM">
+<meta property="og:title" content="6AM">
+<meta property="og:description" content="Pendant qu'ils dorment, nous préparons demain.">
+<meta property="og:url" content="https://6amfbfa.duckdns.org/">
+<meta property="og:image" content="https://6amfbfa.duckdns.org/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<link rel="canonical" href="https://6amfbfa.duckdns.org/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="vendor/fonts.css">
+<link rel="stylesheet" href="styles.css">
+<style>
+  html,body{height:100%;overflow:hidden}
+  .entry{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;
+    background:radial-gradient(ellipse 90% 40% at 50% 100%,rgba(70,105,170,.28) 0%,transparent 70%),radial-gradient(ellipse at 50% 42%,#0e1830 0%,#060a13 55%,#03050a 100%)}
+  .entry__fx{position:absolute;inset:0;width:100%;height:100%}
+  .entry__skyline{position:absolute;left:0;right:0;bottom:0;height:30vh;background:url("assets/skyline.svg") center bottom/cover no-repeat;opacity:.75;pointer-events:none}
+  .entry__skyline::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(3,5,10,.9),transparent 70%)}
+  .entry__inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center}
+  .entry__logo{width:min(400px,68vw);height:auto;filter:drop-shadow(0 0 60px rgba(110,145,210,.4)) drop-shadow(0 20px 40px rgba(0,0,0,.8));animation:entryFloat 7s ease-in-out infinite,entryIn 1.6s cubic-bezier(.2,.8,.2,1) both}
+  .entry__eyebrow{margin:30px 0 8px;animation:entryIn 1.6s .35s both}
+  .entry__title{font-family:var(--display);font-weight:700;font-size:clamp(60px,10vw,120px);line-height:.95;letter-spacing:.04em;background:var(--metal);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 0 #111a2c) drop-shadow(0 0 26px rgba(110,145,210,.35));animation:entryIn 1.6s .5s both}
+  .entry__motto{font-family:var(--serif);font-size:clamp(11px,1.5vw,14px);letter-spacing:.34em;text-transform:uppercase;color:var(--steel);margin:18px 0 36px;animation:entryIn 1.6s .7s both}
+  .entry__btn{animation:entryIn 1.6s .9s both;font-size:13px;padding:18px 48px;letter-spacing:.34em}
+  .entry__small{position:absolute;bottom:22px;left:0;right:0;z-index:2;font-family:var(--serif);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--steel2);animation:entryIn 1.6s 1.2s both}
+  .entry__small a{color:var(--ink2)}.entry__small a:hover{color:var(--steel3)}
+  .entry.is-leaving{animation:entryOut .7s ease forwards}
+  @keyframes entryIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @keyframes entryFloat{50%{transform:translateY(-12px)}}
+  @keyframes entryOut{to{opacity:0;transform:scale(1.04)}}
+  @media (max-height:860px){.entry__logo{width:min(290px,50vw)}.entry__eyebrow{margin-top:20px}.entry__motto{margin-bottom:26px}}
+  @media (max-height:680px){.entry__logo{width:min(200px,40vw)}.entry__title{font-size:clamp(46px,8vw,72px)}}
+  @media (prefers-reduced-motion:reduce){.entry__logo,.entry__eyebrow,.entry__title,.entry__motto,.entry__btn,.entry__small{animation:none}}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<main class="entry" id="entry">
+  <canvas class="entry__fx" id="fx" aria-hidden="true"></canvas>
+  <div class="entry__skyline" aria-hidden="true"></div>
+  <div class="entry__inner">
+    <img class="entry__logo" src="assets/logo.webp" alt="Écusson de 6AM" width="400" height="400">
+        <p class="eyebrow entry__eyebrow">Los Santos · 06:00</p>
+    <h1 class="entry__title">6AM</h1>
+        <p class="entry__motto">Pendant qu'ils dorment, nous préparons demain</p>
+    <a class="btn btn--steel entry__btn" href="accueil.html" id="enter">Entrer</a>
+  </div>
+  <p class="entry__small"><a href="qg/">Espace membres</a> · Groupe fictif — roleplay GTA</p>
+</main>
+<script>
+  // déjà entré pendant cette visite ? on passe directement à l'accueil
+  try { if (sessionStorage.getItem('6am-entered') && !location.hash) location.replace('accueil.html'); } catch {}
+  const enter = document.getElementById('enter');
+  enter.addEventListener('click', e => {
+    e.preventDefault(); try { sessionStorage.setItem('6am-entered', '1'); } catch {}
+    document.getElementById('entry').classList.add('is-leaving');
+    setTimeout(() => location.href = 'accueil.html', 650);
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && document.activeElement === document.body) enter.click(); });
+
+  // poussière argentée qui monte doucement (s'écarte de la souris)
+  (function () {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cv = document.getElementById('fx'), ctx = cv.getContext('2d'); let W, H, P = [];
+    const mouse = { x: -1e4, y: -1e4 }; addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
+    const mk = init => { const z = Math.random(); return { x: Math.random() * W, y: init ? Math.random() * H : H + 10, z, r: .5 + z * 2.1, v: (.1 + z * .45) * (reduce ? .3 : 1), sw: Math.random() * 6.28, a: .2 + z * .6, hue: 212 + Math.random() * 16 }; };
+    function resize() { const dpr = Math.min(devicePixelRatio, 2); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); P = []; for (let i = 0; i < Math.round(W * H / 8000); i++) P.push(mk(true)); }
+    addEventListener('resize', resize); resize();
+    let last = 0;
+    (function draw(now) {
+      requestAnimationFrame(draw); const t = now / 1000, dt = Math.min((now - last) / 1000, .05); last = now;
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      for (const p of P) {
+        p.y -= p.v * 60 * dt; p.x += Math.sin(t * .7 + p.sw) * .15 * p.z;
+        const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy; if (d2 < 25600 && d2 > 1) { const d = Math.sqrt(d2), f = (1 - d / 160) * .9; p.x += dx / d * f; p.y += dy / d * f; }
+        if (p.y < -10) Object.assign(p, mk(false));
+        const tw = .6 + .4 * Math.sin(t * 2 + p.sw * 3);
+        ctx.fillStyle = `hsla(${p.hue},45%,${62 + p.z * 25}%,${p.a * tw})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill();
+        if (p.z > .78) { ctx.fillStyle = `hsla(${p.hue},60%,75%,${.06 * tw})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 5, 0, 6.28); ctx.fill(); }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    })(0);
+  })();
+</script>
+</body>
+</html>

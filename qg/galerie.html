@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Galerie — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="galerie">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page qg-page--wide">
+  <div class="qg-head">
+    <h1>Galerie</h1>
+    <p>Les photos affichées sur le site public</p>
+  </div>
+  <div class="qg-loading" id="loading">Chargement…</div>
+
+  <section class="block" id="uploadBlock" hidden>
+    <h2 class="block__title">Poster une photo</h2>
+    <form class="upload" id="uploadForm">
+      <label class="upload__drop" id="drop">
+        <input type="file" id="file" name="photo" accept="image/*" aria-label="Choisir une image">
+        <img id="preview" alt="Aperçu de la photo choisie" hidden>
+        <span id="dropText">Glisse une image ici ou clique pour choisir<small>jpg, png, webp, heic — 15 Mo max. Elle sera redimensionnée automatiquement.</small></span>
+      </label>
+      <div class="upload__side">
+        <label>Légende <small>(optionnel)</small><input class="input" id="caption" maxlength="200" placeholder="Ex : réunion au QG, 6 h du matin"></label>
+        <button class="btn btn--steel" type="submit" id="send" disabled>Publier sur le site</button>
+        <p class="block__hint">La photo apparaît tout de suite dans la galerie publique, signée de ton nom RP. Tu peux la retirer à tout moment ; les responsables aussi.</p>
+      </div>
+    </form>
+  </section>
+
+  <section class="block">
+    <h2 class="block__title">Photos <span class="badge badge--steel" id="count">0</span></h2>
+    <div class="gal-grid" id="grid"></div>
+    <p class="empty" id="empty" hidden>Aucune photo pour l'instant — sois le premier à en poster une.</p>
+  </section>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id), esc = QG.esc;
+  let me;
+  function render(list) {
+    $('count').textContent = list.length; $('empty').hidden = list.length > 0;
+    $('grid').innerHTML = list.map(p => `
+      <figure class="gal-item">
+        <a href="..${esc(p.url)}" target="_blank" rel="noopener"><img src="..${esc(p.thumb)}" alt="${esc(p.caption || 'Photo de ' + p.author.displayName)}" loading="lazy"></a>
+        <figcaption>
+          <b>${esc(p.author.displayName)}</b> <span class="muted">${QG.date(p.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          ${p.caption ? `<i>${esc(p.caption)}</i>` : ''}
+          ${p.author.id === me.id || me.isAdmin ? `<button class="btn btn--ghost btn--sm btn--danger" type="button" data-del="${p.id}">Retirer</button>` : ''}
+        </figcaption>
+      </figure>`).join('');
+  }
+  const reload = async () => render(await QG.api('../api/gallery?limit=200'));
+  QG.me().then(async m => { me = m; await reload(); $('loading').hidden = true; $('uploadBlock').hidden = false; }).catch(() => {});
+
+  const file = $('file'), drop = $('drop');
+  function pick(f) {
+    if (!f || !f.type.startsWith('image/')) { if (f) QG.toast('Ce fichier n\'est pas une image.', false); return; }
+    if (f.size > 15 * 1024 * 1024) { QG.toast('Image trop lourde (15 Mo max).', false); return; }
+    const dt = new DataTransfer(); dt.items.add(f); file.files = dt.files;
+    $('preview').src = URL.createObjectURL(f); $('preview').hidden = false; $('dropText').hidden = true; $('send').disabled = false;
+  }
+  file.addEventListener('change', () => pick(file.files[0]));
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('is-over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('is-over'));
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('is-over'); pick(e.dataTransfer.files[0]); });
+
+  $('uploadForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!file.files[0]) return;
+    const fd = new FormData(); fd.append('photo', file.files[0]); fd.append('caption', $('caption').value);
+    $('send').disabled = true; $('send').textContent = 'Envoi…';
+    try {
+      await QG.api('../api/gallery', { method: 'POST', body: fd });
+      QG.toast('Photo publiée ✦'); $('uploadForm').reset(); $('preview').hidden = true; $('dropText').hidden = false;
+      await reload();
+    } catch (err) { QG.toast(err.message, false); $('send').disabled = false; }
+    $('send').textContent = 'Publier sur le site';
+  });
+  $('grid').addEventListener('click', async e => {
+    const b = e.target.closest('[data-del]'); if (!b) return;
+    if (await QG.confirm('La photo sera retirée du site public.', { title: 'Retirer cette photo ?', ok: 'Retirer', danger: true })) {
+      try { await QG.api('../api/gallery/' + b.dataset.del, { method: 'DELETE' }); await reload(); QG.toast('Photo retirée'); }
+      catch (err) { QG.toast(err.message, false); }
+    }
+  });
+</script>
+</body>
+</html>

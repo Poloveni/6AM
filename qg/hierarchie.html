@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hiérarchie du site — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="hierarchie">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page qg-page--wide">
+  <div class="qg-head">
+    <h1>Hiérarchie du site</h1>
+    <p>L'organigramme affiché sur la page d'accueil</p>
+  </div>
+  <div class="qg-loading" id="loading">Chargement…</div>
+
+  <section class="block" id="addBlock" hidden>
+    <h2 class="block__title">Ajouter une case</h2>
+    <form class="org-form" id="addForm">
+      <label>Grade<select class="select" name="rank" id="addRank"></select></label>
+      <label>Nom affiché<input class="input" name="name" maxlength="64" required placeholder="Ex : Marco"></label>
+      <label>Sous-titre <small>(optionnel)</small><input class="input" name="subtitle" maxlength="80" placeholder="Ex : 31 ans · Vespucci"></label>
+      <label class="org-form__wide">Biographie <small>(affichée dans « Les dossiers » ; une ligne vide = nouveau paragraphe)</small><textarea class="input" name="description" rows="4" maxlength="1500"></textarea></label>
+      <label class="check"><input type="checkbox" name="isOpen"> Poste à pourvoir (case en pointillés)</label>
+      <button class="btn btn--steel btn--sm" type="submit">Ajouter</button>
+    </form>
+  </section>
+
+  <div id="tiers"></div>
+  <p class="block__hint" style="margin-top:30px">Ce que tu modifies ici apparaît immédiatement dans la section « La Famille » du site public (organigramme et dossiers). Le nom affiché est libre : il n'est pas lié aux comptes du QG. Photo conseillée : format portrait (elle est recadrée en 3:4).</p>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id), esc = QG.esc;
+  let data;
+  const rankOptions = sel => data.ranks.map(r => `<option value="${esc(r.value)}" ${r.value === sel ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
+  function render() {
+    $('addRank').innerHTML = rankOptions(data.ranks[data.ranks.length - 1].value);
+    const byRank = {}; data.entries.forEach(e => (byRank[e.rank] = byRank[e.rank] || []).push(e));
+    $('tiers').innerHTML = data.ranks.map(({ value, label }) => {
+      const list = byRank[value] || [];
+      return `<section class="block org-tier">
+        <h2 class="block__title">${esc(label)} <span class="badge badge--steel">${list.length}</span></h2>
+        <div class="org-cards">${list.map((e, i) => `
+          <form class="org-card ${e.is_open ? 'is-open' : ''}" data-id="${e.id}">
+            <div class="org-card__row">
+              <select class="select" name="rank" aria-label="Grade">${rankOptions(e.rank)}</select>
+              <div class="org-card__moves">
+                <button type="button" class="btn btn--ghost btn--sm" data-move="up" ${i === 0 ? 'disabled' : ''} aria-label="Déplacer vers la gauche">‹</button>
+                <button type="button" class="btn btn--ghost btn--sm" data-move="down" ${i === list.length - 1 ? 'disabled' : ''} aria-label="Déplacer vers la droite">›</button>
+              </div>
+            </div>
+            <div class="org-card__photo">
+              ${e.photo ? `<img src="..${esc(e.photo)}" alt="Portrait de ${esc(e.name)}">` : '<span>Pas de photo</span>'}
+              <div class="org-card__photo-actions">
+                <label class="btn btn--ghost btn--sm">${e.photo ? 'Changer' : 'Ajouter'} la photo<input type="file" accept="image/*" data-photo class="vh"></label>
+                ${e.photo ? '<button type="button" class="btn btn--ghost btn--sm btn--danger" data-nophoto>Retirer</button>' : ''}
+              </div>
+            </div>
+            <input class="input" name="name" value="${esc(e.name)}" maxlength="64" required placeholder="Nom affiché" aria-label="Nom affiché">
+            <input class="input" name="subtitle" value="${esc(e.subtitle)}" maxlength="80" placeholder="Sous-titre (optionnel)" aria-label="Sous-titre">
+            <textarea class="input" name="description" rows="5" maxlength="1500" placeholder="Biographie (optionnel)" aria-label="Biographie">${esc(e.description)}</textarea>
+            <label class="check"><input type="checkbox" name="isOpen" ${e.is_open ? 'checked' : ''}> Poste à pourvoir</label>
+            <div class="org-card__actions">
+              <button class="btn btn--steel btn--sm" type="submit">Enregistrer</button>
+              <button type="button" class="btn btn--ghost btn--sm btn--danger" data-del>Supprimer</button>
+            </div>
+          </form>`).join('') || '<p class="empty">Aucune case pour ce grade.</p>'}</div>
+        <form class="org-desc" data-rank="${esc(value)}">
+          <label>Texte sous la rangée « ${esc(label)} » <small>(optionnel)</small><textarea class="input" name="description" rows="2" maxlength="600">${esc(data.rankDesc[value])}</textarea></label>
+          <button class="btn btn--ghost btn--sm" type="submit">Enregistrer le texte</button>
+        </form>
+      </section>`;
+    }).join('');
+  }
+  const formBody = f => ({ rank: f.rank.value, name: f.name.value, subtitle: f.subtitle.value, description: f.description.value, isOpen: f.isOpen.checked });
+  QG.me().then(async me => {
+    if (!me.isTop) { location.replace('profil.html'); return; }
+    data = await QG.api('../api/org'); render(); $('loading').hidden = true; $('addBlock').hidden = false;
+  }).catch(() => {});
+  $('addForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    try { data = await QG.api('../api/admin/org', { method: 'POST', body: JSON.stringify(formBody(e.target)) }); e.target.reset(); render(); QG.toast('Case ajoutée ✦'); }
+    catch (err) { QG.toast(err.message, false); }
+  });
+  $('tiers').addEventListener('submit', async e => {
+    e.preventDefault(); const f = e.target;
+    try {
+      if (f.classList.contains('org-desc')) data = await QG.api('../api/admin/org/rank-desc/' + encodeURIComponent(f.dataset.rank), { method: 'PUT', body: JSON.stringify({ description: f.description.value }) });
+      else data = await QG.api('../api/admin/org/' + f.dataset.id, { method: 'PATCH', body: JSON.stringify(formBody(f)) });
+      render(); QG.toast('Enregistré ✦');
+    } catch (err) { QG.toast(err.message, false); }
+  });
+  // photo d'une case : envoi dès qu'un fichier est choisi
+  $('tiers').addEventListener('change', async e => {
+    const input = e.target.closest('[data-photo]'); if (!input || !input.files[0]) return;
+    const f = input.closest('.org-card'), fd = new FormData(); fd.append('photo', input.files[0]);
+    QG.toast('Envoi de la photo…');
+    try { data = await QG.api(`../api/admin/org/${f.dataset.id}/photo`, { method: 'POST', body: fd }); render(); QG.toast('Photo enregistrée ✦'); }
+    catch (err) { QG.toast(err.message, false); }
+  });
+  $('tiers').addEventListener('click', async e => {
+    const f = e.target.closest('.org-card'); if (!f) return;
+    try {
+      if (e.target.closest('[data-nophoto]')) {
+        if (await QG.confirm('La photo sera retirée du site public.', { title: 'Retirer la photo ?', ok: 'Retirer', danger: true })) { data = await QG.api(`../api/admin/org/${f.dataset.id}/photo`, { method: 'DELETE' }); render(); QG.toast('Photo retirée'); }
+        return;
+      }
+      const mv = e.target.closest('[data-move]');
+      if (mv) { data = await QG.api(`../api/admin/org/${f.dataset.id}/move`, { method: 'POST', body: JSON.stringify({ dir: mv.dataset.move }) }); render(); return; }
+      if (e.target.closest('[data-del]') && await QG.confirm(`« ${f.name.value} » disparaîtra de l'organigramme public.`, { title: 'Supprimer cette case ?', ok: 'Supprimer', danger: true })) {
+        data = await QG.api('../api/admin/org/' + f.dataset.id, { method: 'DELETE' }); render(); QG.toast('Case supprimée');
+      }
+    } catch (err) { QG.toast(err.message, false); }
+  });
+</script>
+</body>
+</html>

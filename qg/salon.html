@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Salon — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body qg-body--salon" data-page="salon" data-fx="soft">
+<div class="grain" aria-hidden="true"></div>
+<main class="chat">
+  <aside class="chat__side" aria-label="Membres en ligne">
+    <h1 class="chat__title">Le Salon</h1>
+    <p class="chat__sub">La discussion de 6AM</p>
+    <h2 class="chat__side-title">En ligne <span class="badge badge--steel" id="onlineCount">0</span></h2>
+    <ul class="chat__online" id="online"></ul>
+    <p class="chat__rules">Ce qui se dit ici reste ici.</p>
+  </aside>
+  <section class="chat__main" aria-label="Messages">
+    <div class="chat__status" id="status" role="status">Connexion…</div>
+    <div class="chat__log" id="log" aria-live="polite">
+      <button class="chat__more" type="button" id="more" hidden>Messages plus anciens</button>
+      <p class="chat__empty" id="empty" hidden>Aucun message pour l'instant — lance la discussion.</p>
+    </div>
+    <form class="chat__form" id="form" autocomplete="off">
+      <label for="input" class="skip">Message</label>
+      <textarea id="input" rows="1" maxlength="1000" placeholder="Écris un message… (@ pour mentionner)" title="Entrée pour envoyer, Maj+Entrée pour aller à la ligne" required></textarea>
+      <button class="btn btn--steel" type="submit">Envoyer</button>
+    </form>
+  </section>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script src="salon.js"></script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+{
+  "titre": "Le Dossier",
+  "sousTitre": "Informations internes — ne sortent pas du QG",
+  "source": "Dossier « Projet PF — 6AM »",
+  "sections": [
+    {
+      "id": "implantation",
+      "titre": "Implantation",
+      "blocs": [
+        {
+          "titre": "Villa principale — bas de Vinewood",
+          "image": "/assets/visuels/villa-principale.webp",
+          "table": { "entetes": ["Espace", "Capacité"], "lignes": [["Villa", "coffre 660 kg"], ["Entrepôt", "coffre 1 800 kg"], ["Garage", "25 places"]] },
+          "texte": ["Deux hauts portails noirs masquent les activités et préservent les identités. Obtenue grâce aux relations avec les Muertenos et à la réputation d'indépendants sérieux du groupe."]
+        },
+        {
+          "titre": "Villa de repli — à quelques rues",
+          "image": "/assets/visuels/villa-repli.webp",
+          "table": { "entetes": ["Espace", "Capacité"], "lignes": [["Villa", "coffre 660 kg"], ["Entrepôt", "coffre 1 800 kg"], ["Garage", "25 places"]] },
+          "texte": ["Mise en commun par Hugo et Angel Delawid. Réserve stratégique : réserves financières, matériel, boîtiers de commande, armes et équipements, pour rester opérationnels si la villa principale devient inaccessible."]
+        },
+        {
+          "titre": "Points annexes",
+          "table": { "entetes": ["Secteur", "Moyens"], "lignes": [["Los Santos sud", "2 garages de 10 places · 2 labos"], ["Grapeseed", "2 entrepôts de 1,5 t · 2 garages de 10 places"]] }
+        }
+      ]
+    },
+    {
+      "id": "moyens",
+      "titre": "Nos moyens",
+      "blocs": [
+        {
+          "titre": "Véhicules",
+          "table": {
+            "entetes": ["Modèle", "Plaque"],
+            "lignes": [
+              ["Speedo Custom", "QB9769EO"], ["Speedo Custom", "VM0700VA"], ["Speedo Custom", "WS1571RS"],
+              ["Tailgater S", "ZN2305GP"], ["Calico GTF", "YK9636ID"], ["Calico GTF", "US8399RI"],
+              ["Issi Sport", "VB 4993 EG"], ["Sunrise", "FB4578SY"], ["Caddie", "IT9306RS"], ["Archer Pro II", "NV1273QL"]
+            ]
+          }
+        },
+        {
+          "titre": "Armement",
+          "liste": ["3 boîtiers darknet", "Armes blanches", "Armes à feu (stock en cours de constitution)"]
+        }
+      ]
+    },
+    {
+      "id": "objectifs",
+      "titre": "Objectifs",
+      "blocs": [
+        {
+          "titre": "Court / moyen terme",
+          "liste": [
+            "Armer l'ensemble du groupe et construire un stock",
+            "Poursuivre l'implantation sur les lieux stratégiques de la ville (entrepôts + garages) et acquérir des zones de vente",
+            "Devenir Petite Frappe et gagner en notoriété",
+            "Récupérer les business de munitions, fertilisant et SporeX pour le développement économique",
+            "Développer et pérenniser nos relations avec les autres groupes et entreprises",
+            "Opération anti-gouvernementale « Dead Flash »"
+          ]
+        },
+        {
+          "titre": "Moyen / long terme",
+          "liste": [
+            "Passer sous statut Organisation",
+            "Grâce à la notoriété et aux relations acquises, devenir un blanchisseur réputé",
+            "Développer le projet « 6AM Private Table »",
+            "Développer le projet « 6AM Foundation »"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dead-flash",
+      "titre": "Opération Dead Flash",
+      "image": "/assets/visuels/dead-flash.webp",
+      "intro": "Quand la ville taxe chaque mouvement, quelqu'un finit par couper le compteur.",
+      "blocs": [
+        {
+          "titre": "Contexte et objectif",
+          "texte": [
+            "Les radars de Los Santos sont devenus une véritable taxe sur la circulation : jusqu'à 1 000 $ par flash, pour les citoyens, les entreprises légales comme pour ceux qui évoluent dans l'ombre.",
+            "Action anti-gouvernementale symbolique : mettre temporairement hors service plusieurs radars stratégiques, pendant une nuit, avec plusieurs équipes sur différents secteurs. Pas de chaos gratuit, un message : « Une ville qui surtaxe ses habitants finit par ralentir sa propre économie. »",
+            "Signature laissée sur chaque radar : 6:00 AM — YOUR TAX ENDS HERE."
+          ]
+        },
+        {
+          "titre": "Déroulement",
+          "liste": [
+            "1 — Repérage : identifier les radars les plus fréquentés et observer les patrouilles, sans confrontation inutile.",
+            "2 — Intervention simultanée : plusieurs binômes au même moment sur différents secteurs.",
+            "3 — Signature 6AM : une marque, un autocollant ou un message revendique l'opération.",
+            "4 — Message public : « Aujourd'hui, légaux comme illégaux paient simplement pour circuler. Cette nuit, Los Santos roulera gratuitement. Profitez-en. — 6AM »",
+            "5 — Disparition : pas de revendication face aux forces de l'ordre, pas de confrontation. La 6AM retourne dans l'ombre."
+          ]
+        },
+        {
+          "titre": "Pourquoi c'est la 6AM",
+          "liste": [
+            "Préparer une action coordonnée et mobiliser plusieurs équipes simultanément",
+            "Privilégier l'intelligence et l'organisation à la violence",
+            "Construire une vraie communication autour de nos actions",
+            "Développer notre influence auprès de toute la population — l'action profite à toute la ville"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fiches",
+      "titre": "Fiches des membres",
+      "blocs": [
+        {
+          "titre": "Identifiants uniques",
+          "table": {
+            "entetes": ["Membre", "Grade", "ID unique", "Naissance", "Lieu"],
+            "lignes": [
+              ["Jean Njuts", "Lead", "314508", "30/12/1992", "London City"],
+              ["Hugo Delawid", "Co-Lead", "182012", "09/06/2000", "Los Santos"],
+              ["Francis Detton", "Bras droit", "358940", "01/02/1996", "Dallas"],
+              ["Amado Gomez", "Lieutenant", "277", "19/02/1990", "Los Santos"],
+              ["Théo Grande", "Dealer", "374197", "14/10/2005", "Birmingham"],
+              ["Angel Delawid", "Dealer", "182012", "15/10/1999", "Los Santos"],
+              ["Thomas Sano", "Dealer", "194326", "20/02/1998", "San Andreas"],
+              ["Olivia Ritchi", "Dealer", "341732", "07/01/2000", "Manchester"],
+              ["Ash Jackson", "Recrue", "371797", "—", "Miami"],
+              ["Hamid Salvatore", "Recrue", "362124", "—", "Miami"]
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

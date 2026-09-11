@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Dossier — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="dossier">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page qg-page--wide">
+  <div class="qg-head">
+    <h1 id="titre">Le Dossier</h1>
+    <p id="sousTitre">Informations internes — ne sortent pas du QG</p>
+  </div>
+  <div class="qg-loading" id="loading">Chargement…</div>
+  <nav class="dossier-nav" id="sommaire" aria-label="Sommaire du dossier"></nav>
+  <div id="contenu"></div>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  // Le contenu vient de server/content/dossier.json, servi uniquement aux membres validés.
+  const $ = id => document.getElementById(id), esc = QG.esc;
+  const img = (src, alt) => src ? `<img src="..${esc(src)}" alt="${esc(alt || '')}" loading="lazy">` : '';
+  const table = t => t ? `<div class="table-scroll"><table class="dtable"><thead><tr>${t.entetes.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${t.lignes.map(l => `<tr>${l.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : '';
+  const bloc = b => `<article class="dbloc ${b.table && b.table.entetes.length > 3 ? 'dbloc--wide' : ''}">
+      ${b.titre ? `<h3>${esc(b.titre)}</h3>` : ''}
+      ${img(b.image, b.titre)}
+      ${table(b.table)}
+      ${(b.texte || []).map(p => `<p>${esc(p)}</p>`).join('')}
+      ${b.liste ? `<ul>${b.liste.map(li => `<li>${esc(li)}</li>`).join('')}</ul>` : ''}
+    </article>`;
+  QG.me().then(() => QG.api('../api/dossier')).then(d => {
+    $('titre').textContent = d.titre || 'Le Dossier';
+    if (d.sousTitre) $('sousTitre').textContent = d.sousTitre;
+    $('sommaire').innerHTML = d.sections.map(s => `<a href="#${esc(s.id)}">${esc(s.titre)}</a>`).join('');
+    $('contenu').innerHTML = d.sections.map(s => `
+      <section class="dsec" id="${esc(s.id)}">
+        <h2 class="dsec__title">${esc(s.titre)}</h2>
+        ${s.intro ? `<p class="dsec__intro">${esc(s.intro)}</p>` : ''}
+        ${s.image ? `<figure class="dsec__img">${img(s.image, s.titre)}</figure>` : ''}
+        <div class="dblocs">${(s.blocs || []).map(bloc).join('')}</div>
+      </section>`).join('');
+    $('loading').hidden = true;
+  }).catch(err => { if (err.message !== 'unauthenticated' && err.message !== 'pending') { $('loading').textContent = 'Impossible de charger le dossier.'; } });
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon profil — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="profil">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page">
+  <div class="qg-loading" id="loading">Chargement…</div>
+  <section class="profil" id="profil" hidden>
+    <div class="panel">
+      <div class="profil__avatar-wrap">
+        <img class="profil__avatar" id="avatar" src="../assets/logo-sm.webp" alt="" width="140" height="140">
+        <span class="rank-pill" id="rank">—</span>
+      </div>
+      <p class="eyebrow">Mon profil</p>
+      <h1 class="profil__name" id="displayName">—</h1>
+      <p class="profil__discord">Discord : <b id="username">—</b></p>
+      <dl class="profil__meta">
+        <div><dt>Membre depuis</dt><dd id="joinedAt">—</dd></div>
+        <div><dt>Dernière connexion</dt><dd id="lastLogin">—</dd></div>
+        <div><dt>Téléphone RP</dt><dd id="phoneRpView">—</dd></div>
+      </dl>
+      <p class="profil__bio" id="bioView"></p>
+    </div>
+
+    <form class="panel form" id="form">
+      <h2>Modifier</h2>
+      <label>Nom RP<input name="displayName" id="f-displayName" maxlength="64" required autocomplete="off"></label>
+      <label>Téléphone RP <small>(optionnel)</small><input name="phoneRp" id="f-phoneRp" maxlength="32" placeholder="555-0600" autocomplete="off"></label>
+      <label>Bio <small>(optionnel)</small><textarea name="bio" id="f-bio" rows="5" maxlength="600" placeholder="Qui tu es, d'où tu viens, ton rôle dans 6AM…"></textarea></label>
+      <div class="form__actions">
+        <button class="btn btn--steel" type="submit">Enregistrer</button>
+        <span class="form__saved" id="saved" role="status" hidden>Enregistré ✦</span>
+      </div>
+    </form>
+  </section>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  function render(m) {
+    $('avatar').src = QG.avatar(m.avatarUrl);
+    $('rank').textContent = m.rankLabel; $('rank').dataset.tier = m.tier;
+    $('displayName').textContent = m.displayName;
+    $('username').textContent = '@' + m.username;
+    $('joinedAt').textContent = QG.date(m.approvedAt || m.joinedAt);
+    $('lastLogin').textContent = QG.date(m.lastLogin);
+    $('phoneRpView').textContent = m.phoneRp || '—';
+    $('bioView').textContent = m.bio || '';
+    $('f-displayName').value = m.displayName || '';
+    $('f-phoneRp').value = m.phoneRp || '';
+    $('f-bio').value = m.bio || '';
+    document.title = `${m.displayName} — Le QG · 6AM`;
+  }
+  QG.me().then(m => { render(m); $('loading').hidden = true; $('profil').hidden = false; }).catch(() => {});
+  $('form').addEventListener('submit', async e => {
+    e.preventDefault();
+    try {
+      const m = await QG.api('../api/me', { method: 'PATCH', body: JSON.stringify({ displayName: $('f-displayName').value, phoneRp: $('f-phoneRp').value, bio: $('f-bio').value }) });
+      render(m); $('saved').hidden = false; setTimeout(() => $('saved').hidden = true, 2500);
+    } catch (err) { QG.toast(err.message, false); }
+  });
+</script>
+</body>
+</html>

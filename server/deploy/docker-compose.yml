@@ -1,0 +1,45 @@
+# 6AM — lancement sur le VPS (depuis /opt/sixam) :
+#   sudo docker compose -f server/deploy/docker-compose.yml up -d --build
+# Le script vps-setup.sh s'en charge pour toi.
+# « sixam-site » : distinct de l'ancienne version (projet « sixam », dossier /opt/6am)
+name: sixam-site
+services:
+  # noms explicites : le réseau du reverse proxy est partagé avec d'autres sites (Dynasty 8, Maja 13…)
+  sixam-app:
+    container_name: sixam-app-1
+    build:
+      context: ../..
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    env_file: ../.env              # DATABASE_URL est déduite de POSTGRES_PASSWORD par l'application
+    volumes:
+      - sixam-uploads:/app/uploads # photos de la galerie
+    depends_on:
+      sixam-db:
+        condition: service_healthy
+    networks:
+      - default
+      - proxy                      # réseau du Caddy commun, pour le HTTPS
+  sixam-db:
+    container_name: sixam-db-1
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: ../.env              # fournit POSTGRES_PASSWORD
+    environment:
+      POSTGRES_DB: sixam
+      POSTGRES_USER: sixam
+    volumes:
+      - sixam-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sixam -d sixam"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  sixam-db:
+  sixam-uploads:
+networks:
+  proxy:
+    external: true
+    # détecté automatiquement par vps-setup.sh (réseau du conteneur Caddy)
+    name: ${PROXY_NETWORK:-vps_default}

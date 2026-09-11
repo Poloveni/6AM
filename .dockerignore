@@ -1,10 +1,6 @@
-node_modules
-npm-debug.log
 .git
-.gitignore
-.env
-.env.*
-!.env.example
-docs
-deploy/certbot
-*.md
+**/node_modules
+server/.env
+server/.env.*
+!server/.env.example
+uploads

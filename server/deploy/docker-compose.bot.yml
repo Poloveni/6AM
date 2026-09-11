@@ -1,0 +1,11 @@
+# 6AM — complément ajouté automatiquement par bot-link.sh (ne pas lancer seul).
+# Branche le site sur le réseau Docker de la base du bot Discord, pour la lecture
+# seule de l'onglet Gestion → Le Bot. Le nom du réseau est dans server/deploy/.env.
+services:
+  sixam-app:
+    networks:
+      bot: {}
+networks:
+  bot:
+    external: true
+    name: ${BOT_NETWORK:?BOT_NETWORK manquant dans server/deploy/.env (relance bot-link.sh)}

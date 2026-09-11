@@ -18,8 +18,8 @@ services:
       sixam-db:
         condition: service_healthy
     networks:
-      - default
-      - proxy                      # réseau du Caddy commun, pour le HTTPS
+      default: {}
+      proxy: {}                    # réseau du Caddy commun, pour le HTTPS
   sixam-db:
     container_name: sixam-db-1
     image: postgres:17-alpine

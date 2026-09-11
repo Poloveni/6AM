@@ -44,10 +44,11 @@
       <nav class="nav__links qg-nav" id="navLinks" aria-label="Menu du QG">
         ${LINKS.map(l => `<a href="${l.href}"${cur(l.page)}>${l.label}${l.badge ? '<span class="nav__badge" id="chatBadge" hidden></span>' : ''}</a>`).join('')}
         <div class="nav__group" id="gestion" hidden>
-          <button class="nav__group-btn ${['admin', 'hierarchie'].includes(active) ? 'is-active' : ''}" type="button" aria-expanded="false" aria-controls="gestionMenu">Gestion <i>▾</i></button>
+          <button class="nav__group-btn ${['admin', 'hierarchie', 'bot'].includes(active) ? 'is-active' : ''}" type="button" aria-expanded="false" aria-controls="gestionMenu">Gestion <i>▾</i></button>
           <div class="nav__menu" id="gestionMenu">
             <a href="admin.html"${cur('admin')}>Administration</a>
             <a href="hierarchie.html" id="orgLink"${cur('hierarchie')} hidden>Hiérarchie du site</a>
+            <a href="bot.html"${cur('bot')}>Le Bot</a>
           </div>
         </div>
         <a href="../accueil.html">Le site</a>

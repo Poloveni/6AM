@@ -44,6 +44,8 @@ OLD_GUILD="$(lire DISCORD_GUILD_ID)"
 OLD_REDIRECT="$(lire DISCORD_REDIRECT_PATH)"
 OLD_ROLEMAP="$(lire DISCORD_ROLE_MAP)"
 OLD_ADMINS="$(lire ADMIN_DISCORD_IDS)"
+OLD_BOT_URL="$(lire BOT_DATABASE_URL)"      # posés par bot-link.sh : à conserver
+OLD_BOT_GUILD="$(lire BOT_GUILD_ID)"
 
 # Réglages Discord de l'ancienne version du site, s'il tourne encore
 ancien() { docker inspect "$OLD_SITE_CONTAINER" -f '{{range .Config.Env}}{{println .}}{{end}}' 2>/dev/null | sed -n "s/^$1=//p" | head -1 || true; }
@@ -103,6 +105,10 @@ DISCORD_REDIRECT_PATH=$REDIRECT_PATH
 DISCORD_ROLE_MAP=$OLD_ROLEMAP
 ADMIN_DISCORD_IDS=$ADMINS
 ENVF
+if [ -n "$OLD_BOT_URL" ]; then
+  printf 'BOT_DATABASE_URL=%s\nBOT_GUILD_ID=%s\n' "$OLD_BOT_URL" "$OLD_BOT_GUILD" >> "$ENV"
+  echo "-> liaison avec le bot Discord conservée"
+fi
 chmod 600 "$ENV"
 umask 022
 echo "-> $ENV écrit."
@@ -122,13 +128,19 @@ else
   echo "/!\\ Aucun conteneur Caddy trouvé : le HTTPS devra être configuré à la main."
   docker network inspect "$PROXY_NETWORK" >/dev/null 2>&1 || docker network create "$PROXY_NETWORK" >/dev/null
 fi
-printf 'PROXY_NETWORK=%s\n' "$PROXY_NETWORK" > "$APP/server/deploy/.env"
+DEPLOY_ENV="$APP/server/deploy/.env"
+BOT_NETWORK="$( [ -f "$DEPLOY_ENV" ] && sed -n 's/^BOT_NETWORK=//p' "$DEPLOY_ENV" | head -1 || true)"
+printf 'PROXY_NETWORK=%s\n' "$PROXY_NETWORK" > "$DEPLOY_ENV"
+[ -n "$BOT_NETWORK" ] && printf 'BOT_NETWORK=%s\n' "$BOT_NETWORK" >> "$DEPLOY_ENV"
+# réseau du bot Discord (ajouté par bot-link.sh) : fichier complémentaire
+COMPOSE_FILES=(-f "$COMPOSE")
+[ -n "$BOT_NETWORK" ] && COMPOSE_FILES+=(-f "$APP/server/deploy/docker-compose.bot.yml")
 
 # --------------------------------------------------------------------------
 #  Construction et démarrage du nouveau site
 # --------------------------------------------------------------------------
 echo "=== Construction et démarrage (quelques minutes la première fois) ==="
-docker compose -f "$COMPOSE" up -d --build
+docker compose "${COMPOSE_FILES[@]}" up -d --build
 
 echo "-> Attente du démarrage de l'application…"
 PRET=""

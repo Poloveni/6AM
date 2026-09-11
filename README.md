@@ -30,6 +30,7 @@ vendor/                               three.js et polices (hébergés avec le si
 qg/                                   l'espace membres
 server/                               serveur Node.js (Express + PostgreSQL)
 server/deploy/                        installation sur le VPS (Docker + Caddy)
+server/src/bot.js                     lecture seule des données du bot Discord (QG → Gestion → Le Bot)
 scripts/check-project.mjs             contrôles automatiques (npm test)
 ```
 

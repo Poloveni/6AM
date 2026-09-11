@@ -31,12 +31,23 @@ Le script pose les questions (Entrée = garder la valeur proposée), écrit `ser
 sudo bash /opt/sixam/server/deploy/vps-update.sh
 ```
 
+## 5. Relier le bot Discord (onglet Gestion → Le Bot)
+
+Le QG peut afficher, **en lecture seule**, les données du bot `roxwood-network-famille` : quotas et paie de la semaine, braquages et cooldowns, coffre, armurerie, taxes, ventes en attente, véhicules et activité. Le bot doit tourner en Docker sur le même VPS. Une seule commande, après l'installation du site :
+
+```bash
+sudo bash /opt/sixam/server/deploy/bot-link.sh
+```
+
+Le script trouve la base du bot, y crée un compte `sixam_ro` qui ne peut que lire, écrit `BOT_DATABASE_URL` et `BOT_GUILD_ID` dans `server/.env`, branche le site sur le réseau Docker du bot, puis redémarre le site. Le site ne peut jamais modifier les données du bot (droits limités à la lecture **et** transactions en lecture seule). Relançable sans risque. Page réservée aux admins du QG.
+
 ## En cas de souci
 
 - Voir les journaux : `sudo docker logs -f sixam-app-1` (Ctrl+C pour quitter)
 - État des conteneurs : `sudo docker ps --filter name=sixam`
 - « invalid redirect_uri » chez Discord : l'adresse affichée à la fin du script doit figurer **exactement** dans le portail Discord (OAuth2 → Redirects).
 - Revenir à l'ancienne version : `cd /opt/6am && sudo docker compose start`, puis remettre son fichier Caddy (sauvegardé à côté avec l'extension `.ancien-…`).
+- Le Bot affiche « La base du bot ne répond pas » : le bot est arrêté ou a été réinstallé → relance `bot-link.sh`.
 - « Ce compte Discord n'est pas sur le serveur de 6AM » : mauvais ID de serveur, ou le compte n'a pas rejoint le serveur Discord.
 
 ## Options (dans server/.env)
@@ -48,5 +59,5 @@ sudo bash /opt/sixam/server/deploy/vps-update.sh
 
 - `GET /auth/discord` → connexion · `GET /auth/discord/callback` · `POST /auth/logout`
 - `GET/PATCH /api/me` · `GET /api/membres` · `GET /api/ranks` · `GET /api/org` · `GET/POST/DELETE /api/gallery`
-- `/api/admin/…` (validation des membres, organigramme et photos) · `/api/chat/…` (le Salon, en direct) · `GET /api/dossier` (dossier interne, membres validés)
+- `/api/admin/…` (validation des membres, organigramme et photos) · `/api/chat/…` (le Salon, en direct) · `GET /api/dossier` (dossier interne, membres validés) · `GET /api/bot` (données du bot, admins, lecture seule)
 - `GET /healthz` → contrôle de santé

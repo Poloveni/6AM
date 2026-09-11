@@ -12,6 +12,7 @@ import { dirname, join } from 'node:path';
 import multer from 'multer';
 import sharp from 'sharp';
 import { RANKS as RANK_LIST, ORG_SEED, RANK_DESC_SEED, BOOTSTRAP_RANK as BOOT } from './ranks.js';
+import { createBotBridge } from './bot.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(here, '..', '..');            // racine du dépôt (index.html, styles.css, qg/…)
@@ -454,6 +455,20 @@ app.get('/api/chat/stream', requireAuth, requireApproved, (req, res) => {
   const ping = setInterval(() => { try { res.write(': ping\n\n'); } catch {} }, 25000);
   req.on('close', () => { clearInterval(ping); chatClients.delete(res); chatBroadcast('presence', chatPresence()); });
 });
+
+// ---------- Bot Discord (lecture seule, onglet Gestion → Le Bot) ----------
+const bot = createBotBridge({ url: process.env.BOT_DATABASE_URL, guildId: process.env.BOT_GUILD_ID || DISCORD_GUILD_ID });
+if (bot) bot.check()
+  .then(n => console.log(`Pont bot : connecté en lecture seule (${n} ligne(s) de quota pour ce serveur Discord)`))
+  .catch(e => console.error('Pont bot : connexion impossible —', e.message));
+app.get('/api/bot', requireAuth, requireApproved, requireAdmin, wrap(async (_req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!bot) return res.json({ configured: false });
+  const { rows } = await pool.query("SELECT discord_id, display_name, username FROM members WHERE status = 'approved'");
+  const names = new Map(rows.map(r => [r.discord_id, r.display_name || r.username]));
+  try { res.json(await bot.overview(id => names.get(id))); }
+  catch (e) { console.error('Pont bot :', e.message); res.status(502).json({ configured: true, error: 'La base du bot ne répond pas.' }); }
+}));
 
 app.get('/healthz', (_req, res) => res.json({ ok: true }));
 app.use('/api', (_req, res) => res.status(404).json({ error: 'not-found' }));

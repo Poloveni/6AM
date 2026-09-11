@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Bot — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="bot">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page qg-page--wide">
+  <div class="qg-head">
+    <h1>Le Bot</h1>
+    <p>Données du bot Discord — lecture seule</p>
+  </div>
+  <div class="qg-loading" id="loading">Chargement…</div>
+
+  <!-- bot pas encore relié -->
+  <section class="panel bot-off" id="off" hidden>
+    <h2 class="block__title">Bot non relié</h2>
+    <p>Le site n'est pas encore branché sur la base du bot Discord. Sur le VPS, lance une seule fois :</p>
+    <pre class="bot-cmd">sudo bash /opt/sixam/server/deploy/bot-link.sh</pre>
+    <p class="block__hint">Le site obtient alors un accès en lecture seule : il affiche les données du bot mais ne peut jamais les modifier.</p>
+  </section>
+  <p class="empty" id="down" hidden></p>
+
+  <div id="content" hidden>
+    <div class="bot-bar">
+      <span><b id="tier">—</b><small>Type d'organisation</small></span>
+      <span><b id="reset">—</b><small>Remise à zéro (dimanche 19 h)</small></span>
+      <span><b id="paieTotale">—</b><small>Paie estimée de la semaine</small></span>
+      <span><b id="maj">—</b><small>Données lues à</small></span>
+      <button class="btn btn--ghost btn--sm" type="button" id="refresh">Actualiser</button>
+    </div>
+    <nav class="dossier-nav" aria-label="Sections">
+      <a href="#quotas">Quotas &amp; paie</a><a href="#braquages">Braquages</a><a href="#coffre">Coffre</a><a href="#armurerie">Armurerie</a><a href="#taxes">Taxes</a><a href="#ventes">Ventes</a><a href="#vehicules">Véhicules</a><a href="#activite">Activité</a>
+    </nav>
+    <p class="bot-warn" id="erreurs" hidden></p>
+
+    <section class="dsec" id="quotas">
+      <h2 class="dsec__title">Quotas &amp; paie de la semaine</h2>
+      <div class="table-scroll"><table class="dtable bot-table" id="quotasTable"></table></div>
+      <p class="block__hint">Compteurs du bot depuis la dernière remise à zéro. Paie estimée avec les taux actuels du bot (/config salaire).</p>
+    </section>
+
+    <section class="dsec" id="braquages">
+      <h2 class="dsec__title">Braquages &amp; cooldowns</h2>
+      <div class="tiles" id="braqTiles"></div>
+      <h3 class="bot-sub">Cooldowns en cours</h3>
+      <div class="table-scroll"><table class="dtable" id="cooldownsTable"></table></div>
+    </section>
+
+    <section class="dsec" id="coffre">
+      <h2 class="dsec__title">Coffre</h2>
+      <div class="table-scroll"><table class="dtable" id="coffreTable"></table></div>
+    </section>
+
+    <section class="dsec" id="armurerie">
+      <h2 class="dsec__title">Armurerie</h2>
+      <div class="tiles tiles--small" id="munTiles"></div>
+      <div class="table-scroll"><table class="dtable" id="armesTable"></table></div>
+    </section>
+
+    <section class="dsec" id="taxes">
+      <h2 class="dsec__title">Taxes &amp; racket</h2>
+      <div class="table-scroll"><table class="dtable" id="taxesTable"></table></div>
+    </section>
+
+    <section class="dsec" id="ventes">
+      <h2 class="dsec__title">Ventes de drogue en attente</h2>
+      <div class="table-scroll"><table class="dtable" id="ventesTable"></table></div>
+    </section>
+
+    <section class="dsec" id="vehicules">
+      <h2 class="dsec__title">Véhicules</h2>
+      <div class="table-scroll"><table class="dtable" id="vehiculesTable"></table></div>
+      <h3 class="bot-sub">Dernières fourrières</h3>
+      <div class="table-scroll"><table class="dtable" id="fourrieresTable"></table></div>
+    </section>
+
+    <section class="dsec" id="activite">
+      <h2 class="dsec__title">Activité récente</h2>
+      <div class="table-scroll"><table class="dtable" id="activiteTable"></table></div>
+      <h3 class="bot-sub">Derniers mouvements du coffre</h3>
+      <div class="table-scroll"><table class="dtable" id="mouvementsTable"></table></div>
+    </section>
+  </div>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id), esc = QG.esc;
+  const num = n => Number(n || 0).toLocaleString('fr-FR');
+  const money = n => Math.round(n || 0).toLocaleString('fr-FR') + ' $';
+  const quand = d => d ? new Date(d).toLocaleString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—';
+  function dans(iso) {
+    const ms = new Date(iso) - Date.now(); if (ms <= 0) return 'maintenant';
+    const h = Math.floor(ms / 3.6e6), m = Math.floor(ms % 3.6e6 / 6e4);
+    return h >= 24 ? `dans ${Math.floor(h / 24)} j ${h % 24} h` : h ? `dans ${h} h ${m} min` : `dans ${m} min`;
+  }
+  // tableau générique : cols = [[titre, fonction(ligne) -> html]]
+  function table(el, cols, rows, vide) {
+    $(el).innerHTML = rows.length
+      ? `<thead><tr>${cols.map(c => `<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr${r._cls ? ` class="${r._cls}"` : ''}>${cols.map(c => `<td>${c[1](r)}</td>`).join('')}</tr>`).join('')}</tbody>`
+      : `<tbody><tr><td class="muted">${vide}</td></tr></tbody>`;
+  }
+
+  function render(d) {
+    $('tier').textContent = d.typeGroupe;
+    $('reset').textContent = dans(d.prochaineRemise);
+    $('paieTotale').textContent = money(d.quotas.paieTotale);
+    $('maj').textContent = new Date(d.generatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    $('erreurs').hidden = !d.erreurs.length;
+    $('erreurs').textContent = d.erreurs.length ? 'Certaines données n\'ont pas pu être lues (version du bot différente ?) — ' + d.erreurs.join(' · ') : '';
+
+    // quotas : une colonne par catégorie suivie (objectif ou taux configuré dans le bot)
+    const types = d.quotas.types;
+    const cell = (j, t) => {
+      const n = j.byQuota[t.key] || 0;
+      if (!t.objectif) return `<b>${num(n)}</b>`;
+      const pct = Math.min(100, Math.round(n / t.objectif * 100));
+      return `<div class="qbar ${n >= t.objectif ? 'is-done' : ''}"><span><b>${num(n)}</b> / ${num(t.objectif)}</span><i style="width:${pct}%"></i></div>`;
+    };
+    table('quotasTable', [
+      ['Membre', j => `<b>${esc(j.nom)}</b>${j.detail.length ? `<small class="bot-detail">${j.detail.map(x => `${esc(x.label)} ${num(x.n)}`).join(' · ')}</small>` : ''}`],
+      ...types.map(t => [`${esc(t.label)}${t.taux ? `<small>${money(t.taux)} / u.</small>` : ''}`, j => cell(j, t)]),
+      ['Paie estimée', j => `<b class="pay">${money(j.paie)}</b>`],
+    ], d.quotas.joueurs, 'Aucune activité déclarée depuis la dernière remise à zéro.');
+    if (d.quotas.joueurs.length) $('quotasTable').insertAdjacentHTML('beforeend',
+      `<tfoot><tr><td>Total groupe</td>${types.map(t => `<td><b>${num(d.quotas.totaux[t.key] || 0)}</b></td>`).join('')}<td><b class="pay">${money(d.quotas.paieTotale)}</b></td></tr></tfoot>`);
+
+    $('braqTiles').innerHTML = d.braquages.length ? d.braquages.map(b => {
+      const reste = Math.max(0, b.limite - b.utilises);
+      return `<div class="tile ${reste ? '' : 'is-empty'}"><span>${esc(b.label)}</span><b>${reste} / ${b.limite}</b><small>${reste ? 'disponible' + (reste > 1 ? 's' : '') : 'plus de slot'} · 7 jours glissants</small></div>`;
+    }).join('') : '<p class="muted">Aucun braquage limité pour ce type d\'organisation.</p>';
+    table('cooldownsTable', [['Membre', c => esc(c.nom)], ['Activité', c => esc(c.activite)], ['Fin', c => `${quand(c.fin)} <small class="muted">(${dans(c.fin)})</small>`]], d.cooldowns, 'Aucun cooldown en cours.');
+
+    table('coffreTable', [['Groupe', s => s.groupe ? esc(s.groupe) : '<span class="muted">—</span>'], ['Objet', s => esc(s.item)], ['Quantité', s => `<b>${num(s.quantite)}</b>`]], d.coffre, 'Coffre vide ou non suivi.');
+
+    const a = d.armurerie;
+    $('munTiles').innerHTML = `<div class="tile"><span>Munitions en stock</span><b>${num(a.munitions)}</b></div>` +
+      (a.munitionsVendues != null ? `<div class="tile"><span>Munitions vendues</span><b>${num(a.munitionsVendues)}</b><small>depuis la remise à zéro</small></div>` : '') +
+      `<div class="tile"><span>Armes suivies</span><b>${a.armes.length}</b><small>${a.armes.filter(x => x.statut === 'Prêtée').length} prêtée(s)</small></div>`;
+    table('armesTable', [['Arme', x => `<b>${esc(x.nom)}</b>${x.type ? ` <small class="muted">${esc(x.type)}</small>` : ''}`], ['Référence', x => `<span class="mono">${esc(x.reference)}</span>`], ['Statut', x => x.statut === 'Prêtée' ? `<span class="status status--pending">Prêtée à ${esc(x.preteeA || '?')}</span>` : `<span class="status status--approved">${esc(x.statut)}</span>`]], a.armes, 'Aucune arme enregistrée.');
+
+    table('taxesTable', [['Nom', t => `<b>${esc(t.nom)}</b>`], ['Type', t => esc(t.type)], ['Téléphone', t => t.telephone ? esc(t.telephone) : '<span class="muted">—</span>'], ['Échéance', t => `${quand(t.echeance)} <small class="muted">(${t.enRetard ? 'dépassée' : dans(t.echeance)})</small>`], ['Paiement', t => t.paye ? '<span class="status status--approved">Payée</span>' : '<span class="status status--rejected">Non payée</span>']],
+      d.taxes.map(t => ({ ...t, _cls: t.enRetard ? 'is-late' : '' })), 'Aucune taxe active.');
+
+    table('ventesTable', [['Membre', v => esc(v.nom)], ['Drogue', v => esc(v.item)], ['Quantité', v => num(v.quantite)], ['Depuis', v => quand(v.depuis)]], d.ventesEnAttente, 'Aucune vente en attente.');
+
+    table('vehiculesTable', [['Plaque', v => `<span class="mono">${esc(v.plaque)}</span>`], ['Modèle', v => v.modele ? esc(v.modele) : '—'], ['Sorti par', v => v.sortiPar ? esc(v.sortiPar) : '<span class="muted">rangé</span>'], ['Depuis', v => quand(v.depuis)]], d.vehicules, 'Aucun véhicule suivi.');
+    table('fourrieresTable', [['Date', f => quand(f.date)], ['Véhicule', f => `${f.modele ? esc(f.modele) + ' ' : ''}<span class="mono">${esc(f.plaque)}</span>`], ['Responsable', f => esc(f.nom)]], d.fourrieres, 'Aucune fourrière.');
+
+    table('activiteTable', [['Date', t => quand(t.date)], ['Membre', t => esc(t.nom)], ['Activité', t => `${esc(t.activite)}${t.type ? ` · ${esc(t.type)}` : ''}${t.quantite > 1 ? ` × ${num(t.quantite)}` : ''}${t.partenaires ? ` <small class="muted">+${t.partenaires} partenaire(s)</small>` : ''}`]], d.activite, 'Aucune activité récente.');
+    table('mouvementsTable', [['Date', m => quand(m.date)], ['Joueur', m => esc(m.joueur)], ['Mouvement', m => `${esc(m.action)} ${num(m.quantite)} × ${esc(m.item)}`], ['Stock après', m => num(m.stockApres)]], d.mouvements, 'Aucun mouvement enregistré.');
+  }
+
+  async function load() {
+    const d = await QG.api('../api/bot').catch(err => ({ error: err.message }));
+    $('loading').hidden = true;
+    if (d.configured === false) { $('off').hidden = false; return; }
+    if (d.error) { $('down').textContent = d.error + ' Réessaie dans un instant.'; $('down').hidden = false; return; }
+    $('down').hidden = true; $('content').hidden = false;
+    render(d);
+  }
+  QG.me().then(me => { if (!me.isAdmin) { location.replace('profil.html'); return; } load(); setInterval(() => { if (!document.hidden) load(); }, 60000); }).catch(() => {});
+  $('refresh').addEventListener('click', () => { load(); QG.toast('Données actualisées'); });
+</script>
+</body>
+</html>

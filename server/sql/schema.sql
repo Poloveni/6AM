@@ -89,3 +89,9 @@ CREATE TABLE IF NOT EXISTS ranks (
 ALTER TABLE ranks ADD COLUMN IF NOT EXISTS sort_index INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE ranks ADD COLUMN IF NOT EXISTS devise VARCHAR(80) NOT NULL DEFAULT '';
 ALTER TABLE ranks ADD COLUMN IF NOT EXISTS branche BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- mises à jour de données déjà appliquées (une seule fois chacune, voir index.js)
+CREATE TABLE IF NOT EXISTS migrations (
+  name    VARCHAR(60) PRIMARY KEY,
+  done_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);

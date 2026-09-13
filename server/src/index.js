@@ -65,6 +65,16 @@ if (!(await pool.query('SELECT 1 FROM ranks LIMIT 1')).rowCount) {
     await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, branche, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (value) DO NOTHING',
       [r.value, r.label, r.alias || '', r.icon || '', r.devise || '', !!r.branche, r.row ?? i, i, !!r.admin, !!r.top, !!r.hidden]);
 }
+// réglages de grades apparus après coup (ex. « ligne de côté » des gérants) : appliqués une seule
+// fois aux bases déjà existantes, puis notés dans « migrations » pour ne pas écraser un choix du QG
+const migration = async (nom, f) => {
+  if ((await pool.query('SELECT 1 FROM migrations WHERE name = $1', [nom])).rowCount) return;
+  await f();
+  await pool.query('INSERT INTO migrations (name) VALUES ($1)', [nom]);
+};
+await migration('2026-09-ranks-branche', async () => {
+  for (const r of RANK_SEED) if (r.branche) await pool.query('UPDATE ranks SET branche = TRUE WHERE value = $1', [r.value]);
+});
 await reloadRanks();
 // grades disparus : on reclasse les membres et les fiches qui les portaient encore
 for (const [ancien, nouveau] of Object.entries(RANK_RENAMES)) {
@@ -621,7 +631,12 @@ app.use('/api', (_req, res) => res.status(404).json({ error: 'not-found' }));
 // ---------- Fichiers du site ----------
 // on ne sert jamais le code du serveur ni les fichiers techniques
 app.use((req, res, next) => /^\/(server|scripts|node_modules|uploads\/\.)(\/|$)|^\/(package(-lock)?\.json|README\.md)$/i.test(req.path) ? res.status(404).end() : next());
-app.use(express.static(ROOT, { extensions: ['html'], index: 'index.html', dotfiles: 'ignore', maxAge: '1h' }));
+// pages, styles et scripts : le navigateur revérifie à chaque visite (ETag) pour voir
+// une mise à jour tout de suite ; images, polices et vidéos restent en cache une heure
+app.use(express.static(ROOT, {
+  extensions: ['html'], index: 'index.html', dotfiles: 'ignore', maxAge: '1h',
+  setHeaders: (res, path) => { if (/\.(html|css|js|svg|json)$/i.test(path)) res.set('Cache-Control', 'no-cache'); },
+}));
 app.use((_req, res) => res.status(404).sendFile(join(ROOT, '404.html'), err => err && res.send('404')));
 
 // erreurs inattendues : on les note dans les journaux sans rien révéler au visiteur

@@ -11,6 +11,7 @@
  *  label  : nom affiché sur le site.
  *  row    : ligne de l'organigramme (même numéro = même ligne).
  *  devise : petite phrase affichée dans la case (ex. « Dirige · Décide · Représente »).
+ *  branche: ligne mise de côté — le trait vertical passe à côté, sans relier la ligne suivante.
  *  alias  : ancien nom, rappelé en petit à côté (ex. « Lord · Lead »).
  *  icon   : icône du grade (symbole de assets/grades.svg, sans le préfixe « g- »).
  *  admin  : peut valider les nouveaux membres et gérer l'administration.
@@ -25,8 +26,8 @@ export const RANKS = [
   { value: 'devweb',        label: 'Dev Web',       alias: '',        icon: 'laptop',    row: 2, devise: '',                                      admin: true, top: true, hidden: true },
   { value: 'bras-droit',    label: 'Chancellor',    alias: '',        icon: 'temple',    row: 3, devise: 'Conseille · Coordonne · Négocie',       admin: true },
   { value: 'lieutenant',    label: 'Marshal',       alias: '',        icon: 'swords',    row: 4, devise: 'Organise · Encadre · Opère',            admin: true },
-  { value: 'gerant-drogue', label: 'Gérant drogue', alias: '',        icon: 'chanvre',   row: 5, devise: 'Pilote · Développe · Sécurise' },
-  { value: 'gerant-labo',   label: 'Gérant labo',   alias: '',        icon: 'fiole',     row: 5, devise: 'Produit · Optimise · Contrôle' },
+  { value: 'gerant-drogue', label: 'Gérant drogue', alias: '',        icon: 'chanvre',   row: 5, devise: 'Pilote · Développe · Sécurise', branche: true },
+  { value: 'gerant-labo',   label: 'Gérant labo',   alias: '',        icon: 'fiole',     row: 5, devise: 'Produit · Optimise · Contrôle', branche: true },
   { value: 'dealer',        label: 'Gentleman',     alias: '',        icon: 'gemmes',    row: 6, devise: 'Autonomes · Fiables · Exemplaires' },
   { value: 'associate',     label: 'Associate',     alias: '',        icon: 'rang2',     row: 6, devise: 'Impliqués · En progression' },
   { value: 'recrue',        label: 'Candidate',     alias: '',        icon: 'rang1',     row: 6, devise: 'Intégration · Évaluation · Apprentissage' },

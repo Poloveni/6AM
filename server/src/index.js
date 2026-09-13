@@ -42,7 +42,7 @@ const publicRanks = () => RANK_ROWS.filter(r => !r.hidden);
 const defaultRank = () => RANK_ROWS.length ? RANK_ROWS[RANK_ROWS.length - 1].value : 'recrue';   // nouveaux comptes
 const bootstrapRank = () => (rankRow(BOOT) ? BOOT : (RANK_ROWS[0]?.value || 'lead'));
 async function reloadRanks() {
-  const { rows } = await pool.query('SELECT value, label, alias, icon, devise, row_index, sort_index, is_admin, is_top, hidden FROM ranks ORDER BY row_index, sort_index, value');
+  const { rows } = await pool.query('SELECT value, label, alias, icon, devise, branche, row_index, sort_index, is_admin, is_top, hidden FROM ranks ORDER BY row_index, sort_index, value');
   RANK_ROWS = rows;
 }
 
@@ -57,13 +57,13 @@ await pool.query(readFileSync(join(here, '..', 'sql', 'schema.sql'), 'utf8'));  
 // grades : remplis depuis ranks.js au premier démarrage, puis pilotés depuis le QG
 if (!(await pool.query('SELECT 1 FROM ranks LIMIT 1')).rowCount) {
   for (const [i, r] of RANK_SEED.entries())
-    await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
-      [r.value, r.label, r.alias || '', r.icon || '', r.devise || '', r.row ?? i, i, !!r.admin, !!r.top, !!r.hidden]);
+    await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, branche, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
+      [r.value, r.label, r.alias || '', r.icon || '', r.devise || '', !!r.branche, r.row ?? i, i, !!r.admin, !!r.top, !!r.hidden]);
 } else {
   // grades ajoutés dans ranks.js après coup (mise à jour du site) : on les crée s'ils manquent
   for (const [i, r] of RANK_SEED.entries())
-    await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (value) DO NOTHING',
-      [r.value, r.label, r.alias || '', r.icon || '', r.devise || '', r.row ?? i, i, !!r.admin, !!r.top, !!r.hidden]);
+    await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, branche, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) ON CONFLICT (value) DO NOTHING',
+      [r.value, r.label, r.alias || '', r.icon || '', r.devise || '', !!r.branche, r.row ?? i, i, !!r.admin, !!r.top, !!r.hidden]);
 }
 await reloadRanks();
 // grades disparus : on reclasse les membres et les fiches qui les portaient encore
@@ -308,7 +308,7 @@ const rankUsage = async () => {
   return u;
 };
 const ranksPayload = async () => ({
-  ranks: RANK_ROWS.map(r => ({ value: r.value, label: r.label, alias: r.alias, icon: r.icon, devise: r.devise, row: r.row_index, isAdmin: r.is_admin, isTop: r.is_top, hidden: r.hidden })),
+  ranks: RANK_ROWS.map(r => ({ value: r.value, label: r.label, alias: r.alias, icon: r.icon, devise: r.devise, branche: r.branche, row: r.row_index, isAdmin: r.is_admin, isTop: r.is_top, hidden: r.hidden })),
   usage: await rankUsage(),
   icons: ICONS,
   defaultRank: defaultRank(),          // grade donné aux nouveaux comptes
@@ -320,11 +320,11 @@ const champsRank = (body, base = {}) => {
   if (label.length > 40) throw Object.assign(new Error('Nom trop long (40 caractères maximum).'), { statut: 400 });
   const alias = String(body.alias ?? base.alias ?? '').trim().slice(0, 40);
   const devise = String(body.devise ?? base.devise ?? '').trim().slice(0, 80);
+  const bool = (k, d) => (body[k] === undefined ? d : !!body[k]);
   let icon = body.icon === undefined ? (base.icon || '') : String(body.icon || '').trim();
   if (icon && !ICONS.includes(icon)) throw Object.assign(new Error('Icône inconnue.'), { statut: 400 });
   const row = Number.isInteger(+body.row) ? Math.max(0, Math.min(99, +body.row)) : (base.row_index ?? RANK_ROWS.length);
-  const bool = (k, d) => (body[k] === undefined ? d : !!body[k]);
-  return { label, alias, icon, devise, row, isAdmin: bool('isAdmin', !!base.is_admin), isTop: bool('isTop', !!base.is_top), hidden: bool('hidden', !!base.hidden) };
+  return { label, alias, icon, devise, branche: bool('branche', !!base.branche), row, isAdmin: bool('isAdmin', !!base.is_admin), isTop: bool('isTop', !!base.is_top), hidden: bool('hidden', !!base.hidden) };
 };
 
 app.get('/api/admin/ranks', requireAuth, requireApproved, requireTop, wrap(async (_req, res) => res.json(await ranksPayload())));
@@ -335,8 +335,8 @@ app.post('/api/admin/ranks', requireAuth, requireApproved, requireTop, wrap(asyn
   if (!value) return res.status(400).json({ error: "Nom impossible à convertir en identifiant (utilise des lettres)." });
   if (rankRow(value)) return res.status(409).json({ error: 'Un grade porte déjà ce nom.' });
   if (RANK_ROWS.length >= 30) return res.status(400).json({ error: '30 grades au maximum.' });
-  await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
-    [value, c.label, c.alias, c.icon, c.devise, c.row, RANK_ROWS.length, c.isAdmin, c.isTop, c.hidden]);
+  await pool.query('INSERT INTO ranks (value, label, alias, icon, devise, branche, row_index, sort_index, is_admin, is_top, hidden) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',
+    [value, c.label, c.alias, c.icon, c.devise, c.branche, c.row, RANK_ROWS.length, c.isAdmin, c.isTop, c.hidden]);
   await reloadRanks();
   res.json({ ok: true, value, ...(await ranksPayload()) });
 }));
@@ -350,8 +350,8 @@ app.patch('/api/admin/ranks/:value', requireAuth, requireApproved, requireTop, w
     if (req.member.rank === base.value) return res.status(400).json({ error: 'Tu ne peux pas retirer les pleins pouvoirs à ton propre grade.' });
     if (RANK_ROWS.filter(r => r.is_top).length <= 1) return res.status(400).json({ error: 'Il doit rester au moins un grade avec les pleins pouvoirs.' });
   }
-  await pool.query('UPDATE ranks SET label=$2, alias=$3, icon=$4, devise=$5, row_index=$6, is_admin=$7, is_top=$8, hidden=$9 WHERE value=$1',
-    [base.value, c.label, c.alias, c.icon, c.devise, c.row, c.isAdmin, c.isTop, c.hidden]);
+  await pool.query('UPDATE ranks SET label=$2, alias=$3, icon=$4, devise=$5, branche=$6, row_index=$7, is_admin=$8, is_top=$9, hidden=$10 WHERE value=$1',
+    [base.value, c.label, c.alias, c.icon, c.devise, c.branche, c.row, c.isAdmin, c.isTop, c.hidden]);
   await reloadRanks();
   res.json({ ok: true, ...(await ranksPayload()) });
 }));
@@ -406,7 +406,7 @@ const orgPayload = async () => {
   const { rows: descs } = await pool.query('SELECT * FROM org_rank_desc');
   const visible = new Set(publicRanks().map(r => r.value));
   return {
-    ranks: publicRanks().map(r => ({ value: r.value, label: r.label, alias: r.alias, icon: r.icon, devise: r.devise, row: r.row_index })),
+    ranks: publicRanks().map(r => ({ value: r.value, label: r.label, alias: r.alias, icon: r.icon, devise: r.devise, branche: r.branche, row: r.row_index })),
     entries: entries.filter(e => visible.has(e.rank)),
     rankDesc: Object.fromEntries(descs.filter(d => visible.has(d.rank) && d.description).map(d => [d.rank, d.description])),
   };

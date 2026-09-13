@@ -33,11 +33,14 @@
     });
     const parts = [];
     lignes.forEach((ligne, tier) => {
-      if (parts.length) parts.push('<div class="org__line" aria-hidden="true"></div>');
+      // ligne « de côté » (ex. les gérants) : le trait vertical la longe sans relier la ligne suivante
+      const cote = ligne.grades.every(r => r.branche);
+      const precedenteDeCote = tier > 0 && lignes[tier - 1].grades.every(r => r.branche);
+      if (parts.length && !precedenteDeCote) parts.push('<div class="org__line" aria-hidden="true"></div>');
       const nb = ligne.grades.reduce((n, r) => n + byRank[r.value].length, 0);
       const cartes = ligne.grades.flatMap(r => byRank[r.value].map(e => card(e, r, tier, tier >= 3 || nb > 2)));
       const row = !(tier < 3 && cartes.length === 1);
-      parts.push(`<div class="org__tier ${row ? 'org__tier--row' : ''} reveal is-in">${cartes.join('')}</div>`);
+      parts.push(`<div class="org__tier ${row ? 'org__tier--row' : ''} ${cote ? 'org__tier--cote' : ''} reveal is-in">${cartes.join('')}</div>`);
       ligne.grades.forEach(r => {
         if (data.rankDesc[r.value]) parts.push(`<p class="org__desc reveal is-in">${esc(data.rankDesc[r.value])}</p>`);
       });

@@ -33,6 +33,7 @@
           <label class="check"><input type="checkbox" name="isAdmin"> Accès à l'administration</label>
           <label class="check"><input type="checkbox" name="isTop"> Pleins pouvoirs</label>
           <label class="check"><input type="checkbox" name="hidden"> Masqué sur le site public</label>
+          <label class="check"><input type="checkbox" name="branche"> Ligne de côté (aucun trait vers la ligne suivante)</label>
         </div>
         <button class="btn btn--steel btn--sm" type="submit">Ajouter le grade</button>
       </form>
@@ -85,6 +86,7 @@
         ${r.devise ? `<span class="grade__devise">${esc(r.devise)}</span>` : ''}
         ${r.isTop ? '<span class="badge badge--steel">pleins pouvoirs</span>' : r.isAdmin ? '<span class="badge badge--steel">administration</span>' : ''}
         ${r.hidden ? '<span class="badge badge--steel">masqué</span>' : ''}
+        ${r.branche ? '<span class="badge badge--steel">ligne de côté</span>' : ''}
         ${parDefaut ? '<span class="badge badge--steel">nouveaux comptes</span>' : ''}
         <span class="grade__usage">${u.membres} membre(s) · ${u.fiches} fiche(s)</span>
         <span class="grade__moves">
@@ -104,6 +106,7 @@
         <label class="check"><input type="checkbox" name="isAdmin" ${r.isAdmin ? 'checked' : ''}> Administration</label>
         <label class="check"><input type="checkbox" name="isTop" ${r.isTop ? 'checked' : ''}> Pleins pouvoirs</label>
         <label class="check"><input type="checkbox" name="hidden" ${r.hidden ? 'checked' : ''}> Masqué</label>
+        <label class="check"><input type="checkbox" name="branche" ${r.branche ? 'checked' : ''}> Ligne de côté</label>
         <span class="grade__actions">
           <button class="btn btn--steel btn--sm" type="submit">Enregistrer</button>
           <button class="btn btn--ghost btn--sm btn--danger" type="button" data-del="1" ${premier ? 'disabled title="Grade du premier administrateur"' : ''}>Supprimer</button>
@@ -207,7 +210,7 @@
     try {
       data = await QG.api(`../api/admin/ranks/${encodeURIComponent(form.dataset.value)}`, { method: 'PATCH', body: JSON.stringify({
         label: f.get('label'), alias: f.get('alias'), icon: f.get('icon'), devise: f.get('devise'),
-        isAdmin: f.has('isAdmin'), isTop: f.has('isTop'), hidden: f.has('hidden'),
+        isAdmin: f.has('isAdmin'), isTop: f.has('isTop'), hidden: f.has('hidden'), branche: f.has('branche'),
       }) });
       render(); QG.toast('Grade enregistré');
     } catch (err) { QG.toast(err.message, false); }
@@ -219,7 +222,7 @@
     try {
       data = await QG.api('../api/admin/ranks', { method: 'POST', body: JSON.stringify({
         label: f.get('label'), alias: f.get('alias'), icon: f.get('icon'), devise: f.get('devise'),
-        isAdmin: f.has('isAdmin'), isTop: f.has('isTop'), hidden: f.has('hidden'),
+        isAdmin: f.has('isAdmin'), isTop: f.has('isTop'), hidden: f.has('hidden'), branche: f.has('branche'),
         row: (data.ranks[data.ranks.length - 1]?.row ?? -1) + 1,
       }) });
       e.target.reset(); render(); QG.toast('Grade ajouté');

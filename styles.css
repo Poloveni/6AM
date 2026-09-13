@@ -301,3 +301,7 @@ p{margin:0 0 1em}
 .footer__credit a{color:inherit;border-bottom:1px solid var(--line)}
 .rank__devise{display:block;margin-top:10px;padding-top:9px;border-top:1px solid var(--gold-line);font-family:var(--serif);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#b49a68}
 .rank--t0 .rank__devise,.rank--t1 .rank__devise{font-size:10px;letter-spacing:.24em}
+/* ligne « de côté » (gérants) : le trait vertical la traverse au centre, sans la relier à la ligne suivante */
+.org__tier--cote{position:relative;padding:28px 0}
+.org__tier--cote::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%);background:linear-gradient(to bottom,var(--gold),var(--gold2));z-index:0}
+.org__tier--cote .rank{z-index:1}

@@ -79,6 +79,7 @@ CREATE TABLE IF NOT EXISTS ranks (
   alias     VARCHAR(40) NOT NULL DEFAULT '',
   icon      VARCHAR(24) NOT NULL DEFAULT '',
   devise    VARCHAR(80) NOT NULL DEFAULT '',   -- petite phrase affichée dans la case
+  branche   BOOLEAN NOT NULL DEFAULT FALSE,        -- ligne de côté (sans lien avec la ligne suivante)
   row_index INTEGER NOT NULL DEFAULT 0,
   sort_index INTEGER NOT NULL DEFAULT 0,   -- ordre à l'intérieur de la ligne
   is_admin  BOOLEAN NOT NULL DEFAULT FALSE,
@@ -87,3 +88,4 @@ CREATE TABLE IF NOT EXISTS ranks (
 );
 ALTER TABLE ranks ADD COLUMN IF NOT EXISTS sort_index INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE ranks ADD COLUMN IF NOT EXISTS devise VARCHAR(80) NOT NULL DEFAULT '';
+ALTER TABLE ranks ADD COLUMN IF NOT EXISTS branche BOOLEAN NOT NULL DEFAULT FALSE;

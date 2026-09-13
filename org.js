@@ -10,25 +10,37 @@
   const icon = r => r.icon ? `<span class="rank__icon" aria-hidden="true"><svg><use href="assets/grades.svg#g-${esc(r.icon)}"></use></svg></span>` : '';
   const title = r => `${esc(r.label)}${r.alias ? ` <small>${esc(r.alias)}</small>` : ''}`;
 
-  function card(e, r, tier) {
-    return `<div class="rank rank--t${Math.min(tier, 3)} ${tier < 3 ? '' : 'rank--small'} ${e.is_open ? 'rank--open' : ''}">
+  // « petite » carte dès qu'une ligne en compte plus de deux, pour éviter les retours à la ligne
+  function card(e, r, tier, petite) {
+    return `<div class="rank rank--t${Math.min(tier, 3)} ${petite ? 'rank--small' : ''} ${e.is_open ? 'rank--open' : ''}">
       ${icon(r)}<span class="rank__title">${title(r)}</span>
       <span class="rank__name">${esc(e.name)}</span>
       ${e.subtitle ? `<span class="rank__age">${esc(e.subtitle)}</span>` : ''}
+      ${r.devise ? `<span class="rank__devise">${esc(r.devise)}</span>` : ''}
     </div>`;
   }
   fetch('api/org').then(r => r.ok ? r.json() : null).then(data => {
     if (!data || !data.entries.length) return;
     const byRank = {};
     data.entries.forEach(e => (byRank[e.rank] = byRank[e.rank] || []).push(e));
+    // les grades portant le même numéro de ligne s'affichent côte à côte
+    const lignes = [];
+    data.ranks.forEach(r => {
+      if (!byRank[r.value]) return;
+      const derniere = lignes[lignes.length - 1];
+      if (derniere && derniere.row === r.row) derniere.grades.push(r);
+      else lignes.push({ row: r.row, grades: [r] });
+    });
     const parts = [];
-    data.ranks.forEach((r, tier) => {
-      const value = r.value;
-      const list = byRank[value]; if (!list) return;
+    lignes.forEach((ligne, tier) => {
       if (parts.length) parts.push('<div class="org__line" aria-hidden="true"></div>');
-      const row = !(tier < 3 && list.length === 1);
-      parts.push(`<div class="org__tier ${row ? 'org__tier--row' : ''} reveal is-in">${list.map(e => card(e, r, tier)).join('')}</div>`);
-      if (data.rankDesc[value]) parts.push(`<p class="org__desc reveal is-in">${esc(data.rankDesc[value])}</p>`);
+      const nb = ligne.grades.reduce((n, r) => n + byRank[r.value].length, 0);
+      const cartes = ligne.grades.flatMap(r => byRank[r.value].map(e => card(e, r, tier, tier >= 3 || nb > 2)));
+      const row = !(tier < 3 && cartes.length === 1);
+      parts.push(`<div class="org__tier ${row ? 'org__tier--row' : ''} reveal is-in">${cartes.join('')}</div>`);
+      ligne.grades.forEach(r => {
+        if (data.rankDesc[r.value]) parts.push(`<p class="org__desc reveal is-in">${esc(data.rankDesc[r.value])}</p>`);
+      });
     });
     chart.innerHTML = parts.join('');
   }).catch(() => {});

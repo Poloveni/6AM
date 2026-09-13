@@ -69,3 +69,21 @@ CREATE TABLE IF NOT EXISTS photos (
   deleted_at  TIMESTAMPTZ
 );
 CREATE INDEX IF NOT EXISTS idx_photos_created ON photos (created_at DESC);
+
+-- grades (remplis au premier démarrage depuis src/ranks.js, puis modifiables
+-- depuis le QG → Gestion → Grades). « row » : les grades de même numéro sont
+-- affichés sur la même ligne de l'organigramme public.
+CREATE TABLE IF NOT EXISTS ranks (
+  value     VARCHAR(32) PRIMARY KEY,
+  label     VARCHAR(40) NOT NULL,
+  alias     VARCHAR(40) NOT NULL DEFAULT '',
+  icon      VARCHAR(24) NOT NULL DEFAULT '',
+  devise    VARCHAR(80) NOT NULL DEFAULT '',   -- petite phrase affichée dans la case
+  row_index INTEGER NOT NULL DEFAULT 0,
+  sort_index INTEGER NOT NULL DEFAULT 0,   -- ordre à l'intérieur de la ligne
+  is_admin  BOOLEAN NOT NULL DEFAULT FALSE,
+  is_top    BOOLEAN NOT NULL DEFAULT FALSE,
+  hidden    BOOLEAN NOT NULL DEFAULT FALSE
+);
+ALTER TABLE ranks ADD COLUMN IF NOT EXISTS sort_index INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE ranks ADD COLUMN IF NOT EXISTS devise VARCHAR(80) NOT NULL DEFAULT '';

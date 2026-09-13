@@ -73,5 +73,5 @@ Le script télécharge le bot dans `/opt/bot-famille`, demande l'Application ID 
 
 - `GET /auth/discord` → connexion · `GET /auth/discord/callback` · `POST /auth/logout`
 - `GET/PATCH /api/me` · `GET /api/membres` · `GET /api/ranks` · `GET /api/org` · `GET/POST/DELETE /api/gallery`
-- `/api/admin/…` (validation des membres, organigramme et photos) · `/api/chat/…` (le Salon, en direct) · `GET /api/dossier` (dossier interne, membres validés) · `GET /api/bot` (données du bot, admins, lecture seule)
+- `/api/admin/…` (validation des membres, grades, organigramme et photos) · `/api/chat/…` (le Salon, en direct) · `GET /api/dossier` (dossier interne, membres validés) · `GET /api/bot` (données du bot, admins, lecture seule)
 - `GET /healthz` → contrôle de santé

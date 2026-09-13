@@ -1,11 +1,16 @@
 /*
- * Grades de 6AM — du plus haut au plus bas.
+ * Grades de 6AM — liste de DÉPART uniquement.
+ * Une fois le site installé, les grades vivent dans la table « ranks » de la
+ * base et se modifient depuis le QG → Gestion → Grades. Ce fichier ne sert
+ * plus qu'à remplir la table la première fois (et à garder la trace des
+ * grades supprimés, voir RANK_RENAMES). Du plus haut grade au plus bas.
  *
  *  value  : identifiant technique (minuscules, sans espace ni accent).
  *           Ne le change plus une fois le site en service : il est enregistré
  *           dans la base pour chaque membre.
- *  label  : nom affiché sur le site (modifiable quand tu veux) — « correspondance
- *           classique » de 6AM : Lord, Duke, Chancellor, Marshal, Gentleman, Candidate.
+ *  label  : nom affiché sur le site.
+ *  row    : ligne de l'organigramme (même numéro = même ligne).
+ *  devise : petite phrase affichée dans la case (ex. « Dirige · Décide · Représente »).
  *  alias  : ancien nom, rappelé en petit à côté (ex. « Lord · Lead »).
  *  icon   : icône du grade (symbole de assets/grades.svg, sans le préfixe « g- »).
  *  admin  : peut valider les nouveaux membres et gérer l'administration.
@@ -15,13 +20,26 @@
  * Le DERNIER grade de la liste est donné automatiquement aux nouveaux comptes.
  */
 export const RANKS = [
-  { value: 'lead',       label: 'Lord',       alias: 'Lead',       icon: 'crown',     admin: true, top: true },
-  { value: 'co-lead',    label: 'Duke',       alias: 'Co-Lead',    icon: 'fleur',     admin: true, top: true },
-  { value: 'devweb',     label: 'Dev Web',    alias: '',           icon: 'laptop',    admin: true, top: true, hidden: true },
-  { value: 'bras-droit', label: 'Chancellor', alias: 'Bras droit', icon: 'lion',      admin: true },
-  { value: 'lieutenant', label: 'Marshal',    alias: 'Lieutenant', icon: 'swords' },
-  { value: 'dealer',     label: 'Gentleman',  alias: 'Dealer',     icon: 'handshake' },
-  { value: 'recrue',     label: 'Candidate',  alias: 'Recrue',     icon: 'quill' },
+  { value: 'lead',          label: 'Lord',          alias: 'Lead',    icon: 'crown',     row: 0, devise: 'Dirige · Décide · Représente',          admin: true, top: true },
+  { value: 'co-lead',       label: 'Duke',          alias: 'Co-Lead', icon: 'fleur',     row: 1, devise: 'Seconde · Supervise · Anticipe',        admin: true, top: true },
+  { value: 'devweb',        label: 'Dev Web',       alias: '',        icon: 'laptop',    row: 2, devise: '',                                      admin: true, top: true, hidden: true },
+  { value: 'bras-droit',    label: 'Chancellor',    alias: '',        icon: 'temple',    row: 3, devise: 'Conseille · Coordonne · Négocie',       admin: true },
+  { value: 'lieutenant',    label: 'Marshal',       alias: '',        icon: 'swords',    row: 4, devise: 'Organise · Encadre · Opère',            admin: true },
+  { value: 'gerant-drogue', label: 'Gérant drogue', alias: '',        icon: 'chanvre',   row: 5, devise: 'Pilote · Développe · Sécurise' },
+  { value: 'gerant-labo',   label: 'Gérant labo',   alias: '',        icon: 'fiole',     row: 5, devise: 'Produit · Optimise · Contrôle' },
+  { value: 'dealer',        label: 'Gentleman',     alias: '',        icon: 'gemmes',    row: 6, devise: 'Autonomes · Fiables · Exemplaires' },
+  { value: 'associate',     label: 'Associate',     alias: '',        icon: 'rang2',     row: 6, devise: 'Impliqués · En progression' },
+  { value: 'recrue',        label: 'Candidate',     alias: '',        icon: 'rang1',     row: 6, devise: 'Intégration · Évaluation · Apprentissage' },
+];
+
+/* Grades supprimés : où reclasser les membres et les fiches qui les portaient encore.
+   Appliqué au démarrage, une seule fois par grade disparu. */
+export const RANK_RENAMES = {};
+
+/* Postes créés vides (« à pourvoir ») si l'organigramme n'a encore aucune fiche pour ce grade. */
+export const OPEN_SEED = [
+  { rank: 'gerant-drogue', name: 'Poste à pourvoir' },
+  { rank: 'gerant-labo', name: 'Poste à pourvoir' },
 ];
 
 export const BOOTSTRAP_RANK = 'devweb';
@@ -54,6 +72,7 @@ export const ORG_SEED = [
     description: "Originaire du Portugal, Hamid grandit dans un environnement marqué par la pauvreté et apprend très tôt à se débrouiller seul. De petites affaires illégales l'entraînent progressivement dans un milieu plus dangereux, jusqu'à une confrontation qui le force à quitter le pays.\nÀ seulement 18 ans, il arrive à Los Santos avec l'envie de repartir de zéro et de se construire une nouvelle réputation. Sa débrouillardise, sa discrétion et sa volonté de prouver sa valeur trouvent leur place au sein de la 6AM, où l'ambition compte autant que la loyauté." },
 ];
 export const RANK_DESC_SEED = {
+  lieutenant: "Responsables opérationnels : organisent le terrain, coordonnent les membres et font le lien avec la direction.",
   dealer: 'Développent le réseau de vente, trouvent de nouveaux contacts et sécurisent les transactions.',
   recrue: 'Font leurs preuves, apprennent le code et gagnent la confiance de la famille.',
 };

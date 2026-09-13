@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grades — Le QG · 6AM</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#04060b">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../vendor/fonts.css">
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="qg.css">
+</head>
+<body class="qg-body" data-page="grades">
+<div class="grain" aria-hidden="true"></div>
+<main class="qg-page qg-page--wide">
+  <div class="qg-head">
+    <h1>Grades</h1>
+    <p>Les grades du site et de l'organigramme</p>
+  </div>
+  <div class="qg-loading" id="loading">Chargement…</div>
+
+  <div id="contenu" hidden>
+    <section class="block">
+      <h2 class="block__title">Ajouter un grade</h2>
+      <p class="block__hint">Il s'ajoute en bas de la liste. Tu peux ensuite le remonter et le placer sur la ligne de ton choix.</p>
+      <form class="grade-form" id="addForm">
+        <label>Nom<input class="input" name="label" maxlength="40" required placeholder="Ex : Gérant labo"></label>
+        <label>Ancien nom <small>(rappelé en petit, optionnel)</small><input class="input" name="alias" maxlength="40" placeholder="Ex : Lieutenant"></label>
+        <label>Icône<select class="select" name="icon" id="addIcon"></select></label>
+        <label>Devise <small>(petite phrase dans la case)</small><input class="input" name="devise" maxlength="80" placeholder="Ex : Produit · Optimise · Contrôle"></label>
+        <div class="grade-form__checks">
+          <label class="check"><input type="checkbox" name="isAdmin"> Accès à l'administration</label>
+          <label class="check"><input type="checkbox" name="isTop"> Pleins pouvoirs</label>
+          <label class="check"><input type="checkbox" name="hidden"> Masqué sur le site public</label>
+        </div>
+        <button class="btn btn--steel btn--sm" type="submit">Ajouter le grade</button>
+      </form>
+    </section>
+
+    <section class="block">
+      <h2 class="block__title">Les grades, du plus haut au plus bas</h2>
+      <p class="block__hint">Les grades d'une même ligne apparaissent côte à côte dans l'organigramme public. Le dernier grade de la liste est donné automatiquement aux nouveaux comptes.</p>
+      <div id="liste"></div>
+    </section>
+  </div>
+</main>
+<script src="qg-bg.js"></script>
+<script src="qg.js"></script>
+<script>
+  const $ = id => document.getElementById(id), esc = QG.esc;
+  const ICONES = { crown: 'Couronne', fleur: 'Fleur de lys', temple: 'Colonnes', lion: 'Lion', swords: 'Épées croisées', chanvre: 'Feuille de chanvre', fiole: 'Fiole', handshake: 'Poignée de main', gemmes: 'Gemmes', rang3: 'Galons (3)', rang2: 'Galons (2)', rang1: 'Galon (1)', quill: 'Plume', laptop: 'Ordinateur', poudre: 'Sachet', medaille: 'Médaille', bouclier: 'Bouclier', etoile: 'Étoile', cle: 'Clé', balance: 'Balance', enclume: 'Enclume' };
+  let data;
+
+  const icone = v => v ? `<svg class="grade-icone" aria-hidden="true"><use href="../assets/grades.svg#g-${esc(v)}"></use></svg>` : '';
+  const optionsIcone = sel => '<option value="">Aucune icône</option>' +
+    (data?.icons || Object.keys(ICONES)).map(v => `<option value="${esc(v)}" ${v === sel ? 'selected' : ''}>${esc(ICONES[v] || v)}</option>`).join('');
+
+  function render() {
+    $('addIcon').innerHTML = optionsIcone('');
+    // regroupement par ligne d'organigramme
+    const lignes = [];
+    data.ranks.forEach(r => {
+      const derniere = lignes[lignes.length - 1];
+      if (derniere && derniere.row === r.row) derniere.grades.push(r);
+      else lignes.push({ row: r.row, grades: [r] });
+    });
+    $('liste').innerHTML = lignes.map((l, li) => `
+      <div class="grade-ligne">
+        <div class="grade-ligne__tag">Ligne ${li + 1}${l.grades.length > 1 ? ` · ${l.grades.length} grades côte à côte` : ''}</div>
+        ${l.grades.map(r => carte(r, li, lignes.length)).join('')}
+      </div>`).join('');
+  }
+
+  function carte(r, li, nbLignes) {
+    const u = data.usage[r.value] || { membres: 0, fiches: 0 };
+    const parDefaut = r.value === data.defaultRank, premier = r.value === data.bootstrapRank;
+    const seul = seulSurSaLigne(r.value);
+    const premierGrade = data.ranks[0].value === r.value, dernierGrade = data.ranks[data.ranks.length - 1].value === r.value;
+    return `<form class="grade" data-value="${esc(r.value)}">
+      <div class="grade__head">
+        ${icone(r.icon)}
+        <b>${esc(r.label)}</b>
+        ${r.alias ? `<span class="muted">· ${esc(r.alias)}</span>` : ''}
+        ${r.devise ? `<span class="grade__devise">${esc(r.devise)}</span>` : ''}
+        ${r.isTop ? '<span class="badge badge--steel">pleins pouvoirs</span>' : r.isAdmin ? '<span class="badge badge--steel">administration</span>' : ''}
+        ${r.hidden ? '<span class="badge badge--steel">masqué</span>' : ''}
+        ${parDefaut ? '<span class="badge badge--steel">nouveaux comptes</span>' : ''}
+        <span class="grade__usage">${u.membres} membre(s) · ${u.fiches} fiche(s)</span>
+        <span class="grade__moves">
+          <button class="btn btn--ghost btn--sm" type="button" data-move="up" ${premierGrade ? 'disabled' : ''} aria-label="Monter">↑</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-move="down" ${dernierGrade ? 'disabled' : ''} aria-label="Descendre">↓</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-fusion="1" ${seul && li > 0 ? '' : 'hidden'}>Mettre sur la ligne du dessus</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-separer="1" ${seul ? 'hidden' : ''}>Mettre seul sur sa ligne</button>
+        </span>
+      </div>
+      <div class="grade__champs">
+        <label>Nom<input class="input" name="label" maxlength="40" required value="${esc(r.label)}"></label>
+        <label>Ancien nom<input class="input" name="alias" maxlength="40" value="${esc(r.alias)}"></label>
+        <label>Icône<select class="select" name="icon">${optionsIcone(r.icon)}</select></label>
+        <label>Devise<input class="input" name="devise" maxlength="80" value="${esc(r.devise || '')}" placeholder="Ex : Dirige · Décide · Représente"></label>
+      </div>
+      <div class="grade__checks">
+        <label class="check"><input type="checkbox" name="isAdmin" ${r.isAdmin ? 'checked' : ''}> Administration</label>
+        <label class="check"><input type="checkbox" name="isTop" ${r.isTop ? 'checked' : ''}> Pleins pouvoirs</label>
+        <label class="check"><input type="checkbox" name="hidden" ${r.hidden ? 'checked' : ''}> Masqué</label>
+        <span class="grade__actions">
+          <button class="btn btn--steel btn--sm" type="submit">Enregistrer</button>
+          <button class="btn btn--ghost btn--sm btn--danger" type="button" data-del="1" ${premier ? 'disabled title="Grade du premier administrateur"' : ''}>Supprimer</button>
+        </span>
+      </div>
+    </form>`;
+  }
+
+  // --- ordre et lignes -------------------------------------------------
+  // On raisonne sur la liste à plat + la taille de chaque ligne (ex. [1,1,1,3,1,1,1]).
+  const groupes = ranks => {
+    const g = [];
+    ranks.forEach(r => { const d = g[g.length - 1]; if (d && d.row === r.row) d.items.push(r); else g.push({ row: r.row, items: [r] }); });
+    return g;
+  };
+  const tailles = ranks => groupes(ranks).map(g => g.items.length);
+  const appliquer = (ranks, t) => {            // renumérote les lignes d'après les tailles
+    const out = []; let k = 0;
+    t.forEach((n, row) => { for (let x = 0; x < n; x++) if (ranks[k]) out.push({ ...ranks[k++], row }); });
+    return out;
+  };
+  const ligneDe = (ranks, value) => groupes(ranks).findIndex(g => g.items.some(r => r.value === value));
+  const seulSurSaLigne = value => groupes(data.ranks).find(g => g.items.some(r => r.value === value)).items.length === 1;
+
+  async function envoyerOrdre(ranks) {
+    try {
+      data = await QG.api('../api/admin/ranks/ordre', { method: 'POST', body: JSON.stringify({ ordre: ranks.map(r => ({ value: r.value, row: r.row })) }) });
+      render(); QG.toast('Ordre enregistré');
+    } catch (err) { QG.toast(err.message, false); }
+  }
+
+  function deplacer(value, sens) {             // ↑ / ↓ : échange avec le grade voisin
+    const ranks = data.ranks.map(r => ({ ...r })), t = tailles(ranks);
+    const i = ranks.findIndex(r => r.value === value), j = sens === 'up' ? i - 1 : i + 1;
+    if (j < 0 || j >= ranks.length) return;
+    [ranks[i], ranks[j]] = [ranks[j], ranks[i]];
+    envoyerOrdre(appliquer(ranks, t));
+  }
+
+  function fusionner(value) {                  // met le grade sur la ligne du dessus
+    const ranks = data.ranks.map(r => ({ ...r })), t = tailles(ranks), gi = ligneDe(ranks, value);
+    if (gi < 1 || t[gi] !== 1) return;
+    t[gi - 1] += 1; t.splice(gi, 1);
+    envoyerOrdre(appliquer(ranks, t));
+  }
+
+  function separer(value) {                    // remet le grade seul, sur une ligne à lui
+    const ranks = data.ranks.map(r => ({ ...r })), t = tailles(ranks), gi = ligneDe(ranks, value);
+    if (t[gi] < 2) return;
+    const debut = t.slice(0, gi).reduce((a, b) => a + b, 0);
+    const i = ranks.findIndex(r => r.value === value);
+    const [item] = ranks.splice(i, 1);
+    ranks.splice(debut + t[gi] - 1, 0, item);  // placé juste après les autres grades de la ligne
+    t[gi] -= 1; t.splice(gi + 1, 0, 1);
+    envoyerOrdre(appliquer(ranks, t));
+  }
+
+  $('liste').addEventListener('click', async e => {
+    const form = e.target.closest('.grade'); if (!form) return;
+    const value = form.dataset.value, r = data.ranks.find(x => x.value === value);
+    const move = e.target.closest('[data-move]');
+    if (move) return deplacer(value, move.dataset.move);
+    if (e.target.closest('[data-fusion]')) return fusionner(value);
+    if (e.target.closest('[data-separer]')) return separer(value);
+    if (e.target.closest('[data-del]')) {
+      const u = data.usage[value] || { membres: 0, fiches: 0 };
+      if (u.membres || u.fiches) return ouvrirRemplacement(form, r, u);   // grade utilisé : il faut un remplaçant
+      if (!await QG.confirm(`Le grade « ${r.label} » sera retiré du site.`, { title: 'Supprimer ce grade ?', ok: 'Supprimer', danger: true })) return;
+      supprimer(value, null);
+    }
+    if (e.target.closest('[data-annuler]')) form.querySelector('.grade__remplacement').remove();
+    if (e.target.closest('[data-confirmer]')) supprimer(value, form.querySelector('[name="remplacant"]').value);
+  });
+
+  // petit bloc de choix du grade de remplacement, affiché dans la carte
+  function ouvrirRemplacement(form, r, u) {
+    if (form.querySelector('.grade__remplacement')) return;
+    const autres = data.ranks.filter(x => x.value !== r.value);
+    const bloc = document.createElement('div');
+    bloc.className = 'grade__remplacement';
+    bloc.innerHTML = `<p>« ${esc(r.label)} » est porté par ${u.membres} membre(s) et ${u.fiches} fiche(s) de l'organigramme. Choisis le grade qui les remplace :</p>
+      <label>Nouveau grade<select class="select" name="remplacant">${autres.map(x => `<option value="${esc(x.value)}">${esc(x.label)}</option>`).join('')}</select></label>
+      <span class="grade__actions">
+        <button class="btn btn--ghost btn--sm btn--danger" type="button" data-confirmer="1">Supprimer et reclasser</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-annuler="1">Annuler</button>
+      </span>`;
+    form.appendChild(bloc);
+  }
+
+  async function supprimer(value, remplacant) {
+    try {
+      data = await QG.api(`../api/admin/ranks/${encodeURIComponent(value)}`, { method: 'DELETE', body: JSON.stringify({ remplacant }) });
+      render(); QG.toast('Grade supprimé');
+    } catch (err) { QG.toast(err.message, false); }
+  }
+
+  $('liste').addEventListener('submit', async e => {
+    e.preventDefault();
+    const form = e.target.closest('.grade'); if (!form) return;
+    const f = new FormData(form);
+    try {
+      data = await QG.api(`../api/admin/ranks/${encodeURIComponent(form.dataset.value)}`, { method: 'PATCH', body: JSON.stringify({
+        label: f.get('label'), alias: f.get('alias'), icon: f.get('icon'), devise: f.get('devise'),
+        isAdmin: f.has('isAdmin'), isTop: f.has('isTop'), hidden: f.has('hidden'),
+      }) });
+      render(); QG.toast('Grade enregistré');
+    } catch (err) { QG.toast(err.message, false); }
+  });
+
+  $('addForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    try {
+      data = await QG.api('../api/admin/ranks', { method: 'POST', body: JSON.stringify({
+        label: f.get('label'), alias: f.get('alias'), icon: f.get('icon'), devise: f.get('devise'),
+        isAdmin: f.has('isAdmin'), isTop: f.has('isTop'), hidden: f.has('hidden'),
+        row: (data.ranks[data.ranks.length - 1]?.row ?? -1) + 1,
+      }) });
+      e.target.reset(); render(); QG.toast('Grade ajouté');
+    } catch (err) { QG.toast(err.message, false); }
+  });
+
+  // page réservée aux grades « pleins pouvoirs »
+  QG.me().then(async me => {
+    if (!me.isTop) { location.replace('profil.html'); return; }
+    data = await QG.api('../api/admin/ranks');
+    $('loading').hidden = true; $('contenu').hidden = false;
+    render();
+  }).catch(() => {});
+</script>
+</body>
+</html>

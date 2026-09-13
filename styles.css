@@ -299,3 +299,5 @@ p{margin:0 0 1em}
 [hidden]{display:none!important}
 .footer__credit{opacity:.6}
 .footer__credit a{color:inherit;border-bottom:1px solid var(--line)}
+.rank__devise{display:block;margin-top:10px;padding-top:9px;border-top:1px solid var(--gold-line);font-family:var(--serif);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#b49a68}
+.rank--t0 .rank__devise,.rank--t1 .rank__devise{font-size:10px;letter-spacing:.24em}

@@ -314,3 +314,14 @@ p{margin:0 0 1em}
 .org__tier--cote:has(+ .org__tier)::before{bottom:-22px}
 .org__tier--cote .rank__icon::before{content:"";position:absolute;left:50%;bottom:100%;width:1px;height:22px;transform:translateX(-50%);background:linear-gradient(to bottom,var(--gold2),var(--gold))}
 @media (max-width:720px){.org__tier--cote{--carte:46%}}
+
+/* centre de gravité (org.js) : point doré au cœur de l'organigramme, attiré par la souris */
+.org .rank{will-change:transform}
+.org__gravite{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;pointer-events:none;z-index:2;
+  background:radial-gradient(circle,#fff3cf 0%,var(--gold) 45%,rgba(214,180,106,0) 72%);
+  box-shadow:0 0 18px 4px rgba(214,180,106,.45),0 0 60px 18px rgba(214,180,106,.12);
+  transform:translate(var(--gx,0px),var(--gy,0px));opacity:.55;transition:opacity .6s}
+.org__gravite::before,.org__gravite::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px solid rgba(214,180,106,.35)}
+.org__gravite::after{inset:-30px;border-color:rgba(214,180,106,.14)}
+.org--attire .org__gravite{opacity:1}
+@media (prefers-reduced-motion:reduce){.org__gravite{display:none}}

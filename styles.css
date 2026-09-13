@@ -138,9 +138,10 @@ p{margin:0 0 1em}
 .card--warn:hover{border-color:#dd8189}
 
 /* ---------- HIÉRARCHIE (organigramme) ---------- */
-.org{display:flex;flex-direction:column;align-items:center}
+/* l'organigramme déborde du cadre habituel de la page pour respirer sur grand écran (jusqu'à 1500 px) */
+.org{display:flex;flex-direction:column;align-items:center;width:min(1500px,calc(100vw - 48px));position:relative;left:50%;transform:translateX(-50%)}
 .org__tier{display:flex;justify-content:center}
-.org__tier--row{gap:26px 18px;flex-wrap:wrap}
+.org__tier--row{gap:26px 18px;flex-wrap:wrap;width:100%}
 .org__line{width:1px;height:44px;background:linear-gradient(to bottom,var(--gold),var(--gold2))}
 .org__desc{max-width:640px;text-align:center;color:#bca77a;font-size:15px;font-style:italic;margin:14px 0 0}
 /* cartes des grades : cuir noir, double filet doré, médaillon avec l'icône du grade */
@@ -168,8 +169,10 @@ p{margin:0 0 1em}
 .rank--t1{padding:40px 40px 26px;border-color:rgba(214,180,106,.7)}
 .rank--t1 .rank__name{font-size:32px}
 .rank--t2 .rank__name{font-size:28px}
-.rank--small{min-width:170px}
-.rank--small .rank__name{font-size:22px}
+.rank--small{min-width:0;flex:1 1 180px;max-width:232px;padding-left:14px;padding-right:14px}
+@media (min-width:1000px) and (max-width:1217px){.org__tier--row .rank--small{flex-basis:220px}}   /* évite une carte seule sur la dernière ligne */
+.rank--small .rank__devise{letter-spacing:.14em}
+.rank--small .rank__name{font-size:clamp(16px,1.3vw,20px)}
 .rank--open{border-style:dashed;opacity:.85}
 .rank--open .rank__name{color:var(--gold);font-size:18px;letter-spacing:.1em}
 
@@ -301,7 +304,13 @@ p{margin:0 0 1em}
 .footer__credit a{color:inherit;border-bottom:1px solid var(--line)}
 .rank__devise{display:block;margin-top:10px;padding-top:9px;border-top:1px solid var(--gold-line);font-family:var(--serif);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#b49a68}
 .rank--t0 .rank__devise,.rank--t1 .rank__devise{font-size:10px;letter-spacing:.24em}
-/* ligne « de côté » (gérants) : le trait vertical la traverse au centre, sans la relier à la ligne suivante */
-.org__tier--cote{position:relative;padding:28px 0}
+/* Ligne « de côté » (les gérants) : poussée aux deux bords, rattachée au grade du dessus
+   par une barre, et traversée par le trait central qui continue vers la ligne suivante. */
+.org__tier--cote{--carte:clamp(180px,24%,290px);position:relative;width:100%;max-width:1300px;padding:30px 0 28px;justify-content:space-between;align-items:flex-start}
 .org__tier--cote::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;transform:translateX(-50%);background:linear-gradient(to bottom,var(--gold),var(--gold2));z-index:0}
-.org__tier--cote .rank{z-index:1}
+.org__tier--cote .rank{flex:0 0 var(--carte);min-width:0;max-width:none;z-index:1}
+.org__cote-bar{position:absolute;top:8px;left:calc(var(--carte) / 2);right:calc(var(--carte) / 2);height:1px;background:linear-gradient(90deg,var(--gold2),var(--gold),var(--gold2));z-index:0}
+/* le trait descend jusqu'au haut des cartes de la ligne suivante (les médaillons dépassent de 22px) */
+.org__tier--cote:has(+ .org__tier)::before{bottom:-22px}
+.org__tier--cote .rank__icon::before{content:"";position:absolute;left:50%;bottom:100%;width:1px;height:22px;transform:translateX(-50%);background:linear-gradient(to bottom,var(--gold2),var(--gold))}
+@media (max-width:720px){.org__tier--cote{--carte:46%}}

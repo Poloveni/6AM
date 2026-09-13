@@ -40,7 +40,9 @@
       const nb = ligne.grades.reduce((n, r) => n + byRank[r.value].length, 0);
       const cartes = ligne.grades.flatMap(r => byRank[r.value].map(e => card(e, r, tier, tier >= 3 || nb > 2)));
       const row = !(tier < 3 && cartes.length === 1);
-      parts.push(`<div class="org__tier ${row ? 'org__tier--row' : ''} ${cote ? 'org__tier--cote' : ''} reveal is-in">${cartes.join('')}</div>`);
+      // barre horizontale : rattache les cases « de côté » au trait qui descend du grade du dessus
+      const barre = cote ? '<span class="org__cote-bar" aria-hidden="true"></span>' : '';
+      parts.push(`<div class="org__tier ${row ? 'org__tier--row' : ''} ${cote ? 'org__tier--cote' : ''} reveal is-in">${barre}${cartes.join('')}</div>`);
       ligne.grades.forEach(r => {
         if (data.rankDesc[r.value]) parts.push(`<p class="org__desc reveal is-in">${esc(data.rankDesc[r.value])}</p>`);
       });
